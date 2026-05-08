@@ -8,6 +8,7 @@ use App\Traits\ModalTrait;
 use App\Traits\SavedStatementTrait;
 use App\Traits\TabTrait;
 use App\Traits\ValidationTrait;
+use Illuminate\Support\Carbon;
 use Livewire\Component;
 
 class LivewireController extends Component
@@ -18,6 +19,8 @@ class LivewireController extends Component
     use ValidationTrait;
     use ArraySearchTrait;
     use SavedStatementTrait;
+
+    public ?Carbon $DOMupdateKey = null;
 
     /**
      * This will dispatch a message to the notifications component. 
@@ -51,5 +54,14 @@ class LivewireController extends Component
             $this->dispatch('refreshDatatable')->to($table);
         }
         //return $this->dispatch('show-exception-modal', $message);
+    }
+
+    /**
+     * Update the DOMupdateKey property.
+     * This will help you to handel the DOM where you change something.
+     */
+    protected function updateDOMKey()
+    {
+        $this->DOMupdateKey = now();
     }
 }

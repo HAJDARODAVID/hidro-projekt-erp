@@ -91,6 +91,7 @@ class MonthlyOverviewCard extends LivewireController
                 switch ($column) {
                     case 'hours':
                         $service->updateWorkHours($value);
+                        break;
                     case 'type':
                         $service->updateType($value);
                         break;
@@ -112,7 +113,6 @@ class MonthlyOverviewCard extends LivewireController
             $this->getAttendanceDataAction();
             $this->saved['attendance.per-day.' . $attID . '.' . $column] = [];
             $this->dispatch('$refresh');
-            //dd($this);
         }
     }
 
@@ -158,6 +158,7 @@ class MonthlyOverviewCard extends LivewireController
             } else {
                 throw new ErrorMessage($response['message']);
             }
+            $this->updateDOMKey();
         } catch (\Throwable $th) {
             $this->showException($th->getMessage());
         }

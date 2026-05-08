@@ -15,7 +15,7 @@
     </x-slot:headerActions>
     <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear, refreshMe, deleteAttendanceAction, attendance">
         
-        <div class="p-3 pt-0" style="position: absolute;top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px;margin-bottom: 10px; overflow-y: auto" wire:key="container-{{ now() }}">
+        <div class="p-3 pt-0" style="position: absolute;top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px;margin-bottom: 10px; overflow-y: auto">
             @isset($attendance['report'])
             <table class="table table-sm table-striped" style="text-align: center">
                     <tbody>
@@ -64,9 +64,9 @@
                     <tbody>
                         @foreach ($attendance['per-day'] as $attID => $att)
                             <tr>
-                                <td class="table-border-sides" style="">{{ $att['id'] }}</td>
-                                <td class="table-border-sides" style="padding: 4px 10px;text-align: center ">{{ $att['date'] }}</td>
-                                <td class="table-border-sides" style="padding: 4px 10px;text-align: center ">
+                                <td class="table-border-sides" style="" wire:key="attendance-row-{{ $attID }}">{{ $att['id'] }}</td>
+                                <td class="table-border-sides" style="padding: 4px 10px;text-align: center " wire:key="attendance-row-{{ $attID }}">{{ $att['date'] }}</td>
+                                <td class="table-border-sides" style="padding: 4px 10px;text-align: center " wire:key="attendance-row-{{ $attID }}">
                                     <div class="d-flex justify-content-center gap-1">
                                         {{ $att['wdr'] }}
                                         @if ($att['wdr'])
@@ -79,8 +79,8 @@
                                         
                                     </div>
                                 </td>
-                                <td class="table-border-sides">{{ $att['cs_name'] }}</td>
-                                <td class="table-border-sides px-2" style="text-align: center;">
+                                <td class="table-border-sides" wire:key="attendance-row-{{ $attID }}">{{ $att['cs_name'] }}</td>
+                                <td class="table-border-sides px-2" style="text-align: center;" wire:key="attendance-row-{{ $attID }}">
                                     <x-ui.input 
                                         type="number" 
                                         size="sm"
@@ -88,22 +88,22 @@
                                         class="{{ isset($saved['attendance.per-day.'.$attID.'.hours']) ?  'is-valid' : NULL }}"
                                         wModel="attendance.per-day.{{ $attID }}.hours" />
                                 </td>
-                                <td class="table-border-sides px-2" style="text-align: center;">
+                                <td class="table-border-sides px-2" style="text-align: center;" wire:key="attendance-row-{{ $attID }}">
                                     <x-ui.select 
                                     :options=$attTypes 
                                     class="form-select-sm {{ isset($saved['attendance.per-day.'.$attID.'.type']) ?  'is-valid' : NULL }}" 
                                     wModel="attendance.per-day.{{ $attID }}.type" />
                                 </td>
-                                <td class="table-border-sides" style="text-align: center;">
+                                <td class="table-border-sides" style="text-align: center;" wire:key="attendance-row-{{ $attID }}">
                                     <input class="form-check-input" type="checkbox" wire:model.change="attendance.per-day.{{ $attID }}.abs-sl">
                                 </td>
-                                <td class="table-border-sides" style="text-align: center;">
+                                <td class="table-border-sides" style="text-align: center;" wire:key="attendance-row-{{ $attID }}">
                                     <input class="form-check-input" type="checkbox" wire:model.change="attendance.per-day.{{ $attID }}.abs-pl">
                                 </td>
-                                <td class="table-border-sides" style="text-align: center;">
+                                <td class="table-border-sides" style="text-align: center;" wire:key="attendance-row-{{ $attID }}">
                                     <input class="form-check-input" type="checkbox" wire:model.change="attendance.per-day.{{ $attID }}.abs-hd">
                                 </td>
-                                <td class="table-border-sides">
+                                <td class="table-border-sides" wire:key="attendance-row-{{ $attID }}">
                                     <div class="d-flex gap-2 px-2">
                                         <x-ui.btn type="dan.sm" icon="trash" wClickMethod="deleteAttendanceAction" wClickParam="{{ $attID }}" />
                                     </div>

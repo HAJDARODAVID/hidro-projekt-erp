@@ -1,4 +1,4 @@
-<div class="modal helvetica modal-bg-blur" style="display: @isset($modalStatus)@if ($modalStatus) block @else none @endif @endisset;" @if($id) id="{{ $id }}" @endif @if($wKey) wire:key="{{ $wKey }}" @endif>
+<div class="modal helvetica modal-bg-blur" style="display: @isset($modalStatus)@if ($modalStatus) block @else none @endif @endisset;z-index:9999;" @if($id) id="{{ $id }}" @endif @if($wKey) wire:key="{{ $wKey }}" @endif>
   <div class="modal-dialog @if($size) modal-{{$size}} @endif" >
     <div class="modal-content" style="border-radius: 0px">
       @if ($alert)
