@@ -58,7 +58,7 @@
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('SL') }}</th>
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('PL') }}</th>
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('HD') }}</th>
-                            <th class="table-border-sides" style="width:10px; text-align: center"><x-ui.btn type="pri.sm" icon="plus-square" /></th>
+                            <th class="table-border-sides" style="width:10px; text-align: center">@livewire('modules.working-hours.components.new-attendance-modal')</th>
                         </tr>
                     </thead>
                     <tbody>
