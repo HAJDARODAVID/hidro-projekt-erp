@@ -6,6 +6,8 @@ trait ModalTrait
 {
     public $modalStatus = FALSE;
 
+    public $displayIcon = TRUE;
+
     protected $blockModelOpening = false;
 
     public function openModal(): void

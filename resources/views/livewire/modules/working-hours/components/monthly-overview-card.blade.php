@@ -50,15 +50,15 @@
                         
                         <tr style="vertical-align: middle;">
                             <th style="width:10px" class="table-border-sides">#</th>
-                            <th class="table-border-sides" style="width:95px; text-align: center">{{ translator("DATE") }}</th>
-                            <th  class="table-border-sides"style="width:100px; text-align: center">#{{ translator('WDR') }}</th>
-                            <th class="table-border-sides">{{ translator('CONSTRUCTION SITE') }}</th>
-                            <th class="table-border-sides" style="width:100px; text-align: center">{{ translator('WORK HOURS') }}</th>
-                            <th class="table-border-sides" style="width:100px; text-align: center">{{ translator('TYPE') }}</th>
-                            <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('SL') }}</th>
-                            <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('PL') }}</th>
-                            <th class="table-border-sides" style="width:50px; text-align: center">{{ translator('HD') }}</th>
-                            <th class="table-border-sides" style="width:10px; text-align: center">@livewire('modules.working-hours.components.new-attendance-modal')</th>
+                            <th class="table-border-sides" style="width:95px; text-align: center">{{ mb_strtoupper(translator("date")) }}</th>
+                            <th  class="table-border-sides"style="width:100px; text-align: center">#{{ mb_strtoupper(translator("wdr")) }}</th>
+                            <th class="table-border-sides">{{ mb_strtoupper(translator("construction site")) }}</th>
+                            <th class="table-border-sides" style="width:100px; text-align: center">{{ mb_strtoupper(translator("work hours")) }}</th>
+                            <th class="table-border-sides" style="width:100px; text-align: center">{{ mb_strtoupper(translator("type")) }}</th>
+                            <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("sl")) }}</th>
+                            <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("pl")) }}</th>
+                            <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("hd")) }}</th>
+                            <th class="table-border-sides" style="width:10px; text-align: center"><x-ui.btn type="pri.sm" icon="plus-square" wClickMethod="openNewAttendanceModalAction" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,5 +116,6 @@
         
         </div>
     </x-ui.card>
-    @livewire('modules.working-hours.components.edit-work-diary-on-attendance-modal',['displayIcon'=>FALSE])
+    @livewire('modules.working-hours.components.edit-work-diary-on-attendance-modal', ['displayIcon'=>FALSE])
+    @livewire('modules.working-hours.components.new-attendance-modal', ['displayIcon'=>FALSE])
 </x-ui.card>

@@ -24,6 +24,8 @@ class AttendanceAbsenceType
 
     private $massAssignable = [self::ABSENCE_TYPE_PAID_LEAVE, self::ABSENCE_TYPE_HOLIDAY];
 
+    private $available = [self::ABSENCE_TYPE_SICK_LEAVE, self::ABSENCE_TYPE_PAID_LEAVE, self::ABSENCE_TYPE_HOLIDAY];
+
     /** Array of types that should be excluded from other */
     private $excludedTypes = [];
 
@@ -39,7 +41,7 @@ class AttendanceAbsenceType
      */
     public static function init()
     {
-        return new self(NULL);
+        return new self(null);
     }
 
     /**
@@ -50,7 +52,7 @@ class AttendanceAbsenceType
      */
     public static function setByType(string $type)
     {
-        return key_exists($type, self::ABSENCE_TYPE) ? new self($type) : NULL;
+        return key_exists($type, self::ABSENCE_TYPE) ? new self($type) : null;
     }
 
     /**
@@ -167,5 +169,15 @@ class AttendanceAbsenceType
     public function getMassAssignable()
     {
         return $this->massAssignable;
+    }
+
+    /**
+     * Get all available types
+     * 
+     * @return array
+     */
+    public function getAvailableTypes()
+    {
+        return $this->available;
     }
 }

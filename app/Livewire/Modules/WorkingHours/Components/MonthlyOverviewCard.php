@@ -187,6 +187,17 @@ class MonthlyOverviewCard extends LivewireController
         $this->dispatch('open-edit-work-diary-on-attendance-modal', $attID);
     }
 
+    /**
+     * Dispatch a event to the NewAttendanceModal::class to open the modal
+     * 
+     * @param $attID the attendance ID
+     * @return void 
+     */
+    public function openNewAttendanceModalAction(): void
+    {
+        $this->dispatch('open-new-attendance-modal',)->to(NewAttendanceModal::class);
+    }
+
     public function render()
     {
         return view('livewire.modules.working-hours.components.monthly-overview-card');

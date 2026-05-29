@@ -36,8 +36,12 @@ class Btn extends Component
     public $btnSize = FALSE;
     public $iconName = FALSE;
     public $iconPosition = self::ICON_POSITION['start'];
+    /**TODO: remove old properties from all instances */
     public $wClickMethod = NULL;
     public $wClickParam = NULL;
+    /** */
+    public $action = NULL;
+    public $param = NULL;
     public $link;
     public $disabled = FALSE;
     public $stopPropagation = FALSE;
@@ -50,6 +54,8 @@ class Btn extends Component
         $icon = NULL,
         $wClickMethod = NULL,
         $wClickParam = NULL,
+        $action = NULL,
+        $param = NULL,
         $link = NULL,
         $disabled = FALSE,
         $stopPropagation = FALSE,
@@ -58,6 +64,8 @@ class Btn extends Component
         $this->text = $text != NULL ? $text : NULL;
         $this->wClickMethod = $wClickMethod;
         $this->wClickParam = $wClickParam;
+        $this->action = $action;
+        $this->param = $param;
         $this->link = $link;
         $this->disabled = $disabled;
         $this->stopPropagation = $stopPropagation;
