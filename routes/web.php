@@ -1,41 +1,42 @@
 <?php
 
-use App\Models\Resources;
-use App\Models\MaterialDocModel;
-use App\Models\SpecialPrivilege;
-use App\Models\MaterialMasterData;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BdeController;
-use Illuminate\Support\Facades\Artisan;
-use App\Http\Controllers\SalesController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\PayrollController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\EmployeesController;
-use App\Http\Controllers\ReportingController;
-use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\ParametersController;
-use App\Http\Controllers\ReportDataController;
-use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\CostOverviewController;
-use App\Http\Controllers\WorkDayDiaryController;
-use App\Http\Controllers\WorkingHoursController;
 use App\Http\Controllers\AccessControlListController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\BdeController;
+use App\Http\Controllers\CostOverviewController;
+use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\HidroProjekt\AdminController;
 use App\Http\Controllers\HidroProjekt\AssetsController;
-use App\Http\Controllers\HidroProjekt\TicketController;
-use App\Http\Controllers\HidroProjekt\StorageController;
-use App\Services\HidroProjekt\WP\ConstructionSiteService;
-use App\Services\HidroProjekt\AdminModuleMenuItemsService;
 use App\Http\Controllers\HidroProjekt\CalculatorController;
-use App\Http\Controllers\HidroProjekt\MainInventoryController;
-use App\Http\Controllers\HidroProjekt\WorkDayRecordController;
-use App\Http\Controllers\HidroProjekt\HumanResourcesController;
 use App\Http\Controllers\HidroProjekt\ConstructionSiteController;
-use App\Http\Controllers\HidroProjekt\MaterialMasterDataController;
+use App\Http\Controllers\HidroProjekt\HumanResourcesController;
 use App\Http\Controllers\HidroProjekt\InternalDeliveryNoteController;
+use App\Http\Controllers\HidroProjekt\MainInventoryController;
+use App\Http\Controllers\HidroProjekt\MaterialMasterDataController;
+use App\Http\Controllers\HidroProjekt\StorageController;
+use App\Http\Controllers\HidroProjekt\TicketController;
+use App\Http\Controllers\HidroProjekt\WorkDayRecordController;
+use App\Http\Controllers\ParametersController;
+use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportDataController;
+use App\Http\Controllers\ReportingController;
+use App\Http\Controllers\SalesController;
+use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\WorkDayDiaryController;
+use App\Http\Controllers\WorkingHoursController;
+use App\Models\MaterialDocModel;
+use App\Models\MaterialMasterData;
+use App\Models\Resources;
+use App\Models\SpecialPrivilege;
+use App\Services\HidroProjekt\AdminModuleMenuItemsService;
 use App\Services\HidroProjekt\Domain\Bookkeeping\ExpensesReportService;
+use App\Services\HidroProjekt\WP\ConstructionSiteService;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Route;
 
 
 /*
@@ -400,3 +401,8 @@ Route::prefix('/')
                     });
             });
     });
+
+Route::get('/redis-test', function () {
+    Redis::set('test', 'Hello Redis!');
+    return Redis::get('test'); // Output: Hello Redis!
+});
