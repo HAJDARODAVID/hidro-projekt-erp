@@ -1,1 +1,1 @@
-<td {{ $attributes->merge(['style' => $style]) }} @if($action) wire:click="{{$action}}({{$actionParam}})" @endif>{{ $slot }}{{translator($attendance)}}</td>
+<td {{ $attributes->merge(['style' => $style]) }} @if($action) wire:click="{{$action}}({{$actionParam}})" @endif>{{ $slot }}{{translator($attendance ?? '')}}</td>

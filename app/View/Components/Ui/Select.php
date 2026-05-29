@@ -14,6 +14,7 @@ class Select extends Component
     public $options;
     public $initOption;
     public $tooltip;
+    public $saved;
     /**
      * Create a new component instance.
      */
@@ -24,6 +25,7 @@ class Select extends Component
         $wModelEvent = 'change',
         $initOption = NULL,
         $tooltip = NULL,
+        $saved = [],
     ) {
         $this->options = $options;
         $this->label = $label;
@@ -31,6 +33,17 @@ class Select extends Component
         $this->wModelEvent = $wModelEvent;
         $this->initOption = $initOption;
         $this->tooltip = $tooltip;
+
+        $this->savedStatement($saved);
+    }
+
+    private function savedStatement($saved)
+    {
+        if (isset($saved[$this->wModel])) {
+            if ($saved[$this->wModel] == TRUE) return $this->saved = 1;
+            if ($saved[$this->wModel] == FALSE) return $this->saved = 2;
+        }
+        return $this->saved = NULL;
     }
 
     /**

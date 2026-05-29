@@ -4,13 +4,16 @@ namespace App\Livewire\Modules\WorkingHours\Components;
 
 use App\Exceptions\ErrorMessage;
 use App\Livewire\LivewireController;
+use App\Models\Employees\AttendanceAbsenceType;
 use App\Models\Employees\Worker;
+use App\Services\Attendance\AttendanceUpdateService;
 use App\Services\Attendance\DeleteAttendanceService;
 use App\Services\Attendance\GetWorkerMonthlyAttendanceService;
 use App\Services\Months;
-use App\Services\Years;
-use Livewire\Attributes\Url;
 use App\Services\WorkdayDiary\Types as AttendanceType;
+use App\Services\Years;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 
 class MonthlyOverviewCard extends LivewireController
 {
@@ -32,6 +35,9 @@ class MonthlyOverviewCard extends LivewireController
     /**Attendance type for select */
     public $attTypes = [0 => ''];
 
+    /**Store the save indicator here */
+    public $saved = [];
+
     public function mount()
     {
         $this->attTypes = array_merge($this->attTypes, AttendanceType::getTypes());
@@ -45,11 +51,69 @@ class MonthlyOverviewCard extends LivewireController
     }
 
     /**
+     * Run when the month is changed and get the attendance data
+     * 
+     * @return void
+     */
+    public function updatedSelectedMonth(): void
+    {
+        $this->getAttendanceDataAction();
+    }
+    /**
+     * Run when the year is changed and get the attendance data
+     * 
+     * @return void
+     */
+    public function updatedSelectedYear(): void
+    {
+        $this->getAttendanceDataAction();
+    }
+
+    /**
      * Run and fined if the year/month have been changed
      */
-    public function updated($key)
+    public function updatedAttendance($value, $key)
     {
-        if ($key == 'selectedMonth' || $key == 'selectedYear') $this->getAttendanceDataAction();
+        $this->saved = [];
+        $column = NULL;
+        //Error handling for some strange error
+        if (is_array($value)) {
+            $column = array_keys($value)[0];
+            list($dataSet, $attID) = explode('.', $key);
+        } else {
+            list($dataSet, $attID, $column) = explode('.', $key);
+        }
+
+        $service = NULL;
+        if ($dataSet == 'per-day') {
+            try {
+                $service = AttendanceUpdateService::worker($attID);
+                switch ($column) {
+                    case 'hours':
+                        $service->updateWorkHours($value);
+                        break;
+                    case 'type':
+                        $service->updateType($value);
+                        break;
+                    case 'abs-sl':
+                        $service->updateAbsence(AttendanceAbsenceType::setTypeSickLeave());
+                        break;
+                    case 'abs-pl':
+                        $service->updateAbsence(AttendanceAbsenceType::setTypePaidLeave());
+                        break;
+                    case 'abs-hd':
+                        $service->updateAbsence(AttendanceAbsenceType::setTypeHoliday());
+                        break;
+                }
+            } catch (\Throwable $th) {
+                return $this->showException($th->getMessage());
+            }
+        }
+        if ($service->getResponseStatus()) {
+            $this->getAttendanceDataAction();
+            $this->saved['attendance.per-day.' . $attID . '.' . $column] = [];
+            $this->dispatch('$refresh');
+        }
     }
 
     /**
@@ -94,10 +158,44 @@ class MonthlyOverviewCard extends LivewireController
             } else {
                 throw new ErrorMessage($response['message']);
             }
+            $this->updateDOMKey();
         } catch (\Throwable $th) {
             $this->showException($th->getMessage());
         }
         return;
+    }
+
+    /**
+     * Call the getAttendanceDataAction method, to refresh the data
+     * 
+     * @return void
+     */
+    #[On('refresh-attendance-data')]
+    public function refreshData(): void
+    {
+        $this->getAttendanceDataAction();
+    }
+
+    /**
+     * Dispatch a event to the EditWorkDiaryOnAttendanceModal::class to open the modal
+     * 
+     * @param $attID the attendance ID
+     * @return void 
+     */
+    public function openEditDiaryModalAction($attID): void
+    {
+        $this->dispatch('open-edit-work-diary-on-attendance-modal', $attID);
+    }
+
+    /**
+     * Dispatch a event to the NewAttendanceModal::class to open the modal
+     * 
+     * @param $attID the attendance ID
+     * @return void 
+     */
+    public function openNewAttendanceModalAction(): void
+    {
+        $this->dispatch('open-new-attendance-modal',)->to(NewAttendanceModal::class);
     }
 
     public function render()

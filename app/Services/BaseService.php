@@ -66,8 +66,39 @@ class BaseService
     }
 
     /**
+     * Sets the success status to TRUE without the message.
+     *
+     * @return $this
+     */
+    protected function setSuccessTrue(): self
+    {
+        $this->success = true;
+        return $this;
+    }
+
+    /**
+     * Sets the success status to FALSE without the message.
+     *
+     * @return $this
+     */
+    protected function setSuccessFalse(): self
+    {
+        $this->success = false;
+        return $this;
+    }
+
+    /**
+     * Get the success status.
+     * @return bool
+     */
+    public function getResponseStatus(): bool
+    {
+        return  $this->success;
+    }
+
+    /**
      * Gets the complete structured response mixed.
-     * * @return array
+     * @return array
      */
     public function getResponse(): array
     {

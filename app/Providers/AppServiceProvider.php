@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Helpers\UserRightsHelper;
+use App\View\Components\Ui\V2\Select;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
@@ -53,5 +54,8 @@ class AppServiceProvider extends ServiceProvider
             //TODO:stavi tu jezik iz session
             return translator($expression, 'hr');
         });
+
+        // Alias the newest version as the default 'ui-select'
+        Blade::component(Select::class, 'ui-select');
     }
 }

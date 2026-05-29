@@ -221,13 +221,142 @@ body.livewire-loading {
     top: 0;
     z-index: 1;
     background-color: #e4e4e4;
-    background: linear-gradient(to top, #d6d6d6, #ececec);
+    background: linear-gradient(to top, #e6e6e6, #F2F2F2);
 
 }
 
 .table-border-sides {
-    border-left: 1px solid #d5dbe2;
+    border-left: 1px solid #c4cad1;
     /* Left border */
-    border-right: 1px solid #d5dbe2;
+    border-right: 1px solid #c4cad1;
     /* Right border */
+}
+
+
+:root {
+    --calendar-border: #dee2e6;
+}
+
+.calendar-container {
+    border: 1px solid var(--calendar-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.calendar-header {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--calendar-border);
+}
+
+.day-name {
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid var(--calendar-border);
+    padding: 10px 0;
+    background-color: #f1f3f5;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    min-height: 80px;
+    border-right: 1px solid var(--calendar-border);
+    border-bottom: 1px solid var(--calendar-border);
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.calendar-day:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-day.empty {
+    background-color: #fdfcfc;
+}
+
+.day-number {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.day-number.empty {
+    color: #949da5;
+}
+
+.event {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-primary {
+    background-color: #cfe2ff;
+    color: #084298;
+    border: 1px solid #b6d4fe;
+}
+
+.event-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.today {
+    background-color: #fff4e6 !important;
+    font-weight: bold;
+}
+
+/* Light Green Selected State */
+.calendar-day.selected {
+    background-color: #d1e7dd !important;
+    /* Bootstrap success-subtle */
+    border: 1px solid #198754 !important;
+    /* Bootstrap Success Green */
+    color: #0f5132 !important;
+    /* Dark green text for contrast */
+    position: relative;
+    z-index: 2;
+    /* Lifts the border above neighboring cells */
+    box-shadow: inset 0 0 0 1px rgba(25, 135, 84, 0.1);
+}
+
+/* Adjust the day number for the green theme */
+.calendar-day.selected .day-number {
+    color: #198754 !important;
+    font-weight: bold;
+}
+
+/* Optional: Subtle pulse animation when selected */
+.calendar-day.selected {
+    animation: select-pulse 0.3s ease-out;
+}
+
+@keyframes select-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }

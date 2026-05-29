@@ -40,6 +40,9 @@ class GetAttendanceService
             case 'byMonth':
                 $this->setAttendanceByMonth($param);
                 break;
+            case 'byId':
+                $this->setAttendanceById($param);
+                break;
 
             default:
                 # code...
@@ -52,6 +55,17 @@ class GetAttendanceService
     public static function byWdr($id)
     {
         return new self('byWdr', $id);
+    }
+
+    /**
+     * Crete a new instance of this class based on the attendance ID
+     * 
+     * @param $id Pass thru the attendance ID
+     * @return App\Services\Attendance\GetAttendanceService
+     */
+    public static function byId($id): self
+    {
+        return new self('byId', $id);
     }
 
     /**
@@ -88,6 +102,18 @@ class GetAttendanceService
     {
         $this->myWorkerAttendance = AttendanceModel::where('working_day_record_id', $param)->get();
         $this->cooperatorAttendance = AttendanceCoOpModel::where('working_day_record_id', $param)->get();
+    }
+
+    /**
+     * Set the attendance models by the attendance ID
+     * 
+     * @param $param Pass thru the attendance ID
+     * @return void 
+     */
+    private function setAttendanceById($param): void
+    {
+        $this->myWorkerAttendance = AttendanceModel::find($param);
+        $this->cooperatorAttendance = AttendanceCoOpModel::find($param);
     }
 
     /**

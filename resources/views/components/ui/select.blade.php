@@ -15,7 +15,7 @@
             <option value="init-option" selected>{{ $initOption }}</option>
         @endif
         @foreach ($options as $value => $option)
-            <option value="{{ $value }}">{{ translator($option) }}</option>
+            <option value="{{ $value }}">{{ translator($option ?? '') }}</option>
         @endforeach
     </select>
 </div>
