@@ -378,11 +378,11 @@ Route::prefix('/')
                         Route::get('/', 'index')->name('getAllEmployeeWorkingHours');
                         Route::get('/employee', 'getEmployeeWorkingHours')->name('getEmployeeWorkingHours');
                     });
-                Route::controller(PayrollController::class)
-                    ->prefix('/payroll')
-                    ->group(function () {
-                        Route::get('/', 'index')->name('getPayrollModule');
-                    });
+                // Route::controller(PayrollController::class)
+                //     ->prefix('/payroll')
+                //     ->group(function () {
+                //         Route::get('/', 'index')->name('getPayrollModule');
+                //     });
             });
 
         /*
