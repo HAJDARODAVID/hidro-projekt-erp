@@ -402,7 +402,23 @@ Route::prefix('/')
             });
     });
 
-Route::get('/redis-test', function () {
-    Redis::set('test', 'Hello Redis!');
-    return Redis::get('test'); // Output: Hello Redis!
+Route::get('/db-test', function () {
+    // $model = new App\Models\Application\AppConfig();
+    // $array = [
+    //     'key' => 'tri.test',
+    //     'value' => 'tes_tis',
+    //     'default_value' => NULL,
+    //     'label' => 'test',
+    //     'description' => 'test',
+    //     'data_type' => 'string',
+    //     'is_public' => true,
+    //     'is_locked' => false,
+    //     'created_by' => 1,
+    //     'updated_by' => 1
+    // ];
+    // $model = $model->create($array);
+    // return 'gotovo';
+    $redisClient = Redis::connection('cache')->client();
+    $allKeys = $redisClient->keys('*');
+    dd();
 });

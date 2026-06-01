@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Helpers\UserRightsHelper;
+use App\Models\Application\AppConfig;
+use App\Observers\AppConfigObserver;
 use App\View\Components\Ui\V2\Select;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
@@ -26,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register AppConfig observer
+        AppConfig::observe(AppConfigObserver::class);
+
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
         Blade::directive('canEdit', function ($expression) {
