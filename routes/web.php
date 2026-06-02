@@ -301,7 +301,7 @@ Route::get('test', function () {
     return (new ExpensesReportService)->getDataForExportByMonth(9);
 });
 
-Route::get('/test2', [App\Http\Controllers\Test2::class, 'helperTesting']);
+Route::get('/test2', [App\Http\Controllers\Test2::class, 'redisKeys']);
 
 /**
  * VERSION 3.0.0
@@ -399,7 +399,7 @@ Route::prefix('/')
 Route::get('/db-test', function () {
     // $model = new App\Models\Application\AppConfig();
     // $array = [
-    //     'key' => 'tri.test',
+    //     'key' => 's.test',
     //     'value' => 'tes_tis',
     //     'default_value' => NULL,
     //     'label' => 'test',

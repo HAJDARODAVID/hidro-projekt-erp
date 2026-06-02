@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User\UserType;
-use Illuminate\Routing\Router;
 use App\Exports\Domain\Workers\Cooperators\CoOpWorkHoursExport;
+use App\Models\Application\AppConfig;
+use App\Models\User\UserType;
+use App\Services\Config\AttendanceStylesConfigService;
 use App\Services\HidroProjekt\Domain\Api\WeatherForecastService;
 use App\Services\HidroProjekt\Domain\Workers\Cooperators\CooperatorsExportWorkHoursService;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Redis;
 
 class Test2 extends Controller
 {
@@ -80,5 +83,93 @@ class Test2 extends Controller
     {
         dd(UserType::init()->getAssignableTypes('hr'));
         return UserType::init()->getAssignableTypes('hr');
+    }
+
+    public function redisKeys()
+    {
+        $this->setNewAppCOnfig();
+        $service = new AttendanceStylesConfigService;
+        dd($service->getBackgroundColorSickLeave());
+        // try {
+        //     //$this->setNewAppCOnfig();
+        //     $connection = Redis::connection();
+
+        //     Redis::set('rucni-test', 'ovo je rucni tes');
+
+        //     // Fetch all keys (may be expensive on large databases)
+        //     $keys = $connection->keys('*');
+        //     $data = [];
+
+        //     // Map integer type codes (phpredis) to names if necessary
+        //     $typeMap = [1 => 'string', 2 => 'list', 3 => 'set', 4 => 'zset', 5 => 'hash'];
+
+        //     foreach ($keys as $key) {
+
+        //         $type = $connection->type(str_replace("hp_erp_", "", $key));
+        //         if (is_int($type)) {
+        //             $type = $typeMap[$type] ?? 'unknown';
+        //         }
+
+        //         switch ($type) {
+        //             case 'string':
+        //                 $value = $connection->get(str_replace("hp_erp_", "", $key));
+        //                 break;
+        //             case 'list':
+        //                 $value = $connection->lrange(str_replace("hp_erp_", "", $key), 0, -1);
+        //                 break;
+        //             case 'set':
+        //                 $value = $connection->smembers(str_replace("hp_erp_", "", $key));
+        //                 break;
+        //             case 'zset':
+        //                 $value = $connection->zrange(str_replace("hp_erp_", "", $key), 0, -1);
+        //                 break;
+        //             case 'hash':
+        //                 $value = $connection->hgetall(str_replace("hp_erp_", "", $key));
+        //                 break;
+        //             default:
+        //                 // Fallback: try to get as string
+        //                 $value = $connection->get(str_replace("hp_erp_", "", $key));
+        //         }
+
+        //         $data[str_replace("hp_erp_", "", $key) . " - " . $key] = [
+        //             'type'  => $type,
+        //             'value' => $value,
+        //         ];
+        //     }
+
+        //     return response()->json([
+        //         'keys_count' => count($keys),
+        //         'data' => $data,
+        //     ]);
+        // } catch (\Exception $e) {
+        //     return response()->json(['error' => $e->getMessage()], 500);
+        // }
+
+        // Redis::set('site_name', 'My Laravel App');
+        // $keys = Redis::keys('*');
+        // $siteName = Redis::get('site_name');
+        // $output = [];
+        // foreach ($keys as $key) {
+        //     $output[$key] = Redis::get(str_replace("hp_erp_", "", $key)) . ' [' . $key . ']';
+        // }
+        // dd($siteName, $keys, $output);
+    }
+
+    private function setNewAppCOnfig()
+    {
+        $array = [
+            10 => [
+                'bg-color' => 'red'
+            ],
+            20 => [
+                'bg-color' => 'GREEEEEEEN'
+            ],
+            30 => [
+                'bg-color' => 'yellow'
+            ],
+        ];
+        AppConfig::find(3)->update([
+            'value'         => json_encode($array)
+        ]);
     }
 }

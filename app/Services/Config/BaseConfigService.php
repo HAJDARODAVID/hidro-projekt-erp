@@ -6,6 +6,9 @@ use App\Models\Application\AppConfig;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @method void initConfig()
+ */
 abstract class BaseConfigService
 {
     protected string|array $configKeys;
@@ -17,6 +20,7 @@ abstract class BaseConfigService
         if (!isset($this->configKeys)) {
             throw new \Exception('configKeys property must be defined in child service');
         }
+        if (method_exists(get_class($this), 'initConfig')) $this->initConfig();
     }
 
     /**
@@ -30,7 +34,6 @@ abstract class BaseConfigService
         if (is_array($key)) {
             throw new \Exception('Use getValues() for multiple keys');
         }
-
         return $this->getValueFromCache($key);
     }
 

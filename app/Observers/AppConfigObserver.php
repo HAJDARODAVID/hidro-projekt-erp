@@ -57,8 +57,22 @@ class AppConfigObserver
         $cacheKey = $this->redisPrefix . $appConfig->key;
         $value = $appConfig->getValue();
 
-        // Cache with TTL of 1 hour
-        Redis::setex($cacheKey, 3600, $this->serializeValue($value));
+        try {
+            // If value is null or empty, ensure cache is removed
+            if ($value === null || $value === '') {
+                Redis::del($cacheKey);
+                return;
+            }
+
+            // Serialize and cache with TTL of 1 hour
+            $serialized = $this->serializeValue($value);
+            Redis::setex($cacheKey, 3600, $serialized);
+        } catch (\Throwable $e) {
+            // Don't interrupt the app flow from observer failures; log for debugging
+            if (function_exists('report')) {
+                report($e);
+            }
+        }
     }
 
     /**
