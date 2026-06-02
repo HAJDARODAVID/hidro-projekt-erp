@@ -87,7 +87,7 @@ class Test2 extends Controller
 
     public function redisKeys()
     {
-        //$this->setNewAppCOnfig();
+        $this->setNewAppCOnfig();
         $service = new AttendanceStylesConfigService;
         dd($service->getBackgroundColorSickLeave());
         // try {

@@ -3,8 +3,8 @@
 @section('content')
     <div class="mt-3">
         <h3>DEVELOPER</h3><hr>
-        <x-ui.employees.absence-btns :att='["wire:click" => "selectSomething"]'/>
-        {{-- @livewire('modules.working-hours.components.new-attendance-modal') --}}
+        <x-ui.employees.absence-btns />
+        @livewire('modules.working-hours.components.new-attendance-modal')
         <br>
         <div x-data="{ color: '#007bff' }" x-init="
             let picker;

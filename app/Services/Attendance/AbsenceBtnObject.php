@@ -4,6 +4,7 @@ namespace App\Services\Attendance;
 
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Services\Attendance\AbsenceBtnClassAndStyleObject;
+use App\Services\Config\AttendanceStylesConfigService;
 use App\Traits\WireClickTrait;
 
 class AbsenceBtnObject extends AbsenceBtnClassAndStyleObject
@@ -22,8 +23,7 @@ class AbsenceBtnObject extends AbsenceBtnClassAndStyleObject
         /**Initial mounting */
         $this->setAbsenceType()
             ->setWireMethod('selectAbsenceReasonAction') //Default method name, can be changed in component :att with key wire:click
-            ->setAtt($att)
-            ->setConfig();
+            ->setAtt($att);
 
         /**Setting up the style */
         $this->setBtnBackgroundColor();
@@ -71,17 +71,6 @@ class AbsenceBtnObject extends AbsenceBtnClassAndStyleObject
     }
 
     /**
-     * Get the configuration for the btns from the config entry in the DB.
-     * 
-     * @return self
-     */
-    private function setConfig()
-    {
-        // TODO:create a CONFIG for the btns
-        return $this;
-    }
-
-    /**
      * This will take the attributes that you will pass thru over the components HTML syntax.
      * The attributes that will come from here will not be overwritten by the setFromConfig method. 
      * Example: <x-component-name  :att='["size"=>"sm"]'/>
@@ -106,7 +95,13 @@ class AbsenceBtnObject extends AbsenceBtnClassAndStyleObject
 
     private function setBtnBackgroundColor()
     {
-        //TODO::add the option from config
+        /**Check if there is a app_config */
+        $attendanceStylesConfigService = new AttendanceStylesConfigService;
+        if ($attendanceStylesConfigService->getBackgroundColorByType($this->absenceType)) {
+            $this->addBackgroundColorStyle($attendanceStylesConfigService->getBackgroundColorByType($this->absenceType));
+            return $this;
+        }
+        /**If there is no  app_config use the default */
         if (array_key_exists($this->type, $this->defaultBackgroundColor)) {
             $this->addBackgroundColorStyle($this->defaultBackgroundColor[$this->type]);
         }

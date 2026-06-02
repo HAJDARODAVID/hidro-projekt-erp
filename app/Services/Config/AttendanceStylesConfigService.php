@@ -25,7 +25,7 @@ class AttendanceStylesConfigService extends BaseConfigService
         if (isset($this->attStyle[$attType->code()])) {
             return $this->attStyle[$attType->code()]['background-color'];
         }
-        return NULL;
+        return null;
     }
 
     /**
@@ -37,9 +37,9 @@ class AttendanceStylesConfigService extends BaseConfigService
     {
         $attType = AttendanceAbsenceType::setTypePaidLeave();
         if (isset($this->attStyle[$attType->code()])) {
-            return $this->attStyle[$attType->code()]['background-color'];
+            return $this->attStyle[$attType->code()]['background-color'] ?? null;
         }
-        return NULL;
+        return null;
     }
 
     /**
@@ -51,8 +51,21 @@ class AttendanceStylesConfigService extends BaseConfigService
     {
         $attType = AttendanceAbsenceType::setTypeHoliday();
         if (isset($this->attStyle[$attType->code()])) {
-            return $this->attStyle[$attType->code()]['background-color'];
+            return $this->attStyle[$attType->code()]['background-color'] ?? null;
         }
-        return NULL;
+        return null;
+    }
+
+    /**
+     * Return the background color for the 'HD' type
+     * 
+     * @return string|null
+     */
+    public function getBackgroundColorByType(AttendanceAbsenceType $attType): string|null
+    {
+        if (isset($this->attStyle[$attType->code()])) {
+            return $this->attStyle[$attType->code()]['background-color'] ?? null;
+        }
+        return null;
     }
 }
