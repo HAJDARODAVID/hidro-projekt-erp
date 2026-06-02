@@ -87,7 +87,7 @@ class Test2 extends Controller
 
     public function redisKeys()
     {
-        $this->setNewAppCOnfig();
+        //$this->setNewAppCOnfig();
         $service = new AttendanceStylesConfigService;
         dd($service->getBackgroundColorSickLeave());
         // try {
@@ -159,13 +159,13 @@ class Test2 extends Controller
     {
         $array = [
             10 => [
-                'bg-color' => 'red'
+                'background-color' => '#FF7E29'
             ],
             20 => [
-                'bg-color' => 'GREEEEEEEN'
+                'background-color' => '#2998FF'
             ],
             30 => [
-                'bg-color' => 'yellow'
+                'background-color' => '#7E84F7'
             ],
         ];
         AppConfig::find(3)->update([
