@@ -53,4 +53,15 @@ class BaseClassAndStyleObject
         }
         return implode("; ", $output);
     }
+
+    /**
+     * Return the value of a specific style element
+     * 
+     * @param string $element Css style element
+     * @return string
+     */
+    public function getStyleElement(string $element)
+    {
+        return $this->style[$element] ?? null;
+    }
 }

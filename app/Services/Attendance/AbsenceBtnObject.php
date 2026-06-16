@@ -107,4 +107,14 @@ class AbsenceBtnObject extends AbsenceBtnClassAndStyleObject
         }
         return $this;
     }
+
+    /**
+     * Get the background color value set for the Absence elements 
+     * 
+     * @param AttendanceAbsenceType $type Pass thru the absence type
+     */
+    public static function getBackgroundColorForType(AttendanceAbsenceType $type)
+    {
+        return (new self($type->code()))->setBtnBackgroundColor()->getStyleElement('background-color');
+    }
 }

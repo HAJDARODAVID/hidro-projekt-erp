@@ -6,7 +6,8 @@
         </div>
     @endif
     <select {{ $attributes->merge(['class' => implode(" " , $class)]) }}
-        @if($model) wire:model.{{ $event }} = '{{ $model }}' @endif >
+        @if($model) wire:model.{{ $event }} = '{{ $model }}' @endif 
+        @if($disabled) disabled @endif>
         @if ($initOpt) <option value="init-option" selected>{{ $initOpt }}</option> @endif
         @foreach ($options as $value => $option)
             <option value="{{ $value }}">{{ translator($option ?? '') }}</option>

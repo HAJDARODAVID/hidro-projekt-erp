@@ -117,5 +117,5 @@
         </div>
     </x-ui.card>
     @livewire('modules.working-hours.components.edit-work-diary-on-attendance-modal', ['displayIcon'=>FALSE])
-    @livewire('modules.working-hours.components.new-attendance-modal', ['displayIcon'=>FALSE])
+    @livewire('modules.working-hours.components.new-attendance-modal', ['displayIcon'=>FALSE, ])
 </x-ui.card>

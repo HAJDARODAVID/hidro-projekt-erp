@@ -190,12 +190,11 @@ class MonthlyOverviewCard extends LivewireController
     /**
      * Dispatch a event to the NewAttendanceModal::class to open the modal
      * 
-     * @param $attID the attendance ID
      * @return void 
      */
     public function openNewAttendanceModalAction(): void
     {
-        $this->dispatch('open-new-attendance-modal',)->to(NewAttendanceModal::class);
+        $this->dispatch('open-new-attendance-modal', ['worker_id' => $this->workerID])->to(NewAttendanceModal::class);
     }
 
     public function render()

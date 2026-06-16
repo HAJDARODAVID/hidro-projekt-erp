@@ -23,6 +23,7 @@
             @if($wModel)
             wire:model.{{ $wModelEvent }} = '{{ $wModel }}'
             @endif
+            @if($disabled) disabled @endif
         >
         @if ($append)
             <div class="input-group-append">

@@ -22,6 +22,9 @@ class LivewireController extends Component
 
     public ?Carbon $DOMupdateKey = null;
 
+    /**Define all the rules/attributes for this component */
+    public array $att = [];
+
     /**
      * This will dispatch a message to the notifications component. 
      * 
@@ -63,5 +66,47 @@ class LivewireController extends Component
     protected function updateDOMKey()
     {
         $this->DOMupdateKey = now();
+    }
+
+    /**
+     * Get a value from the $att property using dot notation.
+     * 
+     * @param string $key The dot-notated key path (e.g., 'foo.bar.baz')
+     * @return mixed The value if found, null otherwise
+     * 
+     * The last key in the path has special behavior: it first checks if the key exists
+     * in the parent array, and if not, looks for a value matching that key name.
+     */
+    protected function getAttValue(string $key)
+    {
+        $keys = explode('.', $key);
+        $current = $this->att ?? [];
+
+        // Navigate through all keys except the last one
+        foreach (array_slice($keys, 0, -1) as $pathKey) {
+            if (!is_array($current) || !isset($current[$pathKey])) {
+                return null;
+            }
+            $current = $current[$pathKey];
+        }
+
+        // Handle the last key with special logic
+        $lastKey = end($keys);
+
+        // First, try to get the last key as a direct key in the current array
+        if (is_array($current) && isset($current[$lastKey])) {
+            return $current[$lastKey];
+        }
+
+        // If not found as a key, look for a value matching the last key
+        if (is_array($current)) {
+            foreach ($current as $value) {
+                if ($value === $lastKey) {
+                    return true;
+                }
+            }
+        }
+
+        return null;
     }
 }

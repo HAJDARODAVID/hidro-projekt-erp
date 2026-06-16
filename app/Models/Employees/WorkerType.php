@@ -9,6 +9,7 @@ class WorkerType
     const TYPE_WORKER       = 'WRK';
     const TYPE_GROUP_LEADER = 'GRL';
     const TYPE_ADM_STAFF    = 'ADM';
+    const TYPE_CLEANING     = 'CLN';
     const TYPE_MANAGER      = 'MGR';
     const TYPE_S_ADMIN      = 'S-ADM';
 
@@ -16,6 +17,7 @@ class WorkerType
         self::TYPE_WORKER       => 'Worker',
         self::TYPE_GROUP_LEADER => 'Group leader',
         self::TYPE_ADM_STAFF    => 'Administration staff',
+        self::TYPE_CLEANING     => 'Cleaning / Maintenance',
         self::TYPE_MANAGER      => 'Manager',
         self::TYPE_S_ADMIN      => 'Super admin',
     ];
@@ -80,6 +82,16 @@ class WorkerType
     public static function setTypeAdministration()
     {
         return new self(self::TYPE_ADM_STAFF);
+    }
+
+    /**
+     * Set a new instance for cleaning/maintenance crew type
+     * 
+     * @return self
+     */
+    public static function setTypeCleaning()
+    {
+        return new self(self::TYPE_CLEANING);
     }
 
     /**

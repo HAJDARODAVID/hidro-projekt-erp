@@ -35,6 +35,9 @@ class Select extends Component
     /**Array of the saved elements  */
     public array $saved;
 
+    /**Disables the element  */
+    public bool $disabled;
+
     /**
      * Create a new component instance.
      */
@@ -48,6 +51,7 @@ class Select extends Component
         $initOpt = NULL,
         $size = NULL,
         $saved = [],
+        $disabled = false,
     ) {
         $this->options = $options;
         $this->label = $label;
@@ -57,6 +61,7 @@ class Select extends Component
         $this->event = $event;
         $this->size = $size;
         $this->saved = $saved;
+        $this->disabled = $disabled;
 
         $this->addToClass('no-border-radius', 'form-select')
             ->setSize($size)
