@@ -6,7 +6,9 @@ use App\Livewire\LivewireController;
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Attendance\GetAllAttendanceEligibleWorkersService;
+use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
 use App\Services\WorkdayDiary\Types;
+use DateTime;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\On;
 
@@ -20,7 +22,7 @@ class NewAttendanceModal extends LivewireController
     public null|int|string $hourInput;
     public array $hourInputAtt;
 
-    public array $workDiaryOptions = [];
+    public array $workDiaryOptionsItems = [];
 
     public int|null $worker = null;
     public array $workersOptionsItems = [];
@@ -47,7 +49,8 @@ class NewAttendanceModal extends LivewireController
             $this->resetAttendance()
                 ->setHoursInputAtt()
                 ->setWorkersOptionsItems()
-                ->setFromParams($params);
+                ->setFromParams($params)
+                ->setWorkDiariesOptionsItems();
             $this->openModal();
         } catch (\Throwable $th) {
             return $this->dispatch('show-exception-modal', $th->getMessage());
@@ -113,6 +116,12 @@ class NewAttendanceModal extends LivewireController
         $service = new GetAllAttendanceEligibleWorkersService();
         $this->workersOptionsItems = $service->executeForDropdown()->getResponse()['data'];
         return $this;
+    }
+
+    private function setWorkDiariesOptionsItems()
+    {
+        $service = new GetAllWorkDiariesForDateService(new DateTime($this->attendance['date']));
+        $this->workDiaryOptionsItems = $service->executeForDropdown()->getResponse()['data'];
     }
 
     /**

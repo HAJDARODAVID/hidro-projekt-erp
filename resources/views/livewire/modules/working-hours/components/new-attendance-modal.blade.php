@@ -16,6 +16,7 @@
                             label="{{ translator('Date') }}"
                             class="form-control-sm"
                             wModel="attendance.date"
+                            wModelEvent="change"
                         />
                     </div>
 
@@ -33,7 +34,7 @@
                 <div class="row mt-3">
                     <div class="col-md">
                         <x-ui.select
-                            :options=$workDiaryOptions
+                            :options=$workDiaryOptionsItems
                             label="{{ translator('Workday diary') }}"
                             initOption="{{ translator('Select work diary') }}"
                             class="form-select-sm"
@@ -42,7 +43,7 @@
                     </div>
                     <div class="col-md-4">
                         <x-ui.select
-                            :options=$workDiaryOptions
+                            :options=$workDiaryOptionsItems
                             label="{{ translator('Type') }}"
                             initOption="{{ translator('Select work diary') }}"
                             class="form-select-sm"
@@ -69,5 +70,6 @@
                 </div>
             </div>
         </x-ui.card>
+        {{ var_export($attendance) }}
     </x-ui.modal>
 </div>
