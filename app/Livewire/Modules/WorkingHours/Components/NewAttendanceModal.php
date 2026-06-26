@@ -72,7 +72,7 @@ class NewAttendanceModal extends LivewireController
     public function selectAbsenceReasonAction($type)
     {
         $this->hourInput = AttendanceAbsenceType::setByType($type)->shortDesc();
-        $this->setHoursInputAbsenceAtt($type);
+        $this->setHoursInputAbsenceAtt($type)->setAttendanceAbsence($type);
     }
 
     /**
@@ -82,7 +82,7 @@ class NewAttendanceModal extends LivewireController
     public function resetHourInputAction()
     {
         $this->hourInput = null;
-        $this->setHoursInputAtt();
+        $this->setHoursInputAtt()->setAttendanceAbsence(null);
     }
 
     /*
@@ -90,6 +90,18 @@ class NewAttendanceModal extends LivewireController
     | Setter and getters
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Set the absence type in the attendance property
+     * 
+     * @return self
+     */
+    private function setAttendanceAbsence($type)
+    {
+        $this->attendance['absence_reason'] = $type;
+        $this->attendance['work_hours'] = null;
+        return $this;
+    }
 
     /**
      * Set the default attendance array key's and values.
@@ -118,10 +130,15 @@ class NewAttendanceModal extends LivewireController
         return $this;
     }
 
+    /**
+     * Set options that will be used in the select element.
+     * Gets all the work diaries for the given day.
+     */
     private function setWorkDiariesOptionsItems()
     {
         $service = new GetAllWorkDiariesForDateService(new DateTime($this->attendance['date']));
         $this->workDiaryOptionsItems = $service->executeForDropdown()->getResponse()['data'];
+        return $this;
     }
 
     /**
@@ -215,6 +232,17 @@ class NewAttendanceModal extends LivewireController
     protected function setWorkerFromParams(int $id)
     {
         $this->attendance['worker_id'] = $id ?? null;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Properties updates
+    |--------------------------------------------------------------------------
+    */
+
+    public function updatedHourInput(null|int|string $value)
+    {
+        $this->attendance['work_hours'] = $value;
     }
 
     public function render()
