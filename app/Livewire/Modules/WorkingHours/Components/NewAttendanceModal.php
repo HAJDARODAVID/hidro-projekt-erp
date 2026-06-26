@@ -242,6 +242,8 @@ class NewAttendanceModal extends LivewireController
 
     /**
      * Add the hours to the attendance property after the hourInput updated
+     * 
+     * @return void
      */
     public function updatedHourInput(null|int|string $value)
     {
