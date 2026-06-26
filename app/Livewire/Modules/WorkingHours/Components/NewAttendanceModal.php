@@ -240,6 +240,9 @@ class NewAttendanceModal extends LivewireController
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Add the hours to the attendance property after the hourInput updated
+     */
     public function updatedHourInput(null|int|string $value)
     {
         $this->attendance['work_hours'] = $value;
