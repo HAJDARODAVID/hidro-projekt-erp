@@ -5,6 +5,7 @@ namespace App\Livewire\Modules\WorkingHours\Components;
 use App\Livewire\LivewireController;
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Services\Attendance\AbsenceBtnObject;
+use App\Services\Attendance\CreateAttendanceService;
 use App\Services\Attendance\GetAllAttendanceEligibleWorkersService;
 use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
 use App\Services\WorkdayDiary\Types;
@@ -17,7 +18,7 @@ class NewAttendanceModal extends LivewireController
     public array $attendance = [];
 
     public string|null $date = null;
-    public array $dateInputAtt;
+    public array $dateInputAtt = [];
 
     public null|int|string $hourInput;
     public array $hourInputAtt;
@@ -85,6 +86,41 @@ class NewAttendanceModal extends LivewireController
         $this->setHoursInputAtt()->setAttendanceAbsence(null);
     }
 
+    /**
+     * Action for creating and saving a new attendance entry.
+     */
+    public function saveAttendanceAction()
+    {
+        try {
+            if (
+                !$this->attendance['date']
+                || !$this->attendance['worker_id']
+                || (!$this->attendance['work_hours'] && !$this->attendance['absence_reason'])
+            ) {
+                return $this->notifyMe(translator('Date, worker and work hours or absence reason are required!'), 'danger');
+            }
+
+            $response = CreateAttendanceService::myWorker()
+                ->setWorkerID($this->attendance['worker_id'])
+                ->setDiaryID($this->attendance['working_day_record_id'])
+                ->setType($this->attendance['type'])
+                ->setWorkHours($this->attendance['work_hours'])
+                ->setAbsenceReason($this->attendance['absence_reason'])
+                ->setDate($this->attendance['date'])
+                ->execute();
+
+            if (is_array($response) && isset($response['success']) && $response['success'] === false) {
+                return $this->notifyMe($response['error'] ?? translator('Failed to save attendance!'), 'danger');
+            }
+
+            $this->closeModal();
+            $this->dispatch('refresh-attendance-data')->to(MonthlyOverviewCard::class);
+            return $this->notifyMe(translator('Attendance entry created!'));
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Setter and getters
@@ -108,13 +144,14 @@ class NewAttendanceModal extends LivewireController
      */
     protected function resetAttendance()
     {
+        $this->date = Carbon::today()->toDateString();
         $this->attendance = [
             'worker_id' => null,
             'working_day_record_id' => null,
             'type' => null,
             'work_hours' => null,
             'absence_reason' => null,
-            'date' => Carbon::today()->toDateString(),
+            'date' => $this->date,
         ];
         return $this;
     }
@@ -136,7 +173,7 @@ class NewAttendanceModal extends LivewireController
      */
     private function setWorkDiariesOptionsItems()
     {
-        $service = new GetAllWorkDiariesForDateService(new DateTime($this->attendance['date']));
+        $service = new GetAllWorkDiariesForDateService(new DateTime($this->date));
         $this->workDiaryOptionsItems = $service->executeForDropdown()->getResponse()['data'];
         return $this;
     }
@@ -248,6 +285,21 @@ class NewAttendanceModal extends LivewireController
     public function updatedHourInput(null|int|string $value)
     {
         $this->attendance['work_hours'] = $value;
+    }
+
+    /**
+     * Update attendance date and refresh work diary options on date change.
+     */
+    public function updatedDate(string|null $value): void
+    {
+        $this->attendance['date'] = $value;
+
+        if ($value === null || $value === '') {
+            $this->workDiaryOptionsItems = [];
+            return;
+        }
+
+        $this->setWorkDiariesOptionsItems();
     }
 
 

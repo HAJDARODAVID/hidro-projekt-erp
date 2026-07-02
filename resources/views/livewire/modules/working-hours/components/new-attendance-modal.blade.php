@@ -4,7 +4,7 @@
     <x-ui.modal :modalStatus=$modalStatus size="l">
         <x-slot:title>{{ strtoupper(translator('Add attendance entry')) }}</x-slot:title>
         <x-slot:footerRight>
-            <x-ui.btn type="suc.sm" icon="floppy" />
+            <x-ui.btn type="suc.sm" icon="floppy" wClickMethod="saveAttendanceAction" />
         </x-slot:footerRight>
 
         <x-ui.card :noBodyPadding=TRUE loading="selectAbsenceReasonAction, resetHourInputAction" :border=FALSE>
@@ -15,8 +15,9 @@
                             type="date"
                             label="{{ translator('Date') }}"
                             class="form-control-sm"
-                            wModel="attendance.date"
+                            wModel="date"
                             wModelEvent="change"
+                            :disabled='$dateInputAtt["disabled"] ?? false'
                         />
                     </div>
 
