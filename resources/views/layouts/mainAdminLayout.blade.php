@@ -139,6 +139,7 @@
   </div>
 </div>
 
+    @include('components.ui.quick-access-modal')
     @livewireScripts
     <script src="{{ url('js/bootstrap.bundle.min.js') }}"></script>
 

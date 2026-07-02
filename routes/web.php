@@ -19,6 +19,7 @@ use App\Http\Controllers\HidroProjekt\WorkDayRecordController;
 use App\Http\Controllers\ParametersController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuickAccessController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportDataController;
 use App\Http\Controllers\ReportingController;
@@ -296,6 +297,10 @@ Route::get('/clear', function () {
     echo  "all cleared ...";
     return;
 });
+
+Route::post('/quick-access/execute', [QuickAccessController::class, 'execute'])
+    ->middleware(['auth'])
+    ->name('quickAccess.execute');
 
 Route::get('test', function () {
     return (new ExpensesReportService)->getDataForExportByMonth(9);
