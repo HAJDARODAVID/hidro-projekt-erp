@@ -37,7 +37,7 @@
                             @input="handleInput()"
                             @keydown.enter.prevent="executeCurrentInput()"
                             type="text"
-                            class="form-control"
+                            class="form-control no-border-radius"
                             placeholder="Type code (ATT, CLR...)"
                         />
                         <div x-show="errorMessage" class="text-danger small mt-2" x-text="errorMessage"></div>
