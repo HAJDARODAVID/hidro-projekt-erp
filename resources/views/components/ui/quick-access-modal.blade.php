@@ -42,7 +42,7 @@
                     <div x-show="errorMessage" class="text-danger small mt-2" x-text="errorMessage"></div>
                     <div x-show="feedbackMessage" class="text-success small mt-2" x-text="feedbackMessage"></div>
 
-                    <div class="mt-3">
+                    <div class="mt-3" x-show="query.trim().length > 0">
                         <template x-for="shortcut in filteredShortcuts" :key="shortcut.code">
                             <button
                                 type="button"
