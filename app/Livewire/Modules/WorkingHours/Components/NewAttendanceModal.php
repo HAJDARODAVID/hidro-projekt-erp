@@ -250,6 +250,12 @@ class NewAttendanceModal extends LivewireController
         $this->attendance['work_hours'] = $value;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | View & render
+    |--------------------------------------------------------------------------
+    */
     public function render()
     {
         return view('livewire.modules.working-hours.components.new-attendance-modal');
