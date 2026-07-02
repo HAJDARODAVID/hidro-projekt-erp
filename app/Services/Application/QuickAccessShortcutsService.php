@@ -9,30 +9,16 @@ use Illuminate\Validation\ValidationException;
 class QuickAccessShortcutsService
 {
     /**
-     * Returns all shortcuts available to frontend modal.
+     * Returns known shortcuts available to frontend modal.
      */
     public function getShortcutsForClient(): array
     {
-        $attendanceRoute = $this->resolveAttendanceRoute();
-        $shortcuts = [];
-
-        if (!is_null($attendanceRoute)) {
-            $shortcuts[] = [
-                'code' => 'ATT',
-                'label' => 'Attendance module',
-                'type' => 'route',
-                'url' => $attendanceRoute,
-            ];
-        }
-
-        $shortcuts[] = [
-            'code' => 'CLR',
-            'label' => 'Clear application cache',
-            'type' => 'action',
-            'action' => 'clear-cache',
-        ];
-
-        return $shortcuts;
+        return collect(config('quick-access-shortcuts.known_shortcuts', []))
+            ->filter(fn(mixed $shortcut) => is_array($shortcut))
+            ->map(fn(array $shortcut) => $this->hydrateShortcut($shortcut))
+            ->filter(fn(?array $shortcut) => !is_null($shortcut))
+            ->values()
+            ->all();
     }
 
     /**
@@ -71,14 +57,34 @@ class QuickAccessShortcutsService
         ];
     }
 
-    private function resolveAttendanceRoute(): ?string
+    private function hydrateShortcut(array $shortcut): ?array
     {
-        if (Route::has('getAllEmployeeWorkingHours')) {
-            return route('getAllEmployeeWorkingHours');
+        if (($shortcut['type'] ?? null) !== 'route') {
+            return $shortcut;
         }
 
-        if (Route::has('hp_allWorkHours')) {
-            return route('hp_allWorkHours');
+        $resolvedRoute = $this->resolveRouteFromShortcut($shortcut);
+        if (is_null($resolvedRoute)) {
+            return null;
+        }
+
+        unset($shortcut['route_names']);
+        $shortcut['url'] = $resolvedRoute;
+
+        return $shortcut;
+    }
+
+    private function resolveRouteFromShortcut(array $shortcut): ?string
+    {
+        foreach (($shortcut['route_names'] ?? []) as $routeName) {
+            if (Route::has($routeName)) {
+                return route($routeName);
+            }
+        }
+
+        $singleRouteName = $shortcut['route_name'] ?? null;
+        if (!is_null($singleRouteName) && Route::has($singleRouteName)) {
+            return route($singleRouteName);
         }
 
         return null;
