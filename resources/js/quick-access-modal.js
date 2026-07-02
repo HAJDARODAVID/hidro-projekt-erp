@@ -1,4 +1,11 @@
 const normalizeCode = (value) => (value || '').trim().toUpperCase();
+const parseShortcutInput = (value) => {
+    const normalized = normalizeCode(value);
+    const isTriggered = normalized.startsWith('/');
+    const code = isTriggered ? normalized.slice(1) : normalized;
+
+    return { isTriggered, code };
+};
 
 export function registerQuickAccessModal() {
     window.quickAccessModal = ({ shortcuts = [], actionEndpoint = '' } = {}) => ({
@@ -14,7 +21,7 @@ export function registerQuickAccessModal() {
         actionEndpoint,
 
         get filteredShortcuts() {
-            const normalizedQuery = normalizeCode(this.query);
+            const { code: normalizedQuery } = parseShortcutInput(this.query);
             if (!normalizedQuery) {
                 return this.shortcuts;
             }
@@ -58,7 +65,12 @@ export function registerQuickAccessModal() {
         },
 
         handleInput() {
-            const shortcut = this.findExactShortcut(this.query);
+            const { isTriggered, code } = parseShortcutInput(this.query);
+            if (!isTriggered) {
+                return;
+            }
+
+            const shortcut = this.findExactShortcut(code);
             if (shortcut) {
                 this.executeShortcut(shortcut);
             }
@@ -78,7 +90,7 @@ export function registerQuickAccessModal() {
         },
 
         findExactShortcut(value) {
-            const normalizedQuery = normalizeCode(value);
+            const { code: normalizedQuery } = parseShortcutInput(value);
             if (!normalizedQuery) {
                 return null;
             }
