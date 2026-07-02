@@ -2,11 +2,11 @@
 
 namespace App\Livewire\Modules\WorkingHours;
 
-use Livewire\Attributes\Url;
-use App\Models\Employees\Worker;
 use App\Livewire\LivewireController;
-use App\Models\Employees\WorkerType;
+use App\Models\Employees\Worker;
 use App\Models\Employees\WorkerStatus;
+use App\Models\Employees\WorkerType;
+use Livewire\Attributes\Url;
 
 class Employee extends LivewireController
 {

@@ -3,9 +3,27 @@
         <div class="d-flex gap-2 align-items-center">
             <div class="">{{ translator('Month') }}:</div>
             <x-v-divider style="height: 31px"/>
-            <x-ui.select :options=$months class="form-select-sm" wModel='selectedMonth' style="width: 100px" />
+            <select
+                class="form-select form-select-sm"
+                style="width: 100px"
+                wire:model.live="selectedMonth"
+                x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('month', $event.target.value); history.replaceState({}, '', url); })()"
+            >
+                @foreach ($months as $value => $option)
+                    <option value="{{ $value }}">{{ translator($option ?? '') }}</option>
+                @endforeach
+            </select>
             <x-v-divider px=0 style="height: 31px"/>
-            <x-ui.select :options=$years class="form-select-sm"  wModel='selectedYear' style="width: 100px" />
+            <select
+                class="form-select form-select-sm"
+                style="width: 100px"
+                wire:model.live="selectedYear"
+                x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('year', $event.target.value); history.replaceState({}, '', url); })()"
+            >
+                @foreach ($years as $value => $option)
+                    <option value="{{ $value }}">{{ translator($option ?? '') }}</option>
+                @endforeach
+            </select>
         </div>
     </x-slot:title>
     <x-slot:headerActions>

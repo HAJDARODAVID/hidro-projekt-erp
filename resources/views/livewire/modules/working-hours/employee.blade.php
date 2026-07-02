@@ -49,7 +49,7 @@
                     </x-slot:title>
                     @if ($selectedWorker)
                         <x-ui.nav-tab-content tabKey="monthly-overview" :selectedTab=$activeTab  divHeight='full' >
-                            @livewire('modules.working-hours.components.monthly-overview-card',['workerID'=> $selectedWorker], key('monthly-overview'.now()))
+                            @livewire('modules.working-hours.components.monthly-overview-card',['workerID'=> $selectedWorker], key('monthly-overview-'.$selectedWorker))
                         </x-ui.nav-tab-content>
                         <x-ui.nav-tab-content tabKey="overview" :selectedTab=$activeTab >overview</x-ui.nav-tab-content>
                     @else

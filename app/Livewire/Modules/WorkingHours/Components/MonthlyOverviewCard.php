@@ -20,10 +20,10 @@ class MonthlyOverviewCard extends LivewireController
     public $months = [];
     public $years = [];
 
-    #[Url('month')]
+    #[Url(as: 'month', keep: true)]
     public $selectedMonth = NULL;
 
-    #[Url('year')]
+    #[Url(as: 'year', keep: true)]
     public $selectedYear = NULL;
 
     /** Gives the component the worker ID for the data */
@@ -52,16 +52,17 @@ class MonthlyOverviewCard extends LivewireController
 
     /**
      * Run when the month is changed and get the attendance data
-     * 
+     *
      * @return void
      */
     public function updatedSelectedMonth(): void
     {
         $this->getAttendanceDataAction();
     }
+
     /**
      * Run when the year is changed and get the attendance data
-     * 
+     *
      * @return void
      */
     public function updatedSelectedYear(): void
