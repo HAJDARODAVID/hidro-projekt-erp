@@ -61,10 +61,12 @@
                     x-cloak
                     x-show.important="isExecuting"
                     x-transition.opacity
-                    class="position-absolute top-0 start-0 w-100 h-100 align-items-center justify-content-center"
-                    style="background: rgba(255, 255, 255, 0.45); display: flex;"
+                    class="position-absolute top-0 start-0 w-100 h-100"
+                    style="background: rgba(255, 255, 255, 0.45);"
                 >
-                    <div class="spinner-border text-dark" role="status" aria-label="Loading"></div>
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                        <div class="spinner-border text-dark" role="status" aria-label="Loading"></div>
+                    </div>
                 </div>
             </div>
         </div>
