@@ -2,6 +2,8 @@
 
 namespace App\View\Components\Ui\V2;
 
+use App\Services\Months;
+use App\Services\Years;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -38,11 +40,17 @@ class Select extends Component
     /**Disables the element  */
     public bool $disabled;
 
+    /**Url element  */
+    public string|null $url;
+
+    /**Specific select element type  */
+    public string|null $sType;
+
     /**
      * Create a new component instance.
      */
     public function __construct(
-        array $options,
+        array $options = [],
         $label = NULL,
         $class = [],
         $tooltip = NULL,
@@ -52,6 +60,8 @@ class Select extends Component
         $size = NULL,
         $saved = [],
         $disabled = false,
+        $url = null,
+        $sType = null,
     ) {
         $this->options = $options;
         $this->label = $label;
@@ -62,8 +72,11 @@ class Select extends Component
         $this->size = $size;
         $this->saved = $saved;
         $this->disabled = $disabled;
+        $this->url = $url;
+        $this->sType = $sType;
 
         $this->addToClass('no-border-radius', 'form-select')
+            ->setSpecialType()
             ->setSize($size)
             ->setInitOption($initOpt)
             ->checkSavedStatement($saved);
@@ -127,6 +140,42 @@ class Select extends Component
             if ($saved[$this->model] == FALSE) $this->addToClass('is-invalid');
         }
         return $this;
+    }
+
+    /**
+     * This will do some special function if the $sType is set
+     * 
+     * @return self
+     */
+    private function setSpecialType()
+    {
+        if ($this->sType !== null) {
+            match ($this->sType) {
+                'months' => $this->setOptionsToMonths(),
+                'years' => $this->setOptionsToYears(),
+            };
+        }
+        return $this;
+    }
+
+    /**
+     * Adds the month to the options
+     * 
+     * @return void
+     */
+    private function setOptionsToMonths()
+    {
+        $this->options = Months::MONTHS_HR;
+    }
+
+    /**
+     * Adds the years to the options
+     * 
+     * @return void
+     */
+    private function setOptionsToYears()
+    {
+        $this->options = Years::getYearsList();
     }
 
     /**

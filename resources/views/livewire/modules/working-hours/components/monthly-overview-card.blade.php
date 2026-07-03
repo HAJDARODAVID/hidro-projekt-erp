@@ -3,27 +3,9 @@
         <div class="d-flex gap-2 align-items-center">
             <div class="">{{ translator('Month') }}:</div>
             <x-v-divider style="height: 31px"/>
-            <select
-                class="form-select form-select-sm"
-                style="width: 100px"
-                wire:model.live="selectedMonth"
-                x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('month', $event.target.value); history.replaceState({}, '', url); })()"
-            >
-                @foreach ($months as $value => $option)
-                    <option value="{{ $value }}">{{ translator($option ?? '') }}</option>
-                @endforeach
-            </select>
+            <x-ui-select s-type="months" size="sm" url="month" model="selectedMonth" style="width: 100px" />
             <x-v-divider px=0 style="height: 31px"/>
-            <select
-                class="form-select form-select-sm"
-                style="width: 100px"
-                wire:model.live="selectedYear"
-                x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('year', $event.target.value); history.replaceState({}, '', url); })()"
-            >
-                @foreach ($years as $value => $option)
-                    <option value="{{ $value }}">{{ translator($option ?? '') }}</option>
-                @endforeach
-            </select>
+            <x-ui-select s-type="years" size="sm" url="year" model="selectedYear" style="width: 100px" />
         </div>
     </x-slot:title>
     <x-slot:headerActions>
@@ -135,5 +117,5 @@
         </div>
     </x-ui.card>
     @livewire('modules.working-hours.components.edit-work-diary-on-attendance-modal', ['displayIcon'=>FALSE])
-    @livewire('modules.working-hours.components.new-attendance-modal', ['displayIcon'=>FALSE, ])
+    @livewire('modules.working-hours.components.new-attendance-modal', ['displayIcon'=>FALSE, 'att'=>['date-select'=>'enable-changing']])
 </x-ui.card>
