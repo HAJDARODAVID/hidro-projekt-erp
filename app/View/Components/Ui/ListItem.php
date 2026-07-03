@@ -13,6 +13,7 @@ class ListItem extends Component
     public $slotRight;
     public $wClickMethod = NULL;
     public $wClickParam = NULL;
+    public $url = NULL;
     /**
      * Create a new component instance.
      */
@@ -22,12 +23,14 @@ class ListItem extends Component
         $slotRight = NULL,
         $wClickMethod = NULL,
         $wClickParam = NULL,
+        $url = NULL,
     ) {
         $this->selected = $selected;
         $this->slotLeft = $slotLeft;
         $this->slotRight = $slotRight;
         $this->wClickMethod = $wClickMethod;
         $this->wClickParam = $wClickParam;
+        $this->url = $url;
     }
 
     /**

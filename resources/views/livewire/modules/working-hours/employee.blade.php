@@ -18,7 +18,7 @@
                         <x-ui.list-group>
                             @foreach ($workers as $key => $worker)
                             @php $isSelected = $worker['id'] == $selectedWorker ? TRUE : FALSE; @endphp
-                            <x-ui.list-item :selected=$isSelected wClickMethod="selectWorker" wClickParam="{{ $worker['id'] }}">
+                            <x-ui.list-item :selected=$isSelected wClickMethod="selectWorker" wClickParam="{{ $worker['id'] }}" url="worker">
                                 <x-slot:slotLeft>
                                     <div class="d-flex gap-2">
                                         <div class="">{{ str_pad($worker['id'], 3, '0', STR_PAD_LEFT) }}</div>
