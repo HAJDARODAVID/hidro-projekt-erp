@@ -14,7 +14,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^4.6",
-        "livewire/livewire": "^3.3",
+        "livewire/livewire": "^3.8",
         "maatwebsite/excel": "^3.1",
         "predis/predis": "^3.4",
         "rappasoft/laravel-livewire-tables": "^3.7"
