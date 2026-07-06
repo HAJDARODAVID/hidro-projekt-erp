@@ -10,7 +10,6 @@ use Livewire\Attributes\Url;
 
 class Employee extends LivewireController
 {
-    #[Url('search')]
     public $workerSearch = NULL;
 
     /**Selected workplace */
@@ -72,7 +71,7 @@ class Employee extends LivewireController
      */
     public function resetWorkerSearchInput(): void
     {
-        $this->reset('workerSearch');
+        $this->workerSearch = null;
         $this->getWorkers();
     }
 

@@ -10,6 +10,7 @@
     </x-slot:title>
     <x-slot:headerActions>
         <div class="d-flex gap-2 align-items-center">
+            <x-ui.btn type="pri.sm" icon="plus-square" wClickMethod="openNewAttendanceModalAction" />
             <x-ui.btn type="suc.sm" icon="file-earmark-spreadsheet" />
         </div>
     </x-slot:headerActions>
@@ -58,7 +59,7 @@
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("sl")) }}</th>
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("pl")) }}</th>
                             <th class="table-border-sides" style="width:50px; text-align: center">{{ mb_strtoupper(translator("hd")) }}</th>
-                            <th class="table-border-sides" style="width:10px; text-align: center"><x-ui.btn type="pri.sm" icon="plus-square" wClickMethod="openNewAttendanceModalAction" /></th>
+                            <th class="table-border-sides" style="width:10px; text-align: center"></th>
                         </tr>
                     </thead>
                     <tbody>
