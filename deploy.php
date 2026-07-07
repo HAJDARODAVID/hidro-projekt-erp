@@ -29,7 +29,11 @@ host('Production')
     ->setRemoteUser('deployer')
     ->setIdentityFile('~/.ssh/id_rsa')
     ->set('deploy_path', '/var/www/hidro-projekt-erp')
-    ->set('branch', 'master')
+    ->set('branch', function () {
+        // When invoked via shell/release.ps1 the DEPLOY_TAG env var holds
+        // the tag ref (e.g. refs/tags/1.2.3). Fall back to master otherwise.
+        return getenv('DEPLOY_TAG') ?: 'master';
+    })
     ->set('ssh_multiplexing', false);
 
 
