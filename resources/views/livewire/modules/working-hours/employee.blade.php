@@ -5,7 +5,7 @@
             <div class="col-md-3 d-flex flex-column">
                 <x-ui.card title="{{ translator('Employee') }}" class="flex-fill d-flex flex-column" headerHight=48>
                     <x-slot:headerActions></x-slot:headerActions>
-                    <div class="">
+                    <div class="" wire:key="{{ $workerSearch }}">
                         <x-ui.input size="sm" placeholder="{{ translator('Search') }}" wModel="workerSearch" wModelEvent="live.debounce.250ms" :removeAddOnXP=TRUE>
                         @if ($workerSearch != NULL || $workerSearch != "")
                             <x-slot:append>

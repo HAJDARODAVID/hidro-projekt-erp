@@ -10,6 +10,7 @@ use Livewire\Attributes\Url;
 
 class Employee extends LivewireController
 {
+    #[Url('search')]
     public $workerSearch = NULL;
 
     /**Selected workplace */
