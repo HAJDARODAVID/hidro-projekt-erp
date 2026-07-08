@@ -36,6 +36,7 @@
         </div>
     </div>
     <x-ui.notification />
+    @include('components.ui.quick-access-modal')
     @livewireScripts
     <!-- JavaScript to handle the loading state -->
     {{-- TODO: Fix this so on loading a spiner is shown --}}

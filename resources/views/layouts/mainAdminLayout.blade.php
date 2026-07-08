@@ -10,6 +10,9 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/dashboard/">
     <link rel="icon" href="{{ url('/images/hpIcon.png') }}" type="image/x-icon"/>
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -139,6 +142,7 @@
   </div>
 </div>
 
+    @include('components.ui.quick-access-modal')
     @livewireScripts
     <script src="{{ url('js/bootstrap.bundle.min.js') }}"></script>
 

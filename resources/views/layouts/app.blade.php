@@ -87,6 +87,9 @@
             @yield('content')
         </main>
     </div>
+    @auth
+        @include('components.ui.quick-access-modal')
+    @endauth
     @livewire('alert-modal')
     @livewireScripts
 </body>
