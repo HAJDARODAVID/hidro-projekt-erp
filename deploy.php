@@ -41,4 +41,9 @@ task('deploy:build', function () {
     run('cd {{release_path}} && npm install && npm run build');
 });
 
+task('artisan:auto-install', function () {
+    run('cd {{release_path}} && php artisan auto-install:check');
+})->desc('Run auto-installation checks');
+
 after('deploy:update_code', 'deploy:build');
+after('artisan:migrate', 'artisan:auto-install');
