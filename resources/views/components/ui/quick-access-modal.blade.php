@@ -24,7 +24,7 @@
             style="z-index: 1500;"
             @click.self="close()"
         >
-            <div class="bg-white rounded shadow w-100 position-relative" style="max-width: 560px;">
+            <div class="bg-white rounded shadow w-100 position-relative no-border-radius" style="max-width: 560px;">
                 <div :style="isExecuting ? 'filter: blur(2px); pointer-events: none;' : ''">
                     <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
                         <strong>Quick access</strong>
