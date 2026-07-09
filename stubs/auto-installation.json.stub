@@ -1,0 +1,24 @@
+{
+    /**DELETE THIS --- Data seeding format**/
+    "type": "seed_data",
+    "description": "Seed role records - uses firstOrCreate to avoid duplicates",
+    "data": {
+        "model": "Role",
+        "records": [
+            {
+            "id": 1,
+            "name": "admin",
+            "display_name": "Administrator",
+            "description": "Full system access with all permissions"
+            }
+        ]
+    },
+
+    /**DELETE THIS --- App config format**/
+    "type": "app_config",
+    "description": "Application configuration - automatically cached on deployment",
+    "data": {
+        "app_name": "App name",
+        "app_version": "1.0.0"
+    }
+}

@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Models\AutoInstallation;
+use App\Services\Config\BaseConfigService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
-class AutoInstallationService extends BaseService
+class AutoInstallationService extends BaseConfigService
 {
     /**
      * Path where installation files are stored
@@ -15,7 +16,7 @@ class AutoInstallationService extends BaseService
 
     public function __construct()
     {
-        $this->installationPath = storage_path('app/auto-installations');
+        $this->installationPath = base_path('installers/auto-installations');
     }
 
     /**
@@ -34,11 +35,14 @@ class AutoInstallationService extends BaseService
             return $results;
         }
 
-        $files = File::files($this->installationPath);
+        $files = collect(File::files($this->installationPath))
+            ->sortBy(fn($file) => $file->getFilename())
+            ->values()
+            ->all();
 
         foreach ($files as $file) {
             $fileName = $file->getFilename();
-            
+
             // Skip non-PHP and non-JSON files
             if (!in_array($file->getExtension(), ['php', 'json'])) {
                 continue;
@@ -153,7 +157,9 @@ class AutoInstallationService extends BaseService
         // Example implementation - you can customize this based on your needs
         foreach ($data as $key => $value) {
             // Store configuration in cache or database
-            \Cache::forever('app_config_' . $key, $value);
+            /**TODO:Delete this if good */
+            // \Cache::forever('app_config_' . $key, $value);
+            $this->createConfig($value, $key);
             Log::info("App config set: $key");
         }
     }

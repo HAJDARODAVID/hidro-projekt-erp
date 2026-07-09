@@ -1,0 +1,10 @@
+{
+    "type": "app_config",
+    "description": "Application configuration - automatically cached on deployment",
+    "data": {
+        "att_style_test":
+            {"10":{"background-color":"#FF7E29"},"20":{"background-color":"#2998FF"},"30":{"background-color":"#7E84F7"}}
+        ,
+        "app_version": "1.0.0"
+    }
+}

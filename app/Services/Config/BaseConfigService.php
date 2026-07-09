@@ -14,6 +14,7 @@ abstract class BaseConfigService
     protected string|array $configKeys;
     protected string $redisPrefix = 'app_config:';
     protected int $cacheTTL = 3600; // 1 hour
+    protected array $allowedDataTypes = ['string', 'integer', 'boolean', 'json', 'color', 'url', 'email', 'decimal'];
 
     public function __construct()
     {
@@ -288,6 +289,55 @@ abstract class BaseConfigService
     }
 
     /**
+     * Create a new config record in database
+     */
+    public function createConfig(
+        mixed $value,
+        string $key = null,
+        mixed $defaultValue = null,
+        ?string $label = null,
+        ?string $description = null,
+        string $dataType = 'string',
+        bool $isPublic = true,
+        bool $isLocked = false,
+        ?int $userId = null
+    ): AppConfig {
+        $key = $key ?? ($this->configKeys ?? null);
+
+        if (is_array($key)) {
+            throw new \Exception('Provide a single key for createConfig()');
+        }
+
+        if (!in_array($dataType, $this->allowedDataTypes, true)) {
+            throw new \Exception("Invalid data type '{$dataType}' for createConfig()");
+        }
+
+        if ($this->getConfigFromDb($key)) {
+            throw new \Exception("Configuration '{$key}' already exists");
+        }
+
+        if (is_array($value)) $dataType = 'json';
+
+        $userId = $userId ?? Auth::id();
+        $defaultValue = $defaultValue ?? $value;
+
+        $config = new AppConfig();
+        $config->key = $key;
+        $config->label = $label;
+        $config->description = $description;
+        $config->data_type = $dataType;
+        $config->is_public = $isPublic;
+        $config->is_locked = $isLocked;
+        $config->created_by = $userId;
+        $config->updated_by = $userId;
+        $config->value = $this->formatValueForStorage($value, $dataType);
+        $config->default_value = $this->formatValueForStorage($defaultValue, $dataType);
+        $config->save();
+
+        return $config;
+    }
+
+    /**
      * Invalidate cache for a key
      */
     protected function invalidateCache(string $key): void
@@ -311,6 +361,30 @@ abstract class BaseConfigService
     {
         $decoded = json_decode($value, true);
         return $decoded !== null ? $decoded : $value;
+    }
+
+    /**
+     * Convert value to database storage format by data type
+     */
+    protected function formatValueForStorage(mixed $value, string $dataType): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if ($dataType === 'json') {
+            return is_string($value) ? $value : json_encode($value);
+        }
+
+        if ($dataType === 'boolean') {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false';
+        }
+
+        if (is_array($value)) {
+            throw new \Exception("Array value requires json data type");
+        }
+
+        return (string) $value;
     }
 
     /**

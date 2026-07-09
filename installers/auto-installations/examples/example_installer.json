@@ -1,0 +1,39 @@
+{
+  "type": "seed_data",
+  "description": "Seed role records - uses firstOrCreate to avoid duplicates",
+  "data": {
+    "model": "Role",
+    "records": [
+      {
+        "id": 1,
+        "name": "admin",
+        "display_name": "Administrator",
+        "description": "Full system access with all permissions"
+      },
+      {
+        "id": 2,
+        "name": "manager",
+        "display_name": "Project Manager",
+        "description": "Can manage projects and team members"
+      },
+      {
+        "id": 3,
+        "name": "supervisor",
+        "display_name": "Supervisor",
+        "description": "Can supervise work and approve tasks"
+      },
+      {
+        "id": 4,
+        "name": "employee",
+        "display_name": "Employee",
+        "description": "Standard employee with basic permissions"
+      },
+      {
+        "id": 5,
+        "name": "viewer",
+        "display_name": "Viewer",
+        "description": "Read-only access to reports and data"
+      }
+    ]
+  }
+}

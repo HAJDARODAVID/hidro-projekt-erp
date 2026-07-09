@@ -1,0 +1,38 @@
+<?php
+
+return new class {
+
+    /**
+     * Installation type identifier
+     */
+    public function getType(): string
+    {
+        return 'basic';
+    }
+
+    /**
+     * Data to store for audit trail
+     */
+    public function getData(): array
+    {
+        return [
+            'key' => '{{ slug }}',
+            'title' => '{{ title }}',
+        ];
+    }
+
+    /**
+     * Main installation handler
+     */
+    public function handle(): void
+    {
+        \Illuminate\Support\Facades\Log::info('⚙️ Installer log description...');
+        
+        try {            
+            \Illuminate\Support\Facades\Log::info('✓ Installed successfully');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('✗ Failed to install: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+};

@@ -12,14 +12,14 @@ class CheckAutoInstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'auto-install:check {--verbose : Show detailed output}';
+    protected $signature = 'auto-install:check {--details : Show detailed output}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check and run pending auto-installations from storage/app/auto-installations';
+    protected $description = 'Check and run pending auto-installations from installers/auto-installations';
 
     protected AutoInstallationService $autoInstallService;
 
@@ -61,7 +61,7 @@ class CheckAutoInstallCommand extends Command
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $this->error('❌ Error during auto-installation check: ' . $e->getMessage());
-            if ($this->option('verbose')) {
+            if ($this->option('details')) {
                 $this->error($e->getTraceAsString());
             }
             return Command::FAILURE;
