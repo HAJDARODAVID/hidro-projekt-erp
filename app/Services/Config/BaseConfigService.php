@@ -3,8 +3,9 @@
 namespace App\Services\Config;
 
 use App\Models\Application\AppConfig;
-use Illuminate\Support\Facades\Redis;
+use App\Services\Config\AppConfigDto;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * @method void initConfig()
@@ -85,15 +86,16 @@ abstract class BaseConfigService
     /**
      * Set a config value
      */
-    public function setValue(string $value, string $key = null, ?int $userId = null): bool
+    public function setValue(AppConfigDto $configDto): bool
     {
-        $key = $key ?? ($this->configKeys ?? null);
+        $key = $configDto->getKey() ?? ($this->configKeys ?? null);
 
         if (is_array($key)) {
             throw new \Exception('Provide a single key for setValue()');
         }
 
-        $userId = $userId ?? Auth::id();
+        $value = $configDto->getValue();
+        $userId = $configDto->getUserId() ?? Auth::id();
         $config = $this->getConfigFromDb($key);
 
         if (!$config) {
@@ -291,35 +293,44 @@ abstract class BaseConfigService
     /**
      * Create a new config record in database
      */
-    public function createConfig(
-        mixed $value,
-        string $key = null,
-        mixed $defaultValue = null,
-        ?string $label = null,
-        ?string $description = null,
-        string $dataType = 'string',
-        bool $isPublic = true,
-        bool $isLocked = false,
-        ?int $userId = null
-    ): AppConfig {
-        $key = $key ?? ($this->configKeys ?? null);
+    public function createConfig(AppConfigDto $configDto): AppConfig
+    {
+        $key = $configDto->getKey() ?? ($this->configKeys ?? null);
 
         if (is_array($key)) {
             throw new \Exception('Provide a single key for createConfig()');
         }
+
+        $value = $configDto->getValue();
+        $defaultValue = $configDto->getDefaultValue() ?? $value;
+        $label = $configDto->getLabel();
+        $description = $configDto->getDescription();
+        $dataType = $configDto->getDataType();
+        $isPublic = $configDto->isPublic();
+        $isLocked = $configDto->isLocked();
+        $userId = $configDto->getUserId() ?? Auth::id();
 
         if (!in_array($dataType, $this->allowedDataTypes, true)) {
             throw new \Exception("Invalid data type '{$dataType}' for createConfig()");
         }
 
         if ($this->getConfigFromDb($key)) {
-            throw new \Exception("Configuration '{$key}' already exists");
+            $updateDto = (new AppConfigDto())
+                ->setKey($key)
+                ->setValue($value)
+                ->setUserId($userId);
+
+            $this->setValue($updateDto);
+
+            $existingConfig = $this->getConfigFromDb($key);
+            if (!$existingConfig) {
+                throw new \Exception("Configuration '{$key}' was not found after update");
+            }
+
+            return $existingConfig;
         }
 
         if (is_array($value)) $dataType = 'json';
-
-        $userId = $userId ?? Auth::id();
-        $defaultValue = $defaultValue ?? $value;
 
         $config = new AppConfig();
         $config->key = $key;

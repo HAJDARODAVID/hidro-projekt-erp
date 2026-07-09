@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AutoInstallation;
 use App\Services\Config\BaseConfigService;
+use App\Services\Config\AppConfigDto;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -157,9 +158,11 @@ class AutoInstallationService extends BaseConfigService
         // Example implementation - you can customize this based on your needs
         foreach ($data as $key => $value) {
             // Store configuration in cache or database
-            /**TODO:Delete this if good */
-            // \Cache::forever('app_config_' . $key, $value);
-            $this->createConfig($value, $key);
+            $configDto = (new AppConfigDto())
+                ->setKey($key)
+                ->setValue($value);
+
+            $this->createConfig($configDto);
             Log::info("App config set: $key");
         }
     }
