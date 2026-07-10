@@ -1,7 +1,6 @@
 import './bootstrap';
-import Alpine from 'alpinejs';
 import { registerQuickAccessModal } from './quick-access-modal';
+import { registerCalculatorModal } from './calculator-modal';
 
-window.Alpine = Alpine;
 registerQuickAccessModal();
-Alpine.start();
+registerCalculatorModal();

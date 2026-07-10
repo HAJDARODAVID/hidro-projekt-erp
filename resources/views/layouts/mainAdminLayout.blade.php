@@ -15,6 +15,7 @@
 
 
     <!-- Scripts -->
+    @livewireStyles
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet">
@@ -143,6 +144,7 @@
 </div>
 
     @include('components.ui.quick-access-modal')
+    @include('components.ui.calculator-modal')
     @livewireScripts
     <script src="{{ url('js/bootstrap.bundle.min.js') }}"></script>
 
