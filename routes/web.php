@@ -7,7 +7,6 @@ use App\Http\Controllers\CostOverviewController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\HidroProjekt\AdminController;
 use App\Http\Controllers\HidroProjekt\AssetsController;
-use App\Http\Controllers\HidroProjekt\CalculatorController;
 use App\Http\Controllers\HidroProjekt\ConstructionSiteController;
 use App\Http\Controllers\HidroProjekt\HumanResourcesController;
 use App\Http\Controllers\HidroProjekt\InternalDeliveryNoteController;
@@ -165,11 +164,6 @@ Route::prefix('/')
                             ->group(function () {
                                 Route::get('/', 'accessControlList')->name('hp_acl');
                             });
-                    });
-
-                Route::controller(CalculatorController::class)
-                    ->group(function () {
-                        Route::get('calculator', 'index')->name('hp_calculator');
                     });
             });
 

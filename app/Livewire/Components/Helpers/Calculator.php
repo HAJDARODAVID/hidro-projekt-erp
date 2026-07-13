@@ -8,7 +8,23 @@ use Livewire\Component;
 
 class Calculator extends Component
 {
+    public $add    = ['amount' => null, 'pdv' => null, 'result' => null];
+    public $remove = ['amount' => null, 'pdv' => null, 'result' => null];
     public $data = [];
+
+    public function updatedAdd($value, $key)
+    {
+        if ($this->add['amount'] && $this->add['pdv']) {
+            return $this->add['result'] = $this->add['amount'] * (1 + $this->add['pdv'] / 100);
+        }
+    }
+
+    public function updatedRemove($value, $key)
+    {
+        if ($this->remove['amount'] && $this->remove['pdv']) {
+            return  $this->remove['result'] = $this->remove['amount'] * $this->getReductionPercentage();
+        }
+    }
 
     public function updatedData($value, $key)
     {
@@ -84,6 +100,14 @@ class Calculator extends Component
             return $this->data[$arrayKey]['result'] = $this->data[$arrayKey]['amount'] * (1 - ($this->data[$arrayKey]['percentage'] / 100));
         }
         return $this->data[$arrayKey]['result'] = null;
+    }
+
+    private function getReductionPercentage()
+    {
+        $startValue = 100;
+        $endValue = $startValue * (1 + $this->remove['pdv'] / 100);
+        $reductionValue = $startValue / $endValue;
+        return $reductionValue;
     }
 
     public function render()

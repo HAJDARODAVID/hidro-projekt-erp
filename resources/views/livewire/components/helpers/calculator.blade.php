@@ -1,4 +1,47 @@
 <div >
+    <div class="col col-md-7">
+        <div class="row mb-2">
+            <div class="col col-md-5">
+                <div class="form-group">
+                    <label for="amount1">Iznos bez PDV-a</label>
+                    <input type="number" class="form-control" id="amount1" wire:model.blur='add.amount'>
+                </div>
+            </div>
+            <div class="col col-md-2">
+                <div class="form-group">
+                    <label for="amount2">PDV [%]</label>
+                    <input type="number" class="form-control" id="amount2" wire:model.blur='add.pdv'>
+                </div>
+            </div>
+            <div class="col col-md-5">
+                <div class="form-group">
+                    <label for="amount2">Iznos sa PDV-om</label>
+                    <input type="number" class="form-control" id="amount2" disabled wire:model.live='add.result'>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col col-md-5">
+                <div class="form-group">
+                    <label for="amount1">Iznos sa PDV-a</label>
+                    <input type="number" class="form-control" id="amount1" wire:model.blur='remove.amount'>
+                </div>
+            </div>
+            <div class="col col-md-2">
+                <div class="form-group">
+                    <label for="amount2">PDV [%]</label>
+                    <input type="number" class="form-control" id="amount2" wire:model.blur='remove.pdv'>
+                </div>
+            </div>
+            <div class="col col-md-5">
+                <div class="form-group">
+                    <label for="amount2">Iznos bez PDV-om</label>
+                    <input type="number" class="form-control" id="amount2" disabled wire:model.live='remove.result'>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
     <div class="mb-2">
         <b>Koliko je</b> 
         <input type="number" class="form-control" style="width: 80px;display: inline" wire:model.blur='data.percentageOfAmount.percentage'><b>%</b>
