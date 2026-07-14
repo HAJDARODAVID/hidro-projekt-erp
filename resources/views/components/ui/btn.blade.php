@@ -14,11 +14,13 @@
     </a>
 @else
     <button 
+        type="button"
         class="btn {{ $btnColor }} @if($btnSize){{ $btnSize }} @endif shadow" 
         style="border-radius: 0px!Important;" 
+        {{ $attributes }}
         @if ($action)
             wire:click="{{ $action }}('{{ $param }}')"
-        @else
+        @elseif ($wClickMethod)
             wire:click="{{ $wClickMethod }}('{{ $wClickParam }}')" 
         @endif
         

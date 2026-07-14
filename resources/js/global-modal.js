@@ -1,13 +1,24 @@
 const APPLICATION_MODAL_EVENT = 'open-application-modal';
 const GLOBAL_MODAL_KEY = 'global';
 
+const dispatchGlobalModalOpen = ({ component, params }) => {
+    const payload = {
+        component,
+        params: params || {},
+    };
+
+    if (window.Livewire && typeof window.Livewire.dispatch === 'function') {
+        window.Livewire.dispatch('open-global-modal', payload);
+    }
+};
+
 export function registerGlobalModal() {
     // Quick-access shortcut: { type: 'modal', modal: 'global', component: '...', params: {...} }
     window.addEventListener(APPLICATION_MODAL_EVENT, (event) => {
         if (event?.detail?.modal !== GLOBAL_MODAL_KEY || !event?.detail?.component) {
             return;
         }
-        Livewire.dispatch('open-global-modal', {
+        dispatchGlobalModalOpen({
             component: event.detail.component,
             params: event.detail.params || {},
         });
@@ -37,7 +48,7 @@ export function registerGlobalModal() {
         }
 
         event.preventDefault();
-        Livewire.dispatch('open-global-modal', { component, params });
+        dispatchGlobalModalOpen({ component, params });
     });
 }
 

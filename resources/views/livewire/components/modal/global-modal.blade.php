@@ -3,6 +3,7 @@
 </style>
 
 <div
+    wire:key="global-modal-root-{{ $renderVersion }}"
     x-cloak
     x-data="{
         isOpen: false,
@@ -30,11 +31,11 @@
                 <button type="button" class="btn-close" aria-label="Close" @click="close()"></button>
             </div>
 
-            <div class="px-5 py-3">
+            <div class="px-5 py-3" wire:key="global-modal-content-{{ $renderVersion }}">
                 @if ($componentName)
-                    @livewire($componentName, $componentParams, key('global-modal-' . $componentName))
+                    @livewire($componentName, $componentParams, key('global-modal-' . $componentName . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion))
                 @endif
-                {{ var_export($componentName) }}
+                {{ var_export([$componentName, $renderVersion, $time]) }}
             </div>
         </div>
     </div>
