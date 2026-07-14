@@ -115,7 +115,7 @@ export function registerQuickAccessModal() {
             if (shortcut.type === 'modal') {
                 this.close();
                 window.dispatchEvent(new CustomEvent(APPLICATION_MODAL_EVENT, {
-                    detail: { modal: shortcut.modal },
+                    detail: { modal: shortcut.modal, component: shortcut.component || null },
                 }));
                 return;
             }

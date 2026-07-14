@@ -23,5 +23,16 @@ return [
             'type' => 'modal',
             'modal' => 'calculator',
         ],
+        // Example: open any Livewire component in the global modal via quick-access.
+        // Set type to 'modal', modal to 'global', and add a 'component' key with the
+        // Livewire component name (dot-notation, same as @livewire() / wire:navigate).
+        //
+        // [
+        //     'code'      => 'XYZ',
+        //     'label'     => 'Open XYZ module',
+        //     'type'      => 'modal',
+        //     'modal'     => 'global',
+        //     'component' => 'components.helpers.calculator',
+        // ],
     ],
 ];

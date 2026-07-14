@@ -91,6 +91,7 @@
     @auth
         @include('components.ui.quick-access-modal')
         @include('components.ui.calculator-modal')
+        @livewire('components.modal.global-modal')
     @endauth
     @livewire('alert-modal')
     @livewireScripts

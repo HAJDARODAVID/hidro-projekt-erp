@@ -38,6 +38,7 @@
     <x-ui.notification />
     @include('components.ui.quick-access-modal')
     @include('components.ui.calculator-modal')
+    @livewire('components.modal.global-modal')
     @livewireScripts
     <!-- JavaScript to handle the loading state -->
     {{-- TODO: Fix this so on loading a spiner is shown --}}
