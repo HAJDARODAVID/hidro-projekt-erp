@@ -2,16 +2,6 @@ const APPLICATION_MODAL_EVENT = 'open-application-modal';
 const GLOBAL_MODAL_KEY = 'global';
 
 export function registerGlobalModal() {
-    window.globalModal = () => ({
-        isOpen: false,
-
-        close() {
-            this.isOpen = false;
-            // Tell PHP to clear componentName so the child is unmounted on re-render.
-            Livewire.dispatch('clear-global-modal');
-        },
-    });
-
     // Quick-access shortcut: { type: 'modal', modal: 'global', component: '...', params: {...} }
     window.addEventListener(APPLICATION_MODAL_EVENT, (event) => {
         if (event?.detail?.modal !== GLOBAL_MODAL_KEY || !event?.detail?.component) {
@@ -50,7 +40,4 @@ export function registerGlobalModal() {
         Livewire.dispatch('open-global-modal', { component, params });
     });
 }
-
-
-
 

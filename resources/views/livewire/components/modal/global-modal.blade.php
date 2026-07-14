@@ -4,7 +4,13 @@
 
 <div
     x-cloak
-    x-data="globalModal()"
+    x-data="{
+        isOpen: false,
+        close() {
+            this.isOpen = false;
+            $wire.clearComponent();
+        }
+    }"
     @global-modal-open-overlay.window="isOpen = true"
     @keydown.window.escape="if (isOpen) close()"
 >
@@ -28,6 +34,7 @@
                 @if ($componentName)
                     @livewire($componentName, $componentParams, key('global-modal-' . $componentName))
                 @endif
+                {{ var_export($componentName) }}
             </div>
         </div>
     </div>
