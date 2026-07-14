@@ -24,11 +24,7 @@ class NewAttendanceModal extends LivewireController
     public array $hourInputAtt;
 
     public array $workDiaryOptionsItems = [];
-<<<<<<< HEAD
-    public array $workTypeOptionsItems = [];
-=======
     public array $workDayTypesOptionsItems = [];
->>>>>>> master
 
     public int|null $worker = null;
     public array $workersOptionsItems = [];
