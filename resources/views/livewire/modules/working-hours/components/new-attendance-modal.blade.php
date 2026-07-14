@@ -44,11 +44,11 @@
                     </div>
                     <div class="col-md-4">
                         <x-ui.select
-                            :options=$workDiaryOptionsItems
+                            :options=$workDayTypesOptionsItems
                             label="{{ translator('Type') }}"
-                            initOption="{{ translator('Select work diary') }}"
+                            initOption="{{ translator('Type') }}"
                             class="form-select-sm"
-                            wModel="attendance.working_day_record_id"
+                            wModel="attendance.type"
                         />
                     </div>
                 </div>
@@ -71,6 +71,5 @@
                 </div>
             </div>
         </x-ui.card>
-        {{ var_export($attendance) }}
     </x-ui.modal>
 </div>

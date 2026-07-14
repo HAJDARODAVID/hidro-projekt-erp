@@ -28,12 +28,12 @@
     <hr>
 
     @if(Auth::user()->id == 1 || Auth::user()->id == 2)
-        <a href="{{ route('hp_calculator') }}" class="list-group-item list-group-item-action">
+        <button class="list-group-item list-group-item-action" id="calculator">
             <div class="d-flex gap-3">
                 <i class="bi bi-calculator"></i>
                 <b>KALKULATOR</b>
             </div>
-        </a>
+        </button>
     @endif
 
     {{-- INVENTORY MENU ITEM  --}}

@@ -16,6 +16,7 @@
     <link rel="icon" href="{{ url('/images/hpIcon.png') }}" type="image/x-icon"/>
 
     <!-- Scripts -->
+    @livewireStyles
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body>
@@ -89,6 +90,7 @@
     </div>
     @auth
         @include('components.ui.quick-access-modal')
+        @include('components.ui.calculator-modal')
     @endauth
     @livewire('alert-modal')
     @livewireScripts

@@ -17,5 +17,11 @@ return [
             'type' => 'action',
             'action' => 'clear-cache',
         ],
+        [
+            'code' => 'CAL',
+            'label' => 'Open calculator modal',
+            'type' => 'modal',
+            'modal' => 'calculator',
+        ],
     ],
 ];

@@ -1,4 +1,5 @@
 const normalizeCode = (value) => (value || '').trim().toUpperCase();
+const APPLICATION_MODAL_EVENT = 'open-application-modal';
 const parseShortcutInput = (value) => {
     const normalized = normalizeCode(value);
     const isTriggered = normalized.startsWith('/');
@@ -108,6 +109,14 @@ export function registerQuickAccessModal() {
             if (shortcut.type === 'route') {
                 this.close();
                 window.location.href = shortcut.url;
+                return;
+            }
+
+            if (shortcut.type === 'modal') {
+                this.close();
+                window.dispatchEvent(new CustomEvent(APPLICATION_MODAL_EVENT, {
+                    detail: { modal: shortcut.modal },
+                }));
                 return;
             }
 
