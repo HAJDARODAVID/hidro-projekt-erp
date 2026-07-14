@@ -24,6 +24,7 @@ class NewAttendanceModal extends LivewireController
     public array $hourInputAtt;
 
     public array $workDiaryOptionsItems = [];
+    public array $workDayTypesOptionsItems = [];
 
     public int|null $worker = null;
     public array $workersOptionsItems = [];
@@ -50,6 +51,7 @@ class NewAttendanceModal extends LivewireController
             $this->resetAttendance()
                 ->setHoursInputAtt()
                 ->setWorkersOptionsItems()
+                ->setWorkDayTypesOptionsItems()
                 ->setFromParams($params)
                 ->setWorkDiariesOptionsItems();
             $this->openModal();
@@ -153,6 +155,7 @@ class NewAttendanceModal extends LivewireController
             'absence_reason' => null,
             'date' => $this->date,
         ];
+        $this->resetHourInputAction();
         return $this;
     }
 
@@ -175,6 +178,16 @@ class NewAttendanceModal extends LivewireController
     {
         $service = new GetAllWorkDiariesForDateService(new DateTime($this->date));
         $this->workDiaryOptionsItems = $service->executeForDropdown()->getResponse()['data'];
+        return $this;
+    }
+
+    /**
+     * Set options that will be used in the select element.
+     * Gets all the work day types.
+     */
+    private function setWorkDayTypesOptionsItems()
+    {
+        $this->workDayTypesOptionsItems = Types::getTypes();
         return $this;
     }
 
