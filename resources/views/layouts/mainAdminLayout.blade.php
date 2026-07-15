@@ -20,7 +20,7 @@
 
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url('css/snowflake.css') }}" rel="stylesheet">
-
+    <link href="{{ url('assets/css/application.css') }}" rel="stylesheet">
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;

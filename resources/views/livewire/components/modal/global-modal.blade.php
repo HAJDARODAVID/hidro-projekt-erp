@@ -17,7 +17,7 @@
     <div
         x-show.important="isOpen"
         x-transition.opacity
-        class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-start justify-content-center pt-4 pb-4 px-2"
+        class="position-fixed top-0 start-0 w-100 h-100 modal-bg-blur d-flex align-items-start justify-content-center pt-4 pb-4 px-2"
         style="z-index: 1600;"
         @click.self="close()"
     >
