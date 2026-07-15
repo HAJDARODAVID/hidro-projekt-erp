@@ -1,9 +1,4 @@
-<style>
-    [x-cloak] { display: none !important; }
-</style>
-
 <div
-    wire:key="global-modal-root-{{ $renderVersion }}"
     x-cloak
     x-data="{
         isOpen: false,
@@ -15,6 +10,10 @@
     @global-modal-open-overlay.window="isOpen = true"
     @keydown.window.escape="if (isOpen) close()"
 >
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
     <div
         x-show.important="isOpen"
         x-transition.opacity

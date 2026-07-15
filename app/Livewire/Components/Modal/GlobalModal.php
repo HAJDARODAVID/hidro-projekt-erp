@@ -45,9 +45,6 @@ class GlobalModal extends Component
     public function render()
     {
         return view('livewire.components.modal.global-modal', [
-            'componentName' => $this->componentName,
-            'componentParams' => $this->componentParams,
-            'renderVersion' => $this->renderVersion,
             'headerName'  => AppConfig::getByKey('global_modal_header_name', 'Module_fix'),
             'headerStyle' => AppConfig::getByKey('global_modal_header_name_style', 'font-weight: 600; font-size: 1rem;'),
             'maxWidth'    => AppConfig::getByKey('global_modal_max_width', '1140px'),
