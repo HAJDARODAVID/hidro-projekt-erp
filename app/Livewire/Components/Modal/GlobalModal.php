@@ -2,19 +2,19 @@
 
 namespace App\Livewire\Components\Modal;
 
+use App\Livewire\LivewireController;
 use App\Models\Application\AppConfig;
+use App\Services\Application\GlobalModal\GlobalModalService;
+use App\Services\Application\GlobalModal\ModalDto;
 use Livewire\Attributes\On;
-use Livewire\Component;
 
-class GlobalModal extends Component
+class GlobalModal extends LivewireController
 {
-    public $isOpen = false;
-
-    public ?string $componentName = null;
-
     public array $componentParams = [];
 
     public int $renderVersion = 0;
+
+    private ?ModalDto $modal = null;
 
     /**
      * Triggered from JS via Livewire.dispatch('open-global-modal', { component, params }).
@@ -22,9 +22,15 @@ class GlobalModal extends Component
      * in the DOM when Alpine receives the event and shows the overlay.
      */
     #[On('open-global-modal')]
-    public function openModal(string $component, array $params = []): void
+    public function openGlobalModal(string $component, array $params = []): void
     {
-        $this->componentName = $component;
+        try {
+            $this->modal = (new GlobalModalService)->make($component);
+        } catch (\Throwable $th) {
+            $this->notifyMe($th->getMessage(), 'danger');
+            return;
+        }
+
         $this->componentParams = $params;
         $this->renderVersion++;
         $this->dispatch('global-modal-open-overlay');
@@ -37,7 +43,6 @@ class GlobalModal extends Component
      */
     public function clearComponent(): void
     {
-        $this->componentName = null;
         $this->componentParams = [];
         $this->renderVersion++;
     }
@@ -48,6 +53,7 @@ class GlobalModal extends Component
             'headerName'  => AppConfig::getByKey('global_modal_header_name', 'Module_fix'),
             'headerStyle' => AppConfig::getByKey('global_modal_header_name_style', 'font-weight: 600; font-size: 1rem;'),
             'maxWidth'    => AppConfig::getByKey('global_modal_max_width', '1140px'),
+            'modalService'  => $this->modal ?? new ModalDto(),
             'time' => now()->format('Y-m-d H:i:s.u'),
         ]);
     }

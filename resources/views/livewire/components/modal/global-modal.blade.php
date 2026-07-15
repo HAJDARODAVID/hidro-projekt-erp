@@ -23,18 +23,18 @@
     >
         <div
             class="bg-white shadow w-100 position-relative no-border-radius"
-            style="max-width: {{ $maxWidth }};"
+            style="max-width: {{ $modalService->getMaxWidth() }};"
         >
             <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                <strong style="{{ $headerStyle }}">{{ $headerName }}</strong>
+                <strong style="{{ $modalService->getHeaderStyle() }}">{{ $modalService->getHeaderName() }}</strong>
                 <button type="button" class="btn-close" aria-label="Close" @click="close()"></button>
             </div>
 
             <div class="px-5 py-3" wire:key="global-modal-content-{{ $renderVersion }}">
-                @if ($componentName)
-                    @livewire($componentName, $componentParams, key('global-modal-' . $componentName . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion))
+                @if ($modalService->getComponentPath())
+                    @livewire($modalService->getComponentPath(), $componentParams, key('global-modal-' . $modalService->getComponentPath() . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion))
                 @endif
-                {{ var_export([$componentName, $renderVersion, $time]) }}
+                {{ var_export([$renderVersion, $modalService]) }}
             </div>
         </div>
     </div>

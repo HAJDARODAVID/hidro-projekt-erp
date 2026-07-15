@@ -32,7 +32,7 @@ return [
         //     'label'     => 'Open XYZ module',
         //     'type'      => 'modal',
         //     'modal'     => 'global',
-        //     'component' => 'components.helpers.calculator',
+        //     'component' => 'calculator',
         // ],
     ],
 ];
