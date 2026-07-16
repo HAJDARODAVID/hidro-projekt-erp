@@ -20,7 +20,7 @@
 
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url('css/snowflake.css') }}" rel="stylesheet">
-
+    <link href="{{ url('assets/css/application.css') }}" rel="stylesheet">
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -142,9 +142,10 @@
     </main>
   </div>
 </div>
-
+<x-ui.notification />
     @include('components.ui.quick-access-modal')
     @include('components.ui.calculator-modal')
+    @livewire('components.modal.global-modal')
     @livewireScripts
     <script src="{{ url('js/bootstrap.bundle.min.js') }}"></script>
 

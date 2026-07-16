@@ -11,14 +11,18 @@ class ModalOpenBtn extends Component
     public bool $displayIcon;
     public string $btnType;
     public string $icon;
+    public ?string $targetComponent;
+    public array $params;
     /**
      * Create a new component instance.
      */
-    public function __construct($show = TRUE, $btnType = 'suc.sm', $icon = 'plus-square')
+    public function __construct($show = TRUE, $btnType = 'suc.sm', $icon = 'plus-square', $targetComponent = null, $params = [])
     {
         $this->displayIcon = $show;
         $this->btnType = $btnType;
         $this->icon = $icon;
+        $this->targetComponent = $targetComponent;
+        $this->params = $params;
     }
 
     /**
