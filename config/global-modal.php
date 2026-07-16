@@ -8,7 +8,14 @@ return [
         'max-width' => '1090px',
     ],
     'test' => [
-        'header-name' => 'Test',
+        'component-path' => 'components.modal.testing',
+        'header-name' => 'Test - dispatch initMethod()',
+        'header-style' => null,
+        'max-width' => null,
+    ],
+    'stable-test' => [
+        'component-path' => 'components.modal.stable-testing-example',
+        'header-name' => 'Stable Test Example',
         'header-style' => null,
         'max-width' => null,
     ],

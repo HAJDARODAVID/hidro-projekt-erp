@@ -34,7 +34,6 @@
                 @if ($modalService->getComponentPath())
                     @livewire($modalService->getComponentPath(), $componentParams, key('global-modal-' . $modalService->getComponentPath() . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion))
                 @endif
-                {{ var_export([$renderVersion, $modalService]) }}
             </div>
         </div>
     </div>
