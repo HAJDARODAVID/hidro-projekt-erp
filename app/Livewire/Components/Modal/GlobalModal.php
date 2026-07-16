@@ -7,6 +7,7 @@ use App\Models\Application\AppConfig;
 use App\Services\Application\GlobalModal\GlobalModalService;
 use App\Services\Application\GlobalModal\ModalDto;
 use Livewire\Attributes\On;
+use Livewire\Mechanisms\ComponentRegistry;
 
 class GlobalModal extends LivewireController
 {
@@ -32,7 +33,12 @@ class GlobalModal extends LivewireController
     public function openGlobalModal(string $component, array $params = []): void
     {
         try {
-            (new GlobalModalService)->make($component);
+            $modal = (new GlobalModalService)->make($component);
+
+            // Resolve the underlying Livewire component now, so a bad/renamed
+            // component-path in config/global-modal.php fails here with a
+            // friendly notification instead of crashing render()'s @livewire() call.
+            app(ComponentRegistry::class)->getClass($modal->getComponentPath());
         } catch (\Throwable $th) {
             $this->notifyMe($th->getMessage(), 'danger');
             return;
