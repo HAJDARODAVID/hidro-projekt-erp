@@ -37,6 +37,8 @@ class GlobalModalService
             $modal->setMaxWidth($config['max-width']);
         }
 
+        $modal->setStable((bool) ($config['stable'] ?? false));
+
         return $modal;
     }
 }

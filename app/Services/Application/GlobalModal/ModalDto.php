@@ -11,6 +11,7 @@ class ModalDto extends BaseDTO
     protected string|null $headerName;
     protected string|null $headerStyle;
     protected string|null $maxWidth;
+    protected bool $stable;
 
     public function __construct(
         string|null $name = null,
@@ -18,6 +19,7 @@ class ModalDto extends BaseDTO
         string $headerName = 'Modal',
         string|null $headerStyle = 'font-weight: 600; font-size: 1rem;',
         string|null $maxWidth = '1140px',
+        bool $stable = false,
         // string $headerStyle = 'font-weight: 600; font-size: 1rem;',
         // string $maxWidth = '1140px'
     ) {
@@ -26,6 +28,7 @@ class ModalDto extends BaseDTO
         $this->headerName = $headerName;
         $this->headerStyle = $headerStyle;
         $this->maxWidth = $maxWidth;
+        $this->stable = $stable;
 
         // $this->headerStyle = $headerStyle;
         // $this->maxWidth = $maxWidth;
@@ -87,6 +90,18 @@ class ModalDto extends BaseDTO
     public function setMaxWidth(string $maxWidth): self
     {
         $this->maxWidth = $maxWidth;
+
+        return $this;
+    }
+
+    public function isStable(): bool
+    {
+        return $this->stable;
+    }
+
+    public function setStable(bool $stable): self
+    {
+        $this->stable = $stable;
 
         return $this;
     }

@@ -18,5 +18,6 @@ return [
         'header-name' => 'Stable Test Example',
         'header-style' => null,
         'max-width' => null,
+        'stable' => true,
     ],
 ];

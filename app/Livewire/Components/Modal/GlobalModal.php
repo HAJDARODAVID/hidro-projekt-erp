@@ -14,7 +14,14 @@ class GlobalModal extends LivewireController
 
     public int $renderVersion = 0;
 
-    private ?ModalDto $modal = null;
+    /**
+     * The registry key of the currently open modal (see config/global-modal.php).
+     * Kept as a plain public string - rather than the resolved ModalDto - because
+     * Livewire only persists public properties across requests; render() resolves
+     * this back into a ModalDto every time so it's never stale after a request
+     * that didn't go through openGlobalModal() (e.g. clearComponent()).
+     */
+    public ?string $modalName = null;
 
     /**
      * Triggered from JS via Livewire.dispatch('open-global-modal', { component, params }).
@@ -25,12 +32,13 @@ class GlobalModal extends LivewireController
     public function openGlobalModal(string $component, array $params = []): void
     {
         try {
-            $this->modal = (new GlobalModalService)->make($component);
+            (new GlobalModalService)->make($component);
         } catch (\Throwable $th) {
             $this->notifyMe($th->getMessage(), 'danger');
             return;
         }
 
+        $this->modalName = $component;
         $this->componentParams = $params;
         $this->renderVersion++;
         $this->dispatch('global-modal-open-overlay');
@@ -56,10 +64,7 @@ class GlobalModal extends LivewireController
     public function render()
     {
         return view('livewire.components.modal.global-modal', [
-            'headerName'  => AppConfig::getByKey('global_modal_header_name', 'Module_fix'),
-            'headerStyle' => AppConfig::getByKey('global_modal_header_name_style', 'font-weight: 600; font-size: 1rem;'),
-            'maxWidth'    => AppConfig::getByKey('global_modal_max_width', '1140px'),
-            'modalService'  => $this->modal ?? new ModalDto(),
+            'modalService' => $this->modalName ? (new GlobalModalService)->make($this->modalName) : new ModalDto(),
             'time' => now()->format('Y-m-d H:i:s.u'),
         ]);
     }

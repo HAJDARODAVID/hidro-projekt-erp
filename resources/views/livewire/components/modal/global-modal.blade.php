@@ -30,9 +30,20 @@
                 <button type="button" class="btn-close" aria-label="Close" @click="close()"></button>
             </div>
 
-            <div class="px-5 py-3" wire:key="global-modal-content-{{ $renderVersion }}">
+            <div
+                class="px-5 py-3"
+                wire:key="global-modal-content-{{ $modalService->isStable() ? $modalService->getComponentPath() : $renderVersion }}"
+            >
                 @if ($modalService->getComponentPath())
-                    @livewire($modalService->getComponentPath(), $componentParams, key('global-modal-' . $modalService->getComponentPath() . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion))
+                    @livewire(
+                        $modalService->getComponentPath(),
+                        $componentParams,
+                        key(
+                            $modalService->isStable()
+                                ? 'global-modal-' . $modalService->getComponentPath()
+                                : 'global-modal-' . $modalService->getComponentPath() . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion
+                        )
+                    )
                 @endif
             </div>
         </div>
