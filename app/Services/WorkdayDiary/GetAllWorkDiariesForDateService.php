@@ -69,12 +69,13 @@ class GetAllWorkDiariesForDateService extends BaseService
     /**
      * Get work diaries with additional formatting for selection dropdowns
      * 
+     * @param array|string $options
      * @return self
      */
-    public function executeForDropdown(): self
+    public function executeForDropdown(array|string ...$options): self
     {
         try {
-            $this->with('constructionSite')->execute();
+            $this->with('constructionSite', 'user')->execute();
 
             if (!$this->getResponseStatus()) {
                 return $this;
@@ -83,7 +84,10 @@ class GetAllWorkDiariesForDateService extends BaseService
             $formattedDiaries = [];
 
             foreach ($workDayDiaries as $diary) {
-                $formattedDiaries[$diary->id] = $diary->constructionSite->name;
+                $output = '';
+                if (in_array('with-user', $options)) $output .= $diary->user->name . ' | ';
+                $output .= $diary->constructionSite->name;
+                $formattedDiaries[$diary->id] = $output;
             }
             $this->setData($formattedDiaries);
             return $this;

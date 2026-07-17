@@ -31,7 +31,7 @@
             </div>
 
             <div
-                class="px-5 py-3"
+                class="px-4 py-3"
                 wire:key="global-modal-content-{{ $modalService->isStable() ? $modalService->getComponentPath() : $renderVersion }}"
             >
                 @if ($modalService->getComponentPath())

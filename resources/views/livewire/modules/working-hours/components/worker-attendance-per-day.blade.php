@@ -1,154 +1,125 @@
+
 <x-ui.card :noBodyPadding=TRUE loading="createNewDiary" :border=FALSE>
-            <div class="row">
-                <div class="col-md">
-                    <x-ui.card title="{{ translator('Add new attendance') }}" style="min-height: 600px">
-                        <div class="row">
-                            <div class="col-md-4">
+    <div class="row">
+        <div class="col-md-5">
+            <x-ui.card title="{{ translator('Add new attendance') }}" style="">
+                <div class="row">
+                    <div class="col-md-4">
+                        <x-ui-input
+                            type="date" size="sm"
+                            label="{{ translator('Date') }}"
+                            model="params.date" :disabled='true'
+                        />
+                    </div>
+                    <div class="col-md">
+                        <x-ui-input
+                            size="sm"
+                            label="{{ translator('Worker') }}"
+                            model="workerInfo.name" :disabled='true'
+                        />
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md">
+                        <div class="d-flex gap-1 justify-content-center">
+                            <x-ui.employees.absence-btns :att='["size" => "sm"]'/>
+                            <x-v-divider />
+                            <div class="d-flex" style="width: 139px">
                                 <x-ui.input
-                                    type="date"
-                                    label="{{ translator('Date') }}"
+                                    type="{{ $hourInputAtt['type'] ?? null }}"
                                     class="form-control-sm"
-                                    wModel="date"
-                                    wModelEvent="change"
-                                    :disabled='true'
+                                    wModel="hourInput"
+                                    :disabled='$hourInputAtt["disabled"]'
+                                    style="text-align: center;font-weight: bold; background-color: {{ $hourInputAtt['style']['background-color'] ?? null }}"
                                 />
-                            </div>
-                            <div class="col-md">
-                                <x-ui-select
-                                    :options=$workersOptionsItems
-                                    label="{{ translator('Worker') }}"
-                                    initOpt="{{ translator('Select worker') }}"
-                                    size="sm"
-                                    model="attendance.worker_id"
-                                    :disabled='true'
-                                />
+                                @if($hourInputAtt["delete"]) 
+                                    <x-ui.btn type="dan.sm" icon="trash" action='resetHourInputAction' />
+                                @endif
                             </div>
                         </div>
-                        <div class="row mt-4">
-                            <div class="col-md">
-                                <div class="d-flex gap-1 justify-content-center">
-                                    <x-ui.employees.absence-btns :att='["size" => "sm"]'/>
-                                    <x-v-divider />
-                                    <div class="d-flex" style="width: 139px">
-                                        <x-ui.input
-                                            type="{{ $hourInputAtt['type'] ?? null }}"
-                                            class="form-control-sm"
-                                            wModel="hourInput"
-                                            :disabled='$hourInputAtt["disabled"]'
-                                            style="text-align: center;font-weight: bold; background-color: {{ $hourInputAtt['style']['background-color'] ?? null }}"
-                                        />
-                                        @if($hourInputAtt["delete"]) 
-                                            <x-ui.btn type="dan.sm" icon="trash" action='resetHourInputAction' />
-                                        @endif
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md">
+                        
+                        <div class="d-flex justify-content-center">
+                            @foreach (WorkdayTypes::bdeType() as $typeKey => $type)
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="">{{ $type }}</div>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input " type="radio" wire:model.live="attendance.type" value="{{ $typeKey }}">
                                     </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
-                        <div class="row mt-3">
-                            <div class="col-md">
-                                
-                                <div class="d-flex justify-content-center">
-                                    @foreach (WorkdayTypes::bdeType() as $typeKey => $type)
-                                        <div class="d-flex gap-2 align-items-center">
-                                            <div class="">{{ $type }}</div>
-                                            <div class="form-check form-switch m-0">
-                                                <input class="form-check-input " type="radio" wire:model.live="diaryInfo.workdayType" value="{{ $typeKey }}">
+                        
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md">
+                        <x-ui-select
+                            :options=$workDiaryOptionsItems
+                            label="{{ translator('Workday diary') }}"
+                            initOpt="{{ translator('w/o workday diary') }}"
+                            size="sm"
+                            model="attendance.working_day_record_id"
+                        />
+                    </div>
+                </div>
+                <hr>
+                <div class="">
+                    <label>{{ translator('Comment') }}</label>
+                    <textarea class="form-control no-border-radius" style="width: 100%" rows="4" wire:model.blur='attendance.comment'></textarea>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-end">
+                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" />
+                </div>
+            </x-ui.card>
+        </div>
+        <div class="col-md">
+            
+            <x-ui.card title="PRISUSTVO" loading="addWorkerToAttendance, removeWorkerFromAttendance">
+                <table class="table table-hover align-middle mb-0 table-sm">
+                    <thead>
+                        <tr class="text-uppercase text-muted small">
+                            <th style="width: 40px">#</th>
+                            <th style="width: 380px">{{ translator('Workday diary') }}</th>
+                            <th class="text-center" style="width: 70px">{{ translator('Hours') }}</th>
+                            <th style="width: 68px" class="text-end">{{ translator('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{-- Example rows, replace with bound attendance data --}}
+                        @foreach ($attCollection as $att)
+                           <tr>
+                                <td class="text-muted">{{ $att->getId() }}</td>
+                                <td>{{ $att->getConstructionSiteName() }}</td>
+                                <td class="text-end">
+                                    <x-ui-input size="sm" type="number" :class="['text-center', 'no-spinner']" style="width: 70px" />
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <div class="position-relative d-inline-block" x-data="{ showComment: false }">
+                                            <x-ui.btn type="lig.sm" icon="file-text" @click="showComment = !showComment" />
+                                            <div
+                                                x-show="showComment"
+                                                @click.outside="showComment = false"
+                                                x-transition
+                                                class="tool-tip bootstrap-mimic-tooltip"
+                                                style="left: auto; right: 0; white-space: normal;"
+                                            >
+                                                -
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                               
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md">
-                                <x-ui-select
-                                    :options=$workersOptionsItems
-                                    label="{{ translator('Worker') }}"
-                                    initOpt="{{ translator('Select worker') }}"
-                                    size="sm"
-                                    model="attendance.worker_id"
-                                    :disabled='$workersSelectAtt["disabled"] ?? false'
-                                />
-                            </div>
-                        </div>
-                        <hr>
-                        
-                        
-                    </x-ui.card>
-                </div>
-                <div class="col-md">
-                    
-                    <x-ui.card title="PRISUSTVO" loading="addWorkerToAttendance, removeWorkerFromAttendance">
-                        {{-- 
-                        <div class="row"><div class="col-md-6 d-flex gap-2">
-                            <x-ui.input placeholder="Traži..." size="sm" :removeAddOnXP=TRUE wire:model.live.debounce.250ms='workerSearch'> 
-                                @if ($workerSearch != NULL || $workerSearch != "")
-                                    <x-slot:append>
-                                        <x-ui.btn type="lig.sm" icon="trash" wClickMethod="resetSearchInput" />
-                                    </x-slot:append>
-                                @endif
-                                
-                            </x-ui.input>
-                            {{-- TODO: ADD search modal here --}}
-                            {{-- <div class="vr"></div>
-                            <x-ui.btn type="lig.sm" icon="search" /> 
-                        </div></div>
-                        <hr>
-                        @if($workerSearch)
-                            <div class="d-flex flex-wrap gap-2 my-2">
-                                @foreach ($workers['myWorkers'] as $worker)
-                                    <x-ui.btn type="lig.sm" wClickMethod="addWorkerToAttendance" wClickParam="{{$worker->id}}, {{$worker->fullName}}, myWorkers">{{ $worker->fullName }}</x-ui.btn>
-                                @endforeach
-                                @foreach ($workers['cooperators'] as $worker)
-                                    <x-ui.btn type="lig.sm" wClickMethod="addWorkerToAttendance" wClickParam="{{$worker->id}}, {{$worker->fullName}}-{{ $worker->getCoOpInfo->name }}, cooperators">{{ $worker->fullName }}-{{ $worker->getCoOpInfo->name }} </x-ui.btn>
-                                @endforeach
-                            </div>
-                            <hr>
-                        @endif
-                        @isset($attendance)
-                            <table class="table table-sm" style="table-layout: auto;">
-                                <thead>
-                                    <th>Ime prezime</th>
-                                    <th>Sati</th>
-                                    <th style="white-space: nowrap;"></th>
-                                </thead>
-                                <tbody>
-                                    @isset($attendance['myWorkers'])
-                                        @foreach ($attendance['myWorkers'] as $workerID => $workerData)
-                                            <tr>
-                                                <td>{{ $workerData['name'] }}</td>
-                                                <td><x-ui.input type="number" width=10 size="sm" wModel='attendance.myWorkers.{{ $workerID }}.attTime' /></td>
-                                                <td style="white-space: nowrap;">
-                                                    <x-ui.btn type="lig.sm" icon="trash" wClickMethod="removeWorkerFromAttendance" wClickParam="{{ $workerID }}, myWorkers"/>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        
-                                    @endisset
-
-                                    @isset($attendance['cooperators'])
-                                        @foreach ($attendance['cooperators'] as $workerID => $workerData)
-                                            <tr>
-                                                <td>{{ $workerData['name'] }}</td>
-                                                <td><x-ui.input type="number" width=10 size="sm" wModel='attendance.cooperators.{{ $workerID }}.attTime' /></td>
-                                                <td style="white-space: nowrap;">
-                                                    <x-ui.btn type="lig.sm" icon="trash" wClickMethod="removeWorkerFromAttendance" wClickParam="{{ $workerID }}, cooperators" />
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        
-                                    @endisset
-                                    
-                                </tbody>
-                            </table>
-                        @endisset
-                        @empty($attendance)
-                            <div class="d-flex justify-content-center"><i>Nema zapisa radnika u prisustvu</i></div>
-                        @endempty
-                         --}} 
-                    </x-ui.card> 
-                      
-                </div>
-            </div>
-        </x-ui.card> 
+                                        <x-ui.btn type="dan.sm" icon="trash" />
+                                    </div>
+                                </td>
+                            </tr> 
+                        @endforeach
+                    </tbody>
+                </table>
+            </x-ui.card>
+        </div>
+    </div>
+</x-ui.card> 

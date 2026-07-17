@@ -4,23 +4,69 @@ namespace App\Livewire\Modules\WorkingHours\Components;
 
 use App\Livewire\LivewireController;
 use App\Models\Employees\AttendanceAbsenceType;
+use App\Models\Employees\Worker;
+use Illuminate\Support\Collection;
 use App\Services\Attendance\AbsenceBtnObject;
+use App\Services\Attendance\GetWorkerAttendanceByDateService;
+use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
+use DateTime;
 
 class WorkerAttendancePerDay extends LivewireController
 {
     public array $params = [];
 
-    public array $constructionSites = [];
-    public array $groupLeaders = [];
-    public array $workersOptionsItems = [];
+    public array $attendance = [];
+    public array $workerInfo = [];
+
+    public array $workDiaryOptionsItems = [];
 
     public null|int|string $hourInput;
     public array $hourInputAtt;
 
+    private Collection $attCollection;
+
     public function mount()
     {
-        $this->setHoursInputAtt();
+        $this->resetAttendance()
+            ->setHoursInputAtt()
+            ->getWorkerName()
+            ->getWorkDiariesOptionsItems()
+            ->getWorkerAttendance();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Wire click actions
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Action for selecting a absence type.
+     * Defines a custom style for the input and add a value to the properties.
+     * 
+     * @param int $type Type of absence
+     */
+    public function selectAbsenceReasonAction($type)
+    {
+        $this->hourInput = AttendanceAbsenceType::setByType($type)->shortDesc();
+        $this->setHoursInputAbsenceAtt($type)->setAttendanceAbsence($type);
+    }
+
+    /**
+     * Removing selected absence type action.
+     * This will remove and reset the $hourInput property.
+     */
+    public function resetHourInputAction()
+    {
+        $this->hourInput = null;
+        $this->setHoursInputAtt()->setAttendanceAbsence(null);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Setter and getters
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Set attributes that will be used in the $hourInput property.
@@ -54,8 +100,89 @@ class WorkerAttendancePerDay extends LivewireController
         return $this;
     }
 
+    /**
+     * Set the absence type in the attendance property
+     * 
+     * @return self
+     */
+    private function setAttendanceAbsence($type)
+    {
+        $this->attendance['absence_reason'] = $type;
+        $this->attendance['work_hours'] = null;
+        return $this;
+    }
+
+    /**
+     * Get the workers name and formate it for the display
+     * 
+     * @return self
+     */
+    private function getWorkerName()
+    {
+        $worker = Worker::find($this->params['worker'] ?? null);
+        if ($worker) $this->workerInfo['name'] = str_pad($worker->id, 3, '0', STR_PAD_LEFT) . ' | ' . $worker->fullName;
+        return $this;
+    }
+
+    /**
+     * Get options that will be used in the select element.
+     * Gets all the work diaries for the given day.
+     */
+    private function getWorkDiariesOptionsItems()
+    {
+        $service = new GetAllWorkDiariesForDateService(new DateTime($this->params['date'] ?? null));
+        $this->workDiaryOptionsItems = $service->executeForDropdown('with-user')->getResponse()['data'];
+        return $this;
+    }
+
+    /**
+     * Set the default attendance array key's and values.
+     */
+    protected function resetAttendance()
+    {
+        $this->attendance = [
+            'worker_id' => $this->params['worker'] ?? null,
+            'working_day_record_id' => null,
+            'type' => null,
+            'work_hours' => null,
+            'absence_reason' => null,
+            'date' => $this->params['date'] ?? null,
+            'comment' => null,
+        ];
+        $this->resetHourInputAction();
+        return $this;
+    }
+
+    /**
+     * Set the default attendance array key's and values.
+     */
+    protected function getWorkerAttendance()
+    {
+        $service = new GetWorkerAttendanceByDateService(new DateTime($this->params['date'] ?? null), $this->params['worker'] ?? null);
+        $this->attCollection = $service->execute()->getResponse()['data'];
+        return $this;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Properties updates
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Add the hours to the attendance property after the hourInput updated
+     * 
+     * @return void
+     */
+    public function updatedHourInput(null|int|string $value)
+    {
+        $this->attendance['work_hours'] = $value;
+    }
+
     public function render()
     {
-        return view('livewire.modules.working-hours.components.worker-attendance-per-day');
+        return view('livewire.modules.working-hours.components.worker-attendance-per-day', [
+            'attCollection' => $this->attCollection
+        ]);
     }
 }

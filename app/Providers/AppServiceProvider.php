@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Helpers\UserRightsHelper;
 use App\Models\Application\AppConfig;
 use App\Observers\AppConfigObserver;
+use App\View\Components\Ui\V2\Input;
 use App\View\Components\Ui\V2\Select;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
@@ -62,5 +63,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Alias the newest version as the default 'ui-select'
         Blade::component(Select::class, 'ui-select');
+        Blade::component(Input::class, 'ui-input');
     }
 }

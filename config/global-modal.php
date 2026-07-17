@@ -12,6 +12,6 @@ return [
         'component-path' => 'modules.working-hours.components.worker-attendance-per-day',
         'header-name' => 'Attendance',
         'header-style' => null,
-        'max-width' => null,
+        'max-width' => '1050px',
     ],
 ];
