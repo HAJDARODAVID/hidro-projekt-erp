@@ -29,13 +29,12 @@
                                 :date=$date 
                                 attendance="{{ $data->date($date)->worker($id)->attendance() }}" 
                                 att="border:left-03-double-#3f3f3f"
-                                :action="['test']"
                             />
                         @else
-                            <x-ui.tables.working-hours-report.td 
-                                :date=$date 
-                                attendance="{{ $data->date($date)->worker($id)->attendance() }}" 
-                                :action="['test', $date, $id]"
+                            <x-ui.tables.working-hours-report.td
+                                :date=$date
+                                attendance="{{ $data->date($date)->worker($id)->attendance() }}"
+                                data-params="{{ json_encode(['worker' => $id, 'date' => $date->format('Y-m-d')]) }}"
                             />
                         @endif
                     @endforeach

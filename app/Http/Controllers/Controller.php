@@ -96,7 +96,7 @@ class Controller extends BaseController
     protected function setTabLinks(array $tabLinks = [])
     {
         $controller = $this->getRequestControllerName();
-        if ($controller == 'Livewire') return $this;
+        if ($controller === null || $controller == 'Livewire') return $this;
         if (empty($tabLinks)) $tabLinks = GetModuleRoutesForTabLinks::byController($controller)->getRouteLinksArray();
 
         $this->tabLinks = $tabLinks;
@@ -136,7 +136,10 @@ class Controller extends BaseController
      */
     private function getRequestControllerName()
     {
-        $action = $this->request->route()->getActionName();
+        $route = $this->request->route();
+        if (! $route) return null;
+
+        $action = $route->getActionName();
         $explodedAction = explode("@", $action);
         /**Check if Livewire */
         $livewireCheck = explode('\\', $explodedAction[0]);

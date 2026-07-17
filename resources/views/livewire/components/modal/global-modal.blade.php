@@ -37,7 +37,7 @@
                 @if ($modalService->getComponentPath())
                     @livewire(
                         $modalService->getComponentPath(),
-                        $componentParams,
+                        ['params' => $componentParams],
                         key(
                             $modalService->isStable()
                                 ? 'global-modal-' . $modalService->getComponentPath()

@@ -3,7 +3,6 @@
 namespace App\Livewire\Components\Modal;
 
 use App\Livewire\LivewireController;
-use App\Models\Application\AppConfig;
 use App\Services\Application\GlobalModal\GlobalModalService;
 use App\Services\Application\GlobalModal\ModalDto;
 use Livewire\Attributes\On;
