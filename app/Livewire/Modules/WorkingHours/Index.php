@@ -21,7 +21,7 @@ class Index extends LivewireController
     #[Url('year')]
     public $selectedYear = NULL;
 
-    protected $data;
+    protected $data = [];
 
     public function mount()
     {
@@ -38,10 +38,11 @@ class Index extends LivewireController
         $service = $service->execute();
         if ($service['success']) {
             $this->data = $service['data'];
-            $this->data['info']['date'] = ['month' => $this->selectedMonth, 'year' => $this->selectedYear];
         } else {
+            $this->data = [];
             $this->dispatch('show-exception-modal', $service['message'])->to(ExceptionModal::class);
         }
+        $this->data['info']['date'] = ['month' => $this->selectedMonth, 'year' => $this->selectedYear];
     }
 
     #[On('refresh-attendance-report')]

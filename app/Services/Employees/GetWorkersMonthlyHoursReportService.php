@@ -57,6 +57,7 @@ class GetWorkersMonthlyHoursReportService extends BaseService
             /**Go thru the attendance data and to the array thingy */
             foreach ($this->attendance as $att) {
                 /**Set the worker info */
+                if (!isset($this->workers[$att->worker_id])) continue;
                 if (!isset($output[$att->worker_id]['worker-info'])) $output[$att->worker_id]['worker-info'] = $this->workers[$att->worker_id];
                 /**Set the array key for the given date if there is non */
                 if (!isset($output[$att->worker_id]['attendance'][$att->date])) $output[$att->worker_id]['attendance'][$att->date] = ['hours' => 0, 'absence' => [], 'error' => FALSE];

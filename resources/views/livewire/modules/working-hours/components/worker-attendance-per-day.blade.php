@@ -79,7 +79,7 @@
         </div>
         <div class="col-md">
             
-            <x-ui.card title="PRISUSTVO" loading="addWorkerToAttendance, removeWorkerFromAttendance">
+            <x-ui.card title="{{ translator('Existing attendance') }}" loading="addWorkerToAttendance, removeWorkerFromAttendance">
                 <table class="table table-hover align-middle mb-0 table-sm">
                     <thead>
                         <tr class="text-uppercase text-muted small">
@@ -92,11 +92,21 @@
                     <tbody>
                         {{-- Example rows, replace with bound attendance data --}}
                         @foreach ($attCollection as $att)
+                            @php
+                                $rowAbsenceType = $att->getAbsenceReason() ? \App\Models\Employees\AttendanceAbsenceType::setByType($att->getAbsenceReason()) : null;
+                            @endphp
                            <tr>
                                 <td class="text-muted">{{ $att->getId() }}</td>
                                 <td>{{ $att->getConstructionSiteName() }}</td>
                                 <td class="text-end">
-                                    <x-ui-input size="sm" type="number" :class="['text-center', 'no-spinner']" style="width: 70px" />
+                                    <x-ui-input
+                                        size="sm"
+                                        type="{{ $rowAbsenceType ? 'text' : 'number' }}"
+                                        :class="['text-center', 'no-spinner']"
+                                        style="width: 70px;{{ $rowAbsenceType ? ' font-weight: bold; background-color: ' . \App\Services\Attendance\AbsenceBtnObject::getBackgroundColorForType($rowAbsenceType) . ';' : '' }}"
+                                        :disabled="(bool) $rowAbsenceType"
+                                        value="{{ $rowAbsenceType ? $rowAbsenceType->shortDesc() : $att->getWorkingHours() }}"
+                                    />
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">

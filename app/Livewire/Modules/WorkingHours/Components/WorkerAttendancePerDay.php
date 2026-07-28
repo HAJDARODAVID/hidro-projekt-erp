@@ -30,8 +30,7 @@ class WorkerAttendancePerDay extends LivewireController
         $this->resetAttendance()
             ->setHoursInputAtt()
             ->getWorkerName()
-            ->getWorkDiariesOptionsItems()
-            ->getWorkerAttendance();
+            ->getWorkDiariesOptionsItems();
     }
 
     /*
@@ -181,6 +180,8 @@ class WorkerAttendancePerDay extends LivewireController
 
     public function render()
     {
+        $this->getWorkerAttendance();
+
         return view('livewire.modules.working-hours.components.worker-attendance-per-day', [
             'attCollection' => $this->attCollection
         ]);
