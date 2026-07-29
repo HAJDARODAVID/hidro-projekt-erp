@@ -297,7 +297,7 @@ Route::post('/quick-access/execute', [QuickAccessController::class, 'execute'])
     ->name('quickAccess.execute');
 
 Route::get('test', function () {
-    return (new ExpensesReportService)->getDataForExportByMonth(9);
+    return view('test');
 });
 
 Route::get('/test2', [App\Http\Controllers\Test2::class, 'redisKeys']);
