@@ -23,7 +23,7 @@
         }
 
         html, body {
-            overscroll-behavior-y: none;
+            overscroll-behavior-y: contain;
         }
 
         body.mobile-admin {
