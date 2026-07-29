@@ -1,4 +1,4 @@
-<div class="p-3 pt-0" style="position: absolute;top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px;margin-bottom: 10px; overflow-y: auto">
+<div class="p-3 pt-0" style="position: absolute;top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px;margin-bottom: 10px; overflow-y: auto; overflow-x: auto">
     <table class="table table-responsive table-bordered">
         <thead style="border-bottom: 3px double #3f3f3f;">
             <tr>

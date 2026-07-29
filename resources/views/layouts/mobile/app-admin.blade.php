@@ -24,6 +24,7 @@
 
         html, body {
             overscroll-behavior-y: contain;
+            overflow-x: hidden;
         }
 
         body.mobile-admin {
