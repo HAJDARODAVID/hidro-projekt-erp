@@ -85,6 +85,27 @@ class WorkerHoursDataObject
     }
 
     /**
+     * Get a monthly summary (total worked hours and absence day counts) for a worker.
+     *
+     * @param int $id Worker ID
+     * @return array
+     */
+    public function monthlySummary(int $id)
+    {
+        $summary = ['hours' => 0, 'SL' => 0, 'PL' => 0, 'HD' => 0, 'ERR' => 0];
+        foreach ($this->getDates() as $date) {
+            $value = $this->date($date)->worker($id)->attendance();
+            if ($value === NULL) continue;
+            if (is_numeric($value)) {
+                $summary['hours'] += (float) $value;
+            } elseif (key_exists($value, $summary)) {
+                $summary[$value]++;
+            }
+        }
+        return $summary;
+    }
+
+    /**
      * Get the month from the data.
      * 
      * @return int

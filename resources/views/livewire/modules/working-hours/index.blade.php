@@ -16,7 +16,11 @@
             </div>
         </x-slot:headerActions>
         <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear, refreshMe">
-            @livewire('modules.working-hours.components.table', ['tableData' => $data], key('working-hours'.now()))
+            @if (Session::get('is_phone'))
+                @livewire('modules.working-hours.components.mobile-table', ['tableData' => $data], key('working-hours-mobile'.now()))
+            @else
+                @livewire('modules.working-hours.components.table', ['tableData' => $data], key('working-hours'.now()))
+            @endif
         </x-ui.card>
     </x-ui.card>
 </div>
