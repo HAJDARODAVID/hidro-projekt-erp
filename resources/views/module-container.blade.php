@@ -1,4 +1,4 @@
-@extends('layouts.app-admin')
+@extends(Session::get('is_phone') ? 'layouts.mobile.app-admin' : 'layouts.app-admin')
 
 @section('content')
     <div class="mt-3">

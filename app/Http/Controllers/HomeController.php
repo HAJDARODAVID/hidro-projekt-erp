@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\SpecialPrivilege;
-use Jenssegers\Agent\Facades\Agent;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WorkingDayRecordModel;
 use App\Models\InventoryCheckingModel;
@@ -31,11 +30,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //Check if the user is on phone, and put into session
-        if (!Session::get('is_phone')) {
-            Session::put('is_phone', Agent::isPhone());
-        }
-
         //Set the user language
         if (!Session::get('lang')) {
             Session::put('lang', Auth::user()->lang);
