@@ -318,41 +318,76 @@
 
             // --- Swipe gestures ---
             let touchStartX = null;
+            let touchStartY = null;
             let touchCurrentX = null;
             let draggingFromEdge = false;
             let draggingOpenDrawer = false;
+            let directionLocked = false;
+            let isHorizontalDrag = false;
+            let lockedDrawerWidth = 0;
             const SWIPE_OPEN_THRESHOLD = 45;
             const SWIPE_CLOSE_THRESHOLD = 45;
+            const DIRECTION_LOCK_DISTANCE = 10;
 
             function onTouchStart(e, fromEdge) {
                 touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
                 touchCurrentX = touchStartX;
                 draggingFromEdge = fromEdge;
                 draggingOpenDrawer = drawer.classList.contains('open');
-                drawer.classList.add('dragging');
+                directionLocked = false;
+                isHorizontalDrag = false;
+                lockedDrawerWidth = drawerWidth();
             }
 
             function onTouchMove(e) {
                 if (touchStartX === null) return;
                 touchCurrentX = e.touches[0].clientX;
-                const delta = touchCurrentX - touchStartX;
+                const deltaX = touchCurrentX - touchStartX;
+                const deltaY = e.touches[0].clientY - touchStartY;
+
+                if (!directionLocked) {
+                    if (Math.abs(deltaX) < DIRECTION_LOCK_DISTANCE && Math.abs(deltaY) < DIRECTION_LOCK_DISTANCE) {
+                        return;
+                    }
+                    directionLocked = true;
+                    isHorizontalDrag = Math.abs(deltaX) > Math.abs(deltaY);
+                    if (isHorizontalDrag) {
+                        drawer.classList.add('dragging');
+                    }
+                }
+
+                // A vertical gesture is a page scroll, not a drawer swipe - leave it alone.
+                if (!isHorizontalDrag) {
+                    return;
+                }
 
                 if (draggingFromEdge && !draggingOpenDrawer) {
-                    const x = Math.max(-drawerWidth(), Math.min(0, delta - drawerWidth()));
+                    const x = Math.max(-lockedDrawerWidth, Math.min(0, deltaX - lockedDrawerWidth));
                     drawer.style.transform = `translateX(${x}px)`;
                     backdrop.classList.add('open');
-                    backdrop.style.opacity = Math.min(1, Math.max(0, delta / drawerWidth()));
-                } else if (draggingOpenDrawer && delta < 0) {
-                    const x = Math.max(-drawerWidth(), delta);
+                    backdrop.style.opacity = Math.min(1, Math.max(0, deltaX / lockedDrawerWidth));
+                } else if (draggingOpenDrawer && deltaX < 0) {
+                    const x = Math.max(-lockedDrawerWidth, deltaX);
                     drawer.style.transform = `translateX(${x}px)`;
-                    backdrop.style.opacity = Math.min(1, Math.max(0, 1 + x / drawerWidth()));
+                    backdrop.style.opacity = Math.min(1, Math.max(0, 1 + x / lockedDrawerWidth));
                 }
             }
 
             function onTouchEnd() {
                 if (touchStartX === null) return;
                 const delta = touchCurrentX - touchStartX;
+                const wasHorizontalDrag = isHorizontalDrag;
                 drawer.classList.remove('dragging');
+                touchStartX = null;
+                touchStartY = null;
+                directionLocked = false;
+                isHorizontalDrag = false;
+
+                if (!wasHorizontalDrag) {
+                    return;
+                }
+
                 drawer.style.transform = '';
                 backdrop.style.opacity = '';
 
@@ -365,9 +400,6 @@
                 } else {
                     closeDrawer();
                 }
-
-                touchStartX = null;
-                touchCurrentX = null;
             }
 
             edge.addEventListener('touchstart', (e) => onTouchStart(e, true), { passive: true });
