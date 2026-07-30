@@ -1,6 +1,6 @@
 <div class="px-2">
     <select class="form-control form-control-sm" wire:model.change='town' wire:loading.remove>
-        @foreach ($townArray as $town => $misc)
+        @foreach ($townArray ?? [] as $town => $misc)
             <option value="{{ $town }}">{{ $town }}</option>
         @endforeach
     </select>

@@ -29,7 +29,7 @@ class WeatherForecastService{
 
     public function formatArray(){
         if(!is_array($this->data)){
-            return; //HERE PUT IN THROW EXCEPTION 
+            return $this;
         }
         foreach ($this->data['grad'] as $key => $town) {
             $this->data[$town["@attributes"]['ime']] = $town['dan'];
@@ -54,10 +54,10 @@ class WeatherForecastService{
 
     public function town($town){
         if(!is_array($this->data)){
-            return; //HERE PUT IN THROW EXCEPTION 
+            return $this;
         }
         if(!isset($this->data[$town])){
-            return; //HERE PUT IN THROW EXCEPTION 
+            return $this;
         }
         $this->townData = $this->data[$town];
         return $this;
@@ -74,7 +74,7 @@ class WeatherForecastService{
             $newArray[$tomorrow->format('d.m.Y')."."][$hour] = NULL;
         }
 
-        foreach ($this->townData as $key => $item) {
+        foreach ($this->townData ?? [] as $key => $item) {
             $datum = $item['@attributes']['datum'];
             $sat = $item['@attributes']['sat'];
             if(($datum == $today->format('d.m.Y') ."." || $datum == $tomorrow->format('d.m.Y') .".") && in_array($sat,$hours)){
@@ -88,7 +88,7 @@ class WeatherForecastService{
     }
 
     public function getLastChanged(){
-        return $this->data['izmjena'];
+        return is_array($this->data) ? ($this->data['izmjena'] ?? null) : null;
     }
 
     public function getTownData(){
@@ -96,7 +96,12 @@ class WeatherForecastService{
     }
 
     private function getDataFromUrl(){
-        return simplexml_load_file(self::FORECAST_URL, "SimpleXMLElement", LIBXML_NOCDATA);
+        try {
+            $data = simplexml_load_file(self::FORECAST_URL, "SimpleXMLElement", LIBXML_NOCDATA);
+        } catch (\Throwable $e) {
+            return null;
+        }
+        return $data === false ? null : $data;
     }
     
 }

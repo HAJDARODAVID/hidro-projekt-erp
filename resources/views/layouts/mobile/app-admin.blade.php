@@ -239,6 +239,10 @@
             <i class="bi bi-search"></i>
             <span>{{ __('Search') }}</span>
         </button>
+        <button type="button" id="mobileQuickAccessBtnBottom">
+            <i class="bi bi-search"></i>
+            <span>{{ __('Search') }}</span>
+        </button>
         <button type="button" id="mobileMenuToggleBottom">
             <i class="bi bi-list"></i>
             <span>{{ __('Menu') }}</span>
