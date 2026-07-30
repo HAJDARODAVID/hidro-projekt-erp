@@ -207,7 +207,11 @@
     <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop"></div>
 
     <header class="mobile-topbar">
-        <div class="mobile-title">{{ config('app.name') }}</div>
+        <div class="flex-grow-1">
+            <div class="text-muted small">{{ \Carbon\Carbon::now()->translatedFormat('l, d.m.Y.') }}</div>
+            <h5 class="mb-0 mobile-title">{{ __('Dobrodošli') }}, {{ Auth::user()->name }}</h5>
+        </div>
+        <div class="mobile-title ms-auto text-end" style="flex: 0 1 auto;">{{ config('app.name') }}</div>
     </header>
 
     <nav class="mobile-drawer" id="mobileDrawer" aria-hidden="true">

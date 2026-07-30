@@ -1,10 +1,6 @@
 @extends('layouts.mobile.app-admin')
 
 @section('content')
-    <div class="mb-3">
-        <div class="text-muted small">{{ \Carbon\Carbon::now()->translatedFormat('l, d.m.Y.') }}</div>
-        <h5 class="mb-0">{{ __('Dobrodošli') }}, {{ Auth::user()->name }}</h5>
-    </div>
 
     {{-- Quick links --}}
     <div class="row g-2 mb-3">
