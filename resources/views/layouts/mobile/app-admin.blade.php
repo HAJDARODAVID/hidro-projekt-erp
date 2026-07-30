@@ -87,13 +87,16 @@
         }
 
         /* Prevent taps on cards/links from being hijacked into a text-selection
-           drag, which cancels the scroll gesture on real touch devices. */
+           drag, which cancels the scroll gesture on real touch devices. touch-action
+           must be spelled out explicitly - some mobile browsers otherwise treat a
+           user-select:none element as ambiguous and refuse to pan through it at all. */
         .mobile-content a,
         .mobile-content .card,
         .mobile-content .list-group-item-action {
             -webkit-user-select: none;
             user-select: none;
             -webkit-touch-callout: none;
+            touch-action: pan-y;
         }
 
         /* Fixed bottom nav */
