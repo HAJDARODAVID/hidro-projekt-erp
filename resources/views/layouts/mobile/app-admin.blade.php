@@ -86,6 +86,16 @@
             padding: 1rem;
         }
 
+        /* Prevent taps on cards/links from being hijacked into a text-selection
+           drag, which cancels the scroll gesture on real touch devices. */
+        .mobile-content a,
+        .mobile-content .card,
+        .mobile-content .list-group-item-action {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
         /* Fixed bottom nav */
         .mobile-bottom-nav {
             position: fixed;
