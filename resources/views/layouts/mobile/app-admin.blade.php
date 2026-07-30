@@ -206,7 +206,7 @@
     <div class="mobile-drawer-edge" id="mobileDrawerEdge"></div>
     <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop"></div>
 
-    <header class="mobile-topbar">
+    <header class="mobile-topbar px-3">
         <div class="flex-grow-1">
             <div class="text-muted small">{{ \Carbon\Carbon::now()->translatedFormat('l, d.m.Y.') }}</div>
             <h5 class="mb-0 mobile-title">{{ __('Dobrodošli') }}, {{ Auth::user()->name }}</h5>
