@@ -2,12 +2,8 @@
 
 @section('content')
 
-    <x-ui.dashboard.quick-actions />
-
-    <x-ui.dashboard.quick-stats />
-
-    <x-ui.dashboard.active-construction-sites />
-
-    <x-ui.dashboard.my-tasks />
+    @foreach ($config as $widget)
+        <x-dynamic-component :component="$widget['component']" />
+    @endforeach
 
 @endsection

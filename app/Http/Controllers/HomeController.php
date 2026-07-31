@@ -10,6 +10,7 @@ use App\Models\WorkingDayRecordModel;
 use App\Models\InventoryCheckingModel;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
+use App\Services\Config\DashboardConfigService;
 
 class HomeController extends Controller
 {
@@ -57,16 +58,16 @@ class HomeController extends Controller
                 'activeInv' => InventoryCheckingModel::where('status', InventoryCheckingModel::INVENTORY_STATUS_ACTIVE)->first(),
             ]);
         } elseif (Session::get('is_phone')) {
-            return view('dashboard', $this->getDashboardStats());
+            return view('dashboard', $this->getDashboardConfig());
         } else {
             return view('hidro-projekt.admin');
         }
     }
 
-    private function getDashboardStats()
+    private function getDashboardConfig()
     {
         return [
-            'employedWorkersCount' => WorkerModel::where('status', WorkerModel::WORKER_STATUS_EMPLOYED)->count(),
+            'config' => app(DashboardConfigService::class)->getUserWidgets(Auth::id()),
         ];
     }
 

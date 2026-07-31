@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Helpers\UserRightsHelper;
 use App\Models\Application\AppConfig;
+use App\Models\Application\AppUserConfig;
 use App\Observers\AppConfigObserver;
+use App\Observers\AppUserConfigObserver;
 use App\View\Components\Ui\V2\Input;
 use App\View\Components\Ui\V2\Select;
 use Illuminate\Pagination\Paginator;
@@ -29,8 +31,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register AppConfig observer
+        // Register observers
         AppConfig::observe(AppConfigObserver::class);
+        AppUserConfig::observe(AppUserConfigObserver::class);
 
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
