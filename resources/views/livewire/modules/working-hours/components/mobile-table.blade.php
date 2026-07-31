@@ -22,14 +22,14 @@
                 onclick="location.href='{{ route('getEmployeeWorkingHours', ['worker' => $id, 'month' => $data->getMonth(), 'year' => $data->getYear()]) }}';"
             >
                 <div class="d-flex justify-content-between align-items-center gap-2">
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2" style="min-width: 0;">
                         <x-ui.employees.status-indicator :empID=$id />
-                        <div>
-                            <div style="font-weight: 600;">{{ $worker['name'] }}</div>
+                        <div class="text-truncate" style="min-width: 0;">
+                            <div class="text-truncate" style="font-weight: 600;">{{ $worker['name'] }}</div>
                             <div style="font-size: .75rem; color: #6c757d;">#{{ str_pad($id, 3, '0', STR_PAD_LEFT) }}</div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-1">
+                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
                         <span class="badge text-bg-primary">{{ $summary['hours'] }}h</span>
                         @if ($summary['SL'] > 0)<span class="badge text-bg-warning">SL {{ $summary['SL'] }}</span>@endif
                         @if ($summary['PL'] > 0)<span class="badge text-bg-info">PL {{ $summary['PL'] }}</span>@endif
@@ -43,4 +43,6 @@
     </x-ui.list-group>
 
     @livewire('modules.working-hours.components.day-attendance-for-all-workers-modal')
+
+    <x-ui.please-wait loading="openDayAttendanceModal, openModal"/>
 </div>
