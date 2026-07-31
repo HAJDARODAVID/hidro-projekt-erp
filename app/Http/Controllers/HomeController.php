@@ -3,13 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\BillModel;
-use App\Models\ToDoList;
-use App\Models\TicketModel;
 use App\Models\WorkerModel;
 use Illuminate\Http\Request;
-use App\Models\SpecialPrivilege;
-use App\Models\ConstructionSiteModel;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WorkingDayRecordModel;
 use App\Models\InventoryCheckingModel;
@@ -62,7 +57,7 @@ class HomeController extends Controller
                 'activeInv' => InventoryCheckingModel::where('status', InventoryCheckingModel::INVENTORY_STATUS_ACTIVE)->first(),
             ]);
         } elseif (Session::get('is_phone')) {
-            return view('hidro-projekt.admin-mobile', $this->getDashboardStats());
+            return view('dashboard', $this->getDashboardStats());
         } else {
             return view('hidro-projekt.admin');
         }
@@ -71,19 +66,6 @@ class HomeController extends Controller
     private function getDashboardStats()
     {
         return [
-            'activeConstructionSites' => ConstructionSiteModel::where('status', ConstructionSiteModel::CONSTRUCTION_STATUS_ACTIVE)
-                ->orderByDesc('start_date')
-                ->take(5)
-                ->get(),
-            'activeConstructionSitesCount' => ConstructionSiteModel::where('status', ConstructionSiteModel::CONSTRUCTION_STATUS_ACTIVE)->count(),
-            'openTicketsCount' => TicketModel::whereIn('status', [TicketModel::TICKET_STATUS_CREATED, TicketModel::TICKET_STATUS_WIP])->count(),
-            'myTasks' => ToDoList::where('user_id', Auth::user()->id)
-                ->where('status', ToDoList::STATUS_ACTIVE)
-                ->orderByDesc('priority')
-                ->take(5)
-                ->get(),
-            'myTasksCount' => ToDoList::where('user_id', Auth::user()->id)->where('status', ToDoList::STATUS_ACTIVE)->count(),
-            'monthlyExpenses' => BillModel::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->sum('amount'),
             'employedWorkersCount' => WorkerModel::where('status', WorkerModel::WORKER_STATUS_EMPLOYED)->count(),
         ];
     }
