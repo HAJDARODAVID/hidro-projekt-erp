@@ -90,16 +90,16 @@
         border-radius: 0;
     }
 
-    .login-logo-badge {
-        background-color: #ffffff;
-        padding: 0.75rem 1.25rem;
-    }
-
     .login-logo {
-        max-width: 200px;
+        max-width: 220px;
         width: 100%;
         height: auto;
         display: block;
+    }
+
+    .login-page-dark .login-logo-badge {
+        background-color: #ffffff;
+        padding: 0.75rem 1.25rem;
     }
 
     .login-card .input-group-text {
