@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-login')
 
 @section('content')
 @php $loginDark = config('theme.login_dark'); @endphp
@@ -9,11 +9,12 @@
                 <div class="card login-card border-0 shadow-lg">
                     <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <span class="login-logo-badge d-inline-block mb-4">
-                                <img src="{{ asset('images/hidroprojekt_logo.png') }}" alt="Hidro-projekt" class="login-logo">
+                            <span class="login-logo-badge d-inline-block">
+                                <img src="{{ asset('images/hidroprojekt_logo_highres.png') }}" alt="Hidro-projekt" class="login-logo">
                             </span>
-                            <h1 class="h4 fw-bold mb-1">{{ __('Welcome back') }}</h1>
-                            <p class="text-muted small mb-0">{{ __('Sign in to continue to your account') }}</p>
+                            <hr>
+                            {{-- <h1 class="h4 fw-bold mb-1">{{ __('Welcome back') }}</h1>
+                            <p class="text-muted small mb-0">{{ __('Sign in to continue to your account') }}</p> --}}
                         </div>
 
                         <form method="POST" action="{{ route('login') }}" novalidate>
@@ -98,8 +99,7 @@
     }
 
     .login-page-dark .login-logo-badge {
-        background-color: #ffffff;
-        padding: 0.75rem 1.25rem;
+        /* padding: 0.75rem 1.25rem; */
     }
 
     .login-card .input-group-text {
