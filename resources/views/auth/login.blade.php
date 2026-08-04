@@ -14,7 +14,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5 col-xl-4">
                 <div class="card login-card border-0 shadow-lg">
-                    <div class="card-body p-4 p-md-5">
+                    <div class="card-body px-md-5 py-4">
                         <div class="text-center mb-4">
                             <span class="login-logo-badge d-inline-block">
                                 <img src="{{ asset('images/hidroprojekt_logo_highres.png') }}" alt="Hidro-projekt" class="login-logo">
@@ -89,7 +89,7 @@
         min-height: 100vh;
         display: flex;
         justify-content: center;
-        padding-top: 5vh;
+        padding-top: 4vh;
         background-color: #eef1f5;
     }
 
