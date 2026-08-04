@@ -82,6 +82,7 @@
         display: flex;
         justify-content: center;
         padding-top: 5vh;
+        background-color: #eef1f5;
     }
 
     .login-card,
