@@ -1,8 +1,15 @@
 @extends('layouts.app-login')
 
 @section('content')
-@php $loginDark = config('theme.login_dark'); @endphp
-<div class="login-page @if($loginDark) login-page-dark @endif">
+@php
+    $themeCookie = request()->cookie('theme');
+    $loginDark = $themeCookie !== null ? $themeCookie === 'dark' : config('theme.login_dark');
+@endphp
+<div class="login-page @if($loginDark) login-page-dark @endif" id="loginPage">
+    <button type="button" id="themeToggle" class="theme-toggle-btn" aria-label="{{ __('Toggle theme') }}">
+        <i class="bi bi-moon-stars-fill" id="themeToggleIconDark"></i>
+        <i class="bi bi-sun-fill" id="themeToggleIconLight"></i>
+    </button>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5 col-xl-4">
@@ -78,11 +85,47 @@
     }
 
     .login-page {
+        position: relative;
         min-height: 100vh;
         display: flex;
         justify-content: center;
         padding-top: 5vh;
         background-color: #eef1f5;
+    }
+
+    .theme-toggle-btn {
+        position: fixed;
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dee2e6;
+        background-color: #ffffff;
+        color: #495057;
+        cursor: pointer;
+        font-size: 1.1rem;
+        z-index: 10;
+    }
+
+    .theme-toggle-btn #themeToggleIconLight {
+        display: none;
+    }
+
+    .login-page-dark .theme-toggle-btn {
+        background-color: #1a1f2b;
+        border-color: #323a4a;
+        color: #e2e5eb;
+    }
+
+    .login-page-dark .theme-toggle-btn #themeToggleIconDark {
+        display: none;
+    }
+
+    .login-page-dark .theme-toggle-btn #themeToggleIconLight {
+        display: inline-block;
     }
 
     .login-card,
@@ -201,6 +244,14 @@
         password.type = isPassword ? 'text' : 'password';
         icon.classList.toggle('bi-eye', !isPassword);
         icon.classList.toggle('bi-eye-slash', isPassword);
+    });
+
+    document.getElementById('themeToggle').addEventListener('click', function () {
+        const page = document.getElementById('loginPage');
+        const isDark = page.classList.toggle('login-page-dark');
+        const oneYear = 60 * 60 * 24 * 365;
+
+        document.cookie = 'theme=' + (isDark ? 'dark' : 'light') + '; path=/; max-age=' + oneYear + '; SameSite=Lax';
     });
 </script>
 @endsection
