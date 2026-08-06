@@ -6,6 +6,7 @@
     $loginDark = $themeCookie !== null ? $themeCookie === 'dark' : config('theme.login_dark');
 @endphp
 <div class="login-page @if($loginDark) login-page-dark @endif" id="loginPage">
+    <div class="login-wave-mid" aria-hidden="true"></div>
     <button type="button" id="themeToggle" class="theme-toggle-btn" aria-label="{{ __('Toggle theme') }}">
         <i class="bi bi-moon-stars-fill" id="themeToggleIconDark"></i>
         <i class="bi bi-sun-fill" id="themeToggleIconLight"></i>
@@ -97,6 +98,47 @@
         justify-content: center;
         padding-top: 4vh;
         background-color: #eef1f5;
+        background-image:
+            radial-gradient(ellipse 70% 45% at 12% 0%, rgba(77, 127, 255, 0.07), transparent 60%),
+            radial-gradient(ellipse 55% 40% at 100% 8%, rgba(56, 189, 248, 0.09), transparent 60%);
+        overflow: hidden;
+    }
+
+    .login-page > .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-page::before,
+    .login-page::after,
+    .login-wave-mid {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 32vh;
+        min-height: 220px;
+        background-repeat: repeat-x;
+        background-position: bottom;
+        background-size: 1440px 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .login-page::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%23dbe7f2' d='M0,100 C240,65 480,135 720,100 C960,65 1200,135 1440,100 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.6;
+    }
+
+    .login-wave-mid {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%23d5e0ef' d='M0,135 C240,170 480,100 720,135 C960,170 1200,100 1440,135 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.55;
+    }
+
+    .login-page::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%23cfe0f0' d='M0,170 C240,135 480,205 720,170 C960,135 1200,205 1440,170 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.5;
     }
 
     .theme-toggle-btn {
@@ -172,6 +214,24 @@
 
     .login-page-dark {
         background-color: #12161f;
+        background-image:
+            radial-gradient(ellipse 70% 45% at 12% 0%, rgba(77, 127, 255, 0.10), transparent 60%),
+            radial-gradient(ellipse 55% 40% at 100% 8%, rgba(56, 189, 248, 0.08), transparent 60%);
+    }
+
+    .login-page-dark::before {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%231b2536' d='M0,100 C240,65 480,135 720,100 C960,65 1200,135 1440,100 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.7;
+    }
+
+    .login-page-dark .login-wave-mid {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%231e2a3d' d='M0,135 C240,170 480,100 720,135 C960,170 1200,100 1440,135 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.65;
+    }
+
+    .login-page-dark::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath fill='%23202c40' d='M0,170 C240,135 480,205 720,170 C960,135 1200,205 1440,170 L1440,220 L0,220 Z'/%3E%3C/svg%3E");
+        opacity: 0.6;
     }
 
     .login-page-dark .login-card {
