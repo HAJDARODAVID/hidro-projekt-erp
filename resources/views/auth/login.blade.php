@@ -58,7 +58,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
+                            <div class="mb-4 d-flex align-items-center justify-content-between">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
@@ -66,6 +66,12 @@
                                         {{ __('Remember Me') }}
                                     </label>
                                 </div>
+
+                                @if (Route::has('password.request'))
+                                    <a class="small login-forgot-link" href="{{ route('password.request') }}">
+                                        {{ __('Forgot password?') }}
+                                    </a>
+                                @endif
                             </div>
 
                             <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
@@ -232,6 +238,24 @@
     .login-page-dark .login-card .btn-primary:active {
         background-color: #3a68e0;
         border-color: #3a68e0;
+    }
+
+    .login-forgot-link {
+        color: #495057;
+        text-decoration: none;
+    }
+
+    .login-forgot-link:hover {
+        color: #0d6efd;
+        text-decoration: underline;
+    }
+
+    .login-page-dark .login-forgot-link {
+        color: #8891a3;
+    }
+
+    .login-page-dark .login-forgot-link:hover {
+        color: #4d7fff;
     }
 </style>
 
