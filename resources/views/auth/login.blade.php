@@ -29,7 +29,7 @@
 
                             <div class="mb-3">
                                 <label for="email" class="form-label small fw-semibold">{{ __('Email Address') }}</label>
-                                <div class="input-group input-group-lg">
+                                <div class="input-group ">
                                     <span class="input-group-text border-end-0"><i class="bi bi-envelope text-muted"></i></span>
                                     <input id="email" type="email" class="form-control border-start-0 ps-0 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="name@example.com">
 
@@ -43,7 +43,7 @@
 
                             <div class="mb-3">
                                 <label for="password" class="form-label small fw-semibold">{{ __('Password') }}</label>
-                                <div class="input-group input-group-lg">
+                                <div class="input-group ">
                                     <span class="input-group-text border-end-0"><i class="bi bi-lock text-muted"></i></span>
                                     <input id="password" type="password" class="form-control border-start-0 border-end-0 ps-0 @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="••••••••">
                                     <span class="input-group-text border-start-0" role="button" id="togglePassword">
