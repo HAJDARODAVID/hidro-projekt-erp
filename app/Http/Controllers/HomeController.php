@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\WorkerModel;
+use App\Models\User\UserType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\WorkingDayRecordModel;
@@ -59,6 +60,8 @@ class HomeController extends Controller
             ]);
         } elseif (Session::get('is_phone')) {
             return view('dashboard', $this->getDashboardConfig());
+        } elseif (UserType::init()->isUserSAdmin(Auth::user())) {
+            return view('dashboard-desktop', $this->getDashboardConfig());
         } else {
             return view('hidro-projekt.admin');
         }
