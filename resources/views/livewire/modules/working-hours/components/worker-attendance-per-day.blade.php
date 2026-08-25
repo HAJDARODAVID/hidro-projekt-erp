@@ -1,5 +1,5 @@
 
-<x-ui.card :noBodyPadding=TRUE loading="createNewDiary" :border=FALSE>
+<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction" :border=FALSE>
     <div class="row">
         <div class="col-md-5">
             <x-ui.card title="{{ translator('Add new attendance') }}" style="">
@@ -73,7 +73,7 @@
                 </div>
                 <hr>
                 <div class="d-flex justify-content-end">
-                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" />
+                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
                 </div>
             </x-ui.card>
         </div>

@@ -7,6 +7,7 @@ use App\Models\Employees\AttendanceAbsenceType;
 use App\Models\Employees\Worker;
 use Illuminate\Support\Collection;
 use App\Services\Attendance\AbsenceBtnObject;
+use App\Services\Attendance\CreateAttendanceService;
 use App\Services\Attendance\GetWorkerAttendanceByDateService;
 use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
 use DateTime;
@@ -59,6 +60,37 @@ class WorkerAttendancePerDay extends LivewireController
     {
         $this->hourInput = null;
         $this->setHoursInputAtt()->setAttendanceAbsence(null);
+    }
+
+    /**
+     * Action for creating and saving a new attendance entry for the worker on the given day.
+     * Resets the form and lets the attendance table refresh on the next render.
+     */
+    public function saveNewAttendanceAction()
+    {
+        try {
+            if (!$this->attendance['worker_id'] || (!$this->attendance['work_hours'] && !$this->attendance['absence_reason'])) {
+                return $this->notifyMe(translator('Work hours or absence reason are required!'), 'danger');
+            }
+
+            $response = CreateAttendanceService::myWorker()
+                ->setWorkerID($this->attendance['worker_id'])
+                ->setDiaryID($this->attendance['working_day_record_id'])
+                ->setType($this->attendance['type'])
+                ->setWorkHours($this->attendance['work_hours'])
+                ->setAbsenceReason($this->attendance['absence_reason'])
+                ->setDate($this->attendance['date'])
+                ->execute();
+
+            if (is_array($response) && isset($response['success']) && $response['success'] === false) {
+                return $this->notifyMe($response['error'] ?? translator('Failed to save attendance!'), 'danger');
+            }
+
+            $this->resetAttendance();
+            return $this->notifyMe(translator('Attendance entry created!'));
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
     }
 
     /*

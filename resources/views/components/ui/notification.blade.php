@@ -16,7 +16,7 @@
         });
     "
     class="position-fixed bottom-0 end-0 p-3"
-    style="z-index: 1050;"
+    style="z-index: 10000;"
 >
     <template x-for="notification in notifications" :key="notification.id">
         <div 
