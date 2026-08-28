@@ -67,11 +67,6 @@
                     </div>
                 </div>
                 <hr>
-                <div class="">
-                    <label>{{ translator('Comment') }}</label>
-                    <textarea class="form-control no-border-radius" style="width: 100%" rows="4" wire:model.blur='attendance.comment'></textarea>
-                </div>
-                <hr>
                 <div class="d-flex justify-content-end">
                     <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
                 </div>
@@ -97,7 +92,7 @@
                             @endphp
                            <tr>
                                 <td class="text-muted">{{ $att->getId() }}</td>
-                                <td>{{ $att->getConstructionSiteName() }}</td>
+                                <td>@if($att->getConstructionSiteName()){{ $att->getConstructionSiteName() }} @else {{ translator('w/o workday diary') }} @endif</td>
                                 <td class="text-end">
                                     <x-ui-input
                                         size="sm"
@@ -110,7 +105,7 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
-                                        <div class="position-relative d-inline-block" x-data="{ showComment: false }">
+                                        {{-- <div class="position-relative d-inline-block" x-data="{ showComment: false }">
                                             <x-ui.btn type="lig.sm" icon="file-text" @click="showComment = !showComment" />
                                             <div
                                                 x-show="showComment"
@@ -121,7 +116,7 @@
                                             >
                                                 -
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <x-ui.btn type="dan.sm" icon="trash" />
                                     </div>
                                 </td>
