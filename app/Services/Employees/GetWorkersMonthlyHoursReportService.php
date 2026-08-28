@@ -70,9 +70,10 @@ class GetWorkersMonthlyHoursReportService extends BaseService
                 /**If the absence is set do the thing */
                 if ($att->absence_reason != NULL) {
                     $output[$att->worker_id]['attendance'][$att->date]['absence'][] = $att->absence_reason;
-                    //dd($att->absence_reason, $output[$att->worker_id]);
                     /**If there is more than one reason set the flag to true */
                     if (count($output[$att->worker_id]['attendance'][$att->date]['absence']) > 1) $output[$att->worker_id]['attendance'][$att->date]['error'] = TRUE;
+                    /**If there are hours set and reason, set the flag to true*/
+                    if (count($output[$att->worker_id]['attendance'][$att->date]['absence']) >= 1 && $output[$att->worker_id]['attendance'][$att->date]['hours']) $output[$att->worker_id]['attendance'][$att->date]['error'] = TRUE;
                 }
             }
 

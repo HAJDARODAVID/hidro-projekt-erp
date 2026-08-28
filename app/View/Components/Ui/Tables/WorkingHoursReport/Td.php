@@ -13,25 +13,25 @@ class Td extends Component
 {
     private $styleObject;
     public $style = ['text-align' => 'center'];
-    public $attendance = NULL;
-    public $action = NULL;
-    public $actionParam = NULL;
+    public $attendance = null;
+    public $action = null;
+    public $actionParam = null;
 
     /**
      * Create a new component instance.
      */
-    public function __construct($att = NULL, $date = NULL, $attendance = NULl, array|NULL $action = NULL)
+    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null)
     {
         $this->attendance = $attendance;
         $this->styleObject = new WorkingDayReportStyleService();
         $this->setAction($action);
-        if ($date->format('N') > 5 && $attendance == NULL) {
+        if ($date->format('N') > 5 && $attendance == null) {
             $this->styleSetUp($this->styleObject->weekendStyle());
         } else {
             /**Are hours set */
             if (is_numeric($attendance)) $this->styleSetUp($this->styleObject->checkIfOver($attendance, 12)->good());
             /**Missing attendance style */
-            if ($attendance == NULL && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
+            if ($attendance == null && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
             /**Error style */
             if ($attendance == 'ERR') $this->styleSetUp($this->styleObject->error());
             /**Other absence */
@@ -40,8 +40,8 @@ class Td extends Component
         $att = explode('.', $att);
         foreach ($att as $item) {
             $itemExploded = explode(':', $item);
-            $method = $itemExploded[0] ?? NULL;
-            $attribute = $itemExploded[1] ?? NULL;
+            $method = $itemExploded[0] ?? null;
+            $attribute = $itemExploded[1] ?? null;
             if (method_exists(get_class($this), $method)) $this->$method($attribute);
         }
     }
@@ -91,7 +91,7 @@ class Td extends Component
         return;
     }
 
-    private function setAction(array|NULL $action): void
+    private function setAction(array|null $action): void
     {
         /**Set action name */
         if (isset($action[0])) {
