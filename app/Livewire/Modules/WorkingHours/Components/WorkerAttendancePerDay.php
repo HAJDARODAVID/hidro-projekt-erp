@@ -8,6 +8,7 @@ use App\Models\Employees\Worker;
 use Illuminate\Support\Collection;
 use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Attendance\CreateAttendanceService;
+use App\Services\Attendance\DeleteAttendanceService;
 use App\Services\Attendance\GetWorkerAttendanceByDateService;
 use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
 use DateTime;
@@ -88,6 +89,26 @@ class WorkerAttendancePerDay extends LivewireController
 
             $this->resetAttendance();
             return $this->notifyMe(translator('Attendance entry created!'));
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+    }
+
+    /**
+     * Action for deleting an existing attendance entry.
+     *
+     * @param int $id Attendance record ID
+     */
+    public function deleteAttendanceAction($id)
+    {
+        try {
+            $response = DeleteAttendanceService::byID($id)->execute()->getResponse();
+
+            if (!$response['success']) {
+                return $this->notifyMe($response['message'], 'danger');
+            }
+
+            return $this->notifyMe($response['message']);
         } catch (\Throwable $th) {
             return $this->showException($th->getMessage());
         }

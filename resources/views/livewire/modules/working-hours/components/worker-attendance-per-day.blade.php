@@ -74,7 +74,7 @@
         </div>
         <div class="col-md">
             
-            <x-ui.card title="{{ translator('Existing attendance') }}" loading="addWorkerToAttendance, removeWorkerFromAttendance">
+            <x-ui.card title="{{ translator('Existing attendance') }}" loading="addWorkerToAttendance, removeWorkerFromAttendance, deleteAttendanceAction">
                 <table class="table table-hover align-middle mb-0 table-sm">
                     <thead>
                         <tr class="text-uppercase text-muted small">
@@ -117,7 +117,7 @@
                                                 -
                                             </div>
                                         </div> --}}
-                                        <x-ui.btn type="dan.sm" icon="trash" />
+                                        <x-ui.btn type="dan.sm" icon="trash" action="deleteAttendanceAction" param="{{ $att->getId() }}" />
                                     </div>
                                 </td>
                             </tr> 
