@@ -39,6 +39,10 @@ class GlobalModalService
 
         $modal->setStable((bool) ($config['stable'] ?? false));
 
+        if (!empty($config['before-close'])) {
+            $modal->setBeforeClose($config['before-close']);
+        }
+
         return $modal;
     }
 }

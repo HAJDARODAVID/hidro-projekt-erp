@@ -95,6 +95,15 @@ class WorkerAttendancePerDay extends LivewireController
     }
 
     /**
+     * Called by the global-modal component (see config/global-modal.php)
+     * before the modal closes.
+     */
+    public function beforeCloseAction()
+    {
+        dd("im closing for today");
+    }
+
+    /**
      * Action for deleting an existing attendance entry.
      *
      * @param int $id Attendance record ID

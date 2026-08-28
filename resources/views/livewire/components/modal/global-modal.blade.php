@@ -2,12 +2,26 @@
     x-cloak
     x-data="{
         isOpen: false,
-        close() {
+        beforeCloseMethod: null,
+        async close() {
+            if (this.beforeCloseMethod) {
+                const el = this.$refs.modalBody?.querySelector('[wire\\:id]');
+                const childWire = el ? window.Livewire.find(el.getAttribute('wire:id')) : null;
+
+                if (childWire && typeof childWire[this.beforeCloseMethod] === 'function') {
+                    try {
+                        await childWire[this.beforeCloseMethod]();
+                    } catch (error) {
+                        console.error('[global-modal] before-close method failed:', error);
+                    }
+                }
+            }
+
             this.isOpen = false;
             $wire.clearComponent();
         }
     }"
-    @global-modal-open-overlay.window="isOpen = true"
+    @global-modal-open-overlay.window="isOpen = true; beforeCloseMethod = $event.detail.beforeClose ?? null"
     @keydown.window.escape="if (isOpen) close()"
 >
     <style>
@@ -32,6 +46,7 @@
 
             <div
                 class="px-4 py-3"
+                x-ref="modalBody"
                 wire:key="global-modal-content-{{ $modalService->isStable() ? $modalService->getComponentPath() : $renderVersion }}"
             >
                 @if ($modalService->getComponentPath())

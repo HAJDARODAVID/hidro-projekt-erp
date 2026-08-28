@@ -46,7 +46,7 @@ class GlobalModal extends LivewireController
         $this->modalName = $component;
         $this->componentParams = $params;
         $this->renderVersion++;
-        $this->dispatch('global-modal-open-overlay');
+        $this->dispatch('global-modal-open-overlay', beforeClose: $modal->getBeforeClose());
         //$this->js("window.dispatchEvent(new CustomEvent('global-modal-open-overlay'))");
 
         // Dispatched after the child component above has been rendered into the DOM
