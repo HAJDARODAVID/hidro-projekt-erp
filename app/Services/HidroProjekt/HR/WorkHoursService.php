@@ -167,53 +167,73 @@ class WorkHoursService
     }
 
     public static function getAllAttendanceForMonthReportCoOp($month, $year, $daysInMonth){
-        $sumPerDay=[];
         $baseWorkHourCost = (float)AppParametersModel::where('param_name_srt', 'bwh-c-o')->where('active', TRUE)->first()->value;
         $attendance = AttendanceCoOpModel::whereMonth('date', '=', $month)
             ->whereYear('date', '=', $year)
             ->where('work_hours', '!=', NULL)
             ->with('getWorkerInfo', 'getWorkerInfo.getCoOpInfo')->get();
-        $array=[];
-        foreach ($attendance as $att) {
-            $coOp=$att->getWorkerInfo->getCoOpInfo->name;
-            $array[$coOp][$att->worker_id]['id'] = $att->worker_id;
-            $array[$coOp][$att->worker_id]['name'] = $att->getWorkerInfo->firstName .' '. $att->getWorkerInfo->lastName;
-            $array[$coOp][$att->worker_id]['overall'] = 0;
-            $array[$coOp][$att->worker_id]['cost'] = 0;
 
-            foreach($daysInMonth as $day){
-                $attInfo = $attendance->where('date', $day)->where('worker_id', $att->worker_id)->sum('work_hours');
-                if($attInfo){
-                    $array[$coOp][$att->worker_id]['dates'][$day] = $attInfo == 0 ? NULL : $attInfo; 
-                    $array[$coOp][$att->worker_id]['overall'] += $attInfo; 
-                    $array[$coOp][$att->worker_id]['cost'] += $attInfo*$baseWorkHourCost;                     
-                }else{
-                    $array[$coOp][$att->worker_id]['dates'][$day] = NULL;
-                }
-                
+        // Single pass: build worker info and a worker/day -> hours lookup instead of
+        // re-scanning the whole $attendance collection for every worker/day combination.
+        $hoursByWorkerAndDay = [];
+        $workers = [];
+        $workerCoOp = [];
+        foreach ($attendance as $att) {
+            $workerId = $att->worker_id;
+            $hoursByWorkerAndDay[$workerId][$att->date] = ($hoursByWorkerAndDay[$workerId][$att->date] ?? 0) + $att->work_hours;
+
+            if (!isset($workers[$workerId])) {
+                $coOp = $att->getWorkerInfo->getCoOpInfo->name;
+                $workers[$workerId] = [
+                    'coOp' => $coOp,
+                    'name' => $att->getWorkerInfo->firstName .' '. $att->getWorkerInfo->lastName,
+                ];
+                $workerCoOp[$coOp][] = $workerId;
             }
         }
 
-        foreach ($daysInMonth as $day) {
-            $sumPerDay[$day]=$attendance->where('date', $day)->sum('work_hours') == 0 ? NULL : $attendance->where('date', $day)->sum('work_hours');
+        $array=[];
+        $sumPerDay = array_fill_keys($daysInMonth, 0);
+        foreach ($workers as $workerId => $info) {
+            $coOp = $info['coOp'];
+            $array[$coOp][$workerId]['id'] = $workerId;
+            $array[$coOp][$workerId]['name'] = $info['name'];
+            $array[$coOp][$workerId]['overall'] = 0;
+            $array[$coOp][$workerId]['cost'] = 0;
+
+            foreach ($daysInMonth as $day) {
+                $attInfo = $hoursByWorkerAndDay[$workerId][$day] ?? 0;
+                if ($attInfo) {
+                    $array[$coOp][$workerId]['dates'][$day] = $attInfo;
+                    $array[$coOp][$workerId]['overall'] += $attInfo;
+                    $array[$coOp][$workerId]['cost'] += $attInfo*$baseWorkHourCost;
+                    $sumPerDay[$day] += $attInfo;
+                } else {
+                    $array[$coOp][$workerId]['dates'][$day] = NULL;
+                }
+            }
+        }
+
+        foreach ($sumPerDay as $day => $sum) {
+            $sumPerDay[$day] = $sum == 0 ? NULL : $sum;
         }
 
         $overAllCost=0;
         foreach ($array as $group) {
             foreach ($group as $key => $att) {
                 $overAllCost += $att['cost'];
-            }    
+            }
         }
 
         $groups=[];
-        foreach ($array as $key => $group) {
-            $workers=[];
-            foreach ($group as $worker => $data) {
-                $workers[] = $worker;
+        foreach ($workerCoOp as $coOp => $workerIds) {
+            foreach ($daysInMonth as $day) {
+                $daySum = 0;
+                foreach ($workerIds as $workerId) {
+                    $daySum += $hoursByWorkerAndDay[$workerId][$day] ?? 0;
+                }
+                $groups[$coOp][$day] = $daySum == 0 ? NULL : $daySum;
             }
-            foreach ($daysInMonth as $day){
-                $groups[$key][$day] = $attendance->where('date', $day)->whereIn('worker_id', $workers)->sum('work_hours') == 0 ? NULL : $attendance->where('date', $day)->whereIn('worker_id', $workers)->sum('work_hours');
-            }  
         }
 
         $finalArray= [
