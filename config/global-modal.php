@@ -17,5 +17,6 @@ return [
         'header-name' => 'Attendance',
         'header-style' => null,
         'max-width' => '1050px',
+        'before-close' => 'beforeCloseAction',
     ],
 ];
