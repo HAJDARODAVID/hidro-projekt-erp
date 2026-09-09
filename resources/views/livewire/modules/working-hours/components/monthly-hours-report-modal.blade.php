@@ -43,13 +43,17 @@
                             @if ($worker['show-array-item-search'])
                                 <tr>
                                     <td>
-                                        <div class="d-flex gap-2">
+                                        <a href="{{ route('getEmployeeWorkingHours', ['worker' => $id, 'month' => $selectedMonth, 'year' => $selectedYear]) }}"
+                                            onclick="event.preventDefault(); if (event.ctrlKey || event.metaKey) { window.location.href = this.href; }"
+                                            class="d-flex gap-2 text-reset text-decoration-none"
+                                            style="cursor: pointer"
+                                            title="{{ translator('Ctrl+Click to open worker attendance') }}">
                                             <x-ui.employees.status-indicator :empID=$id />
                                             <x-v-divider px=0 />
                                             <div class="">{{ str_pad($id, 3, '0', STR_PAD_LEFT) }}</div>
                                             <x-v-divider px=0 />
                                             <div class="">{{ $worker['name'] }}</div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td style="text-align: center">@if ($worker['bonus']) <i class="bi bi-check-lg text-success"></i> @else <i class="bi bi-x-lg text-danger"></i> @endif </td>
                                     <td style="text-align: center">{{ $worker['work-hours'] }}</td>
