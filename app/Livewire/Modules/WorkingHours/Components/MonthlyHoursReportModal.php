@@ -7,14 +7,20 @@ use App\Exceptions\ArraySearchTraitException;
 use App\Exports\Attendance\MonthlyHoursReportExport;
 use App\Services\Attendance\MonthlyHoursReportExportDto;
 use App\Services\Attendance\MonthlyHoursOverviewReportService;
+use App\Services\Months;
+use App\Services\Years;
 
 class MonthlyHoursReportModal extends LivewireController
 {
     /**Params passed in from the global modal (see config/global-modal.php) */
     public array $params = [];
 
-    /**Date[month, year] for the  report*/
-    public $month = NULL, $year = NULL;
+    /**Options for the month/year selects */
+    public $months = [];
+    public $years = [];
+
+    /**Date[month, year] for the report*/
+    public $selectedMonth = NULL, $selectedYear = NULL;
 
     /**This will be used when you search for a specific worker */
     public $workerSearch;
@@ -36,8 +42,11 @@ class MonthlyHoursReportModal extends LivewireController
      */
     public function mount()
     {
-        $this->month = $this->params['month'] ?? null;
-        $this->year = $this->params['year'] ?? null;
+        $this->months = Months::MONTHS_HR;
+        $this->selectedMonth = $this->params['month'] ?? date('n');
+
+        $this->years = Years::getYearsList();
+        $this->selectedYear = $this->params['year'] ?? date('Y');
 
         $this->loadReportData();
     }
@@ -49,7 +58,7 @@ class MonthlyHoursReportModal extends LivewireController
     {
         $service = NULL;
         try {
-            $service = (new MonthlyHoursOverviewReportService($this->month, $this->year))->execute();
+            $service = (new MonthlyHoursOverviewReportService($this->selectedMonth, $this->selectedYear))->execute();
         } catch (\Throwable $th) {
             $this->showException($th->getMessage());
             return;
@@ -66,7 +75,27 @@ class MonthlyHoursReportModal extends LivewireController
 
     public function exportMonthlyHoursAction()
     {
-        return (new MonthlyHoursReportExport(new MonthlyHoursReportExportDto($this->data, ['month' => $this->month, 'year' => $this->year])));
+        return (new MonthlyHoursReportExport(new MonthlyHoursReportExportDto($this->data, ['month' => $this->selectedMonth, 'year' => $this->selectedYear])));
+    }
+
+    /**
+     * Run when the month is changed and reload the report data
+     *
+     * @return void
+     */
+    public function updatedSelectedMonth(): void
+    {
+        $this->loadReportData();
+    }
+
+    /**
+     * Run when the year is changed and reload the report data
+     *
+     * @return void
+     */
+    public function updatedSelectedYear(): void
+    {
+        $this->loadReportData();
     }
 
     public function updatedWorkerSearch($value)
