@@ -19,4 +19,10 @@ return [
         'max-width' => '1050px',
         'before-close' => 'beforeCloseAction',
     ],
+    'monthly-hours-report' => [
+        'component-path' => 'modules.working-hours.components.monthly-hours-report-modal',
+        'header-name' => 'Monthly hours report',
+        'header-style' => null,
+        'max-width' => null,
+    ],
 ];

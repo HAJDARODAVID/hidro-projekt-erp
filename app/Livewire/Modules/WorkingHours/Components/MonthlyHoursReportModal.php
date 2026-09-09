@@ -10,6 +10,9 @@ use App\Services\Attendance\MonthlyHoursOverviewReportService;
 
 class MonthlyHoursReportModal extends LivewireController
 {
+    /**Params passed in from the global modal (see config/global-modal.php) */
+    public array $params = [];
+
     /**Date[month, year] for the  report*/
     public $month = NULL, $year = NULL;
 
@@ -27,9 +30,22 @@ class MonthlyHoursReportModal extends LivewireController
     }
 
     /**
-     * Before opening the modal get the report data
+     * The global modal mounts a fresh instance of this component every time
+     * it's opened, so this is where the report data is loaded for the
+     * month/year that were passed in as params.
      */
-    public function beforeOpenModal()
+    public function mount()
+    {
+        $this->month = $this->params['month'] ?? null;
+        $this->year = $this->params['year'] ?? null;
+
+        $this->loadReportData();
+    }
+
+    /**
+     * Fetch the report data for the current month/year.
+     */
+    private function loadReportData()
     {
         $service = NULL;
         try {
@@ -46,15 +62,6 @@ class MonthlyHoursReportModal extends LivewireController
         } else {
             $this->showException($service['message']);
         }
-    }
-
-    /**
-     * Before closing the modal reset all properties
-     */
-    public function beforeCloseModal()
-    {
-        $this->workerSearch = NULL;
-        $this->data = NULL;
     }
 
     public function exportMonthlyHoursAction()
