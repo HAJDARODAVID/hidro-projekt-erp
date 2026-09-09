@@ -21,7 +21,7 @@ return [
     ],
     'monthly-hours-report' => [
         'component-path' => 'modules.working-hours.components.monthly-hours-report-modal',
-        'header-name' => 'Monthly hours report',
+        'header-name' => 'Monthly worker hours report',
         'header-style' => null,
         'max-width' => null,
     ],
