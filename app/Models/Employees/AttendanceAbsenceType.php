@@ -56,8 +56,20 @@ class AttendanceAbsenceType
     }
 
     /**
+     * Set a new instance from a absence short description code (e.g. SL, PL, HD)
+     *
+     * @param string $sht Passthru the absence short description
+     * @return self|null
+     */
+    public static function setByShtDesc(string $sht)
+    {
+        $type = array_search($sht, self::ABSENCE_TYPE_SHT, true);
+        return $type !== false ? self::setByType($type) : null;
+    }
+
+    /**
      * Set a new instance for sick leave
-     * 
+     *
      * @return self
      */
     public static function setTypeSickLeave()

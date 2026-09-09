@@ -7,6 +7,7 @@ use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 use App\Services\ConvertArrayToStyleString;
 use App\Models\Employees\AttendanceAbsenceType;
+use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Attendance\WorkingDayReportStyleService;
 
 class Td extends Component
@@ -35,7 +36,10 @@ class Td extends Component
             /**Error style */
             if ($attendance == 'ERR') $this->styleSetUp($this->styleObject->error());
             /**Other absence */
-            if (in_array($attendance, AttendanceAbsenceType::ABSENCE_TYPE_SHT)) $this->styleSetUp($this->styleObject->otherAbsence($attendance));
+            if (in_array($attendance, AttendanceAbsenceType::ABSENCE_TYPE_SHT)) {
+                $this->styleSetUp($this->styleObject->otherAbsence($attendance));
+                $this->styleSetUp($this->absenceBackgroundColorStyle($attendance));
+            }
         }
         $att = explode('.', $att);
         foreach ($att as $item) {
@@ -47,8 +51,24 @@ class Td extends Component
     }
 
     /**
+     * Resolve the background-color style for an absence short code (e.g. SL, PL, HD).
+     * Uses the redis/db configurable colors set for the absence btns, falling back
+     * to the type's default color.
+     *
+     * @return array
+     */
+    private function absenceBackgroundColorStyle(string $attendance): array
+    {
+        $absenceType = AttendanceAbsenceType::setByShtDesc($attendance);
+        if (!$absenceType) return [];
+
+        $backgroundColor = AbsenceBtnObject::getBackgroundColorForType($absenceType);
+        return $backgroundColor ? ['background-color' => $backgroundColor] : [];
+    }
+
+    /**
      * Set up additional style
-     * 
+     *
      * @return void
      */
     private function styleSetUp($style): void
