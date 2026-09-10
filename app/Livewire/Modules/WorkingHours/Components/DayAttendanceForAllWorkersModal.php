@@ -3,7 +3,6 @@
 namespace App\Livewire\Modules\WorkingHours\Components;
 
 use DateTime;
-use Livewire\Attributes\On;
 use App\Livewire\LivewireController;
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Services\Attendance\GetAttendanceService;
@@ -13,6 +12,9 @@ use App\Livewire\Modules\WorkingHours\Index as AttendanceReport;
 
 class DayAttendanceForAllWorkersModal extends LivewireController
 {
+    /**Params passed in from the global modal (see config/global-modal.php) */
+    public array $params = [];
+
     public $date;
     public $workers;
 
@@ -20,17 +22,20 @@ class DayAttendanceForAllWorkersModal extends LivewireController
 
     public $showDeleteAtt = FALSE;
 
-    #[On('open-day-attendance-for-all-workers-modal')]
-    public function initializeModal($date, $workers)
+    /**
+     * The global modal mounts a fresh instance of this component every time
+     * it's opened, so this is where the day/workers data is loaded for the
+     * date that was passed in as a param.
+     */
+    public function mount()
     {
         try {
-            $this->date = $date;
-            $this->workers = $workers;
+            $this->date = $this->params['date'] ?? null;
+            $this->workers = $this->params['workers'] ?? [];
             $this->setAbsenceTypeProperty();
             $this->showDeleteAtt = GetAttendanceService::byDate((new DateTime())->setTimestamp($this->date))->myEmployees()->countAtt() > 0 ? TRUE : FALSE;
-            $this->openModal();
         } catch (\Throwable $th) {
-            return $this->dispatch('show-exception-modal', $th->getMessage());
+            $this->showException($th->getMessage());
         }
     }
 
@@ -53,13 +58,15 @@ class DayAttendanceForAllWorkersModal extends LivewireController
     }
 
     /**
-     * Reset the properties before closing the modal
-     * 
+     * Close the global modal without modifying its shared component.
+     * The global modal already closes on Escape (see global-modal.blade.php),
+     * so a synthetic Escape keypress reuses that existing listener.
+     *
      * @return void
      */
-    public function beforeCloseModal(): void
+    private function closeGlobalModal(): void
     {
-        $this->reset('date', 'workers', 'absenceType', 'showDeleteAtt');
+        $this->js("window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))");
     }
 
     /**
@@ -85,7 +92,7 @@ class DayAttendanceForAllWorkersModal extends LivewireController
             return $this->dispatch('show-exception-modal', $th->getMessage());
         }
 
-        $this->closeModal();
+        $this->closeGlobalModal();
         $this->dispatch('refresh-attendance-report')->to(AttendanceReport::class);
         return $service['message'] != NULL ? $this->notifyMe($service['message'], $service['success'] ? 'success' : 'danger') : NULL;
     }
@@ -104,7 +111,7 @@ class DayAttendanceForAllWorkersModal extends LivewireController
             return $this->dispatch('show-exception-modal', $th->getMessage());
         }
 
-        $this->closeModal();
+        $this->closeGlobalModal();
         $this->dispatch('refresh-attendance-report')->to(AttendanceReport::class);
         return $service['message'] != NULL ? $this->notifyMe($service['message'], $service['success'] ? 'success' : 'danger') : NULL;
     }

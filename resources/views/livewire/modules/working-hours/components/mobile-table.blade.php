@@ -42,7 +42,5 @@
         @endforeach
     </x-ui.list-group>
 
-    @livewire('modules.working-hours.components.day-attendance-for-all-workers-modal')
-
-    <x-ui.please-wait loading="openDayAttendanceModal, openModal"/>
+    <x-ui.please-wait loading="openDayAttendanceModal"/>
 </div>

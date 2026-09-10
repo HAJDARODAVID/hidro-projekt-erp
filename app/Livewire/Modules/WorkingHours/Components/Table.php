@@ -12,7 +12,10 @@ class Table extends LivewireController
 
     public function openDayAttendanceModal($date)
     {
-        $this->dispatch('open-day-attendance-for-all-workers-modal', $date, (new WorkerHoursDataObject($this->tableData))->getWorkers())->to(DayAttendanceForAllWorkersModal::class);
+        $this->dispatch('open-global-modal', component: 'day-attendance-for-all-workers', params: [
+            'date' => $date,
+            'workers' => (new WorkerHoursDataObject($this->tableData))->getWorkers(),
+        ]);
     }
 
     public function openPerDayAndWorkerAttendanceModal($date)

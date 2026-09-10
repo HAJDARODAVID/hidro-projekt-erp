@@ -25,4 +25,10 @@ return [
         'header-style' => null,
         'max-width' => null,
     ],
+    'day-attendance-for-all-workers' => [
+        'component-path' => 'modules.working-hours.components.day-attendance-for-all-workers-modal',
+        'header-name' => 'Attendance / absence',
+        'header-style' => null,
+        'max-width' => '450px',
+    ],
 ];
