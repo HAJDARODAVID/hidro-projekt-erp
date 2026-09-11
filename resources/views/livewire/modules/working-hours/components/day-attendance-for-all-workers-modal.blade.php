@@ -3,7 +3,14 @@
     <x-ui.card :noBodyPadding=TRUE loading="applyAbsenceAction, deleteAllAttendanceAction" :border=FALSE>
         <div class="d-flex justify-content-center gap-3">
             @foreach ($absenceType as $typeCode => $typeData)
-                <x-ui.btn type="dar.lg" text="{{ translator($typeData['short-text']) }}" wClickMethod="applyAbsenceAction" wClickParam="{{ $typeCode }}" />
+                <button
+                    type="button"
+                    class="{{ $typeData['class'] }}"
+                    style="{{ $typeData['style'] }}"
+                    wire:click="applyAbsenceAction('{{ $typeCode }}')"
+                >
+                    <b>{{ translator($typeData['short-text']) }}</b>
+                </button>
             @endforeach
             @if($showDeleteAtt)
                 <x-v-divider px=0 />

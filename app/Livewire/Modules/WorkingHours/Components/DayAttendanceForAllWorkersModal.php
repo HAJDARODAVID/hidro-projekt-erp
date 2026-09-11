@@ -5,6 +5,7 @@ namespace App\Livewire\Modules\WorkingHours\Components;
 use DateTime;
 use App\Livewire\LivewireController;
 use App\Models\Employees\AttendanceAbsenceType;
+use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Attendance\GetAttendanceService;
 use App\Services\Attendance\DeleteAttendanceService;
 use App\Services\Attendance\MassAbsenceAssignmentService;
@@ -41,6 +42,9 @@ class DayAttendanceForAllWorkersModal extends LivewireController
 
     /**
      * Set all the data needed for displaying absence types.
+     * The btn class and style (size, background color) come from the
+     * AbsenceBtnObject, so the mass absence btns match the absence btns
+     * used in the other attendance components.
      * 
      * @return void
      */
@@ -48,10 +52,12 @@ class DayAttendanceForAllWorkersModal extends LivewireController
     {
         $output = [];
         foreach (AttendanceAbsenceType::init()->getMassAssignable() as $type) {
-            $type = AttendanceAbsenceType::setByType($type);
-            $output[$type->code()] = [
-                'description' => $type->description(),
-                'short-text' => $type->shortDesc(),
+            $btnObj = new AbsenceBtnObject($type, ['size' => 'lg']);
+            $output[$btnObj->code()] = [
+                'description' => $btnObj->desc(),
+                'short-text' => $btnObj->shtDesc(),
+                'class' => $btnObj->getClass(),
+                'style' => $btnObj->getStyle() . '; width:71px !important',
             ];
         }
         $this->absenceType = $output;
