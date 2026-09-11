@@ -3,6 +3,7 @@
 namespace App\Livewire\Modules\WorkingHours\Components;
 
 use App\Livewire\LivewireController;
+use App\Livewire\Modules\WorkingHours\Index as AttendanceReport;
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Models\Employees\Worker;
 use App\Services\Attendance\AbsenceBtnObject;
@@ -16,6 +17,9 @@ use Illuminate\Support\Collection;
 class WorkerAttendancePerDay extends LivewireController
 {
     public array $params = [];
+
+    /**Set to true when attendance was created or deleted, so the table is only refreshed on close if something changed */
+    public bool $hasChanges = false;
 
     public array $attendance = [];
     public array $workerInfo = [];
@@ -87,6 +91,7 @@ class WorkerAttendancePerDay extends LivewireController
                 return $this->notifyMe($response['error'] ?? translator('Failed to save attendance!'), 'danger');
             }
 
+            $this->hasChanges = true;
             $this->resetAttendance();
             return $this->notifyMe(translator('Attendance entry created!'));
         } catch (\Throwable $th) {
@@ -97,10 +102,17 @@ class WorkerAttendancePerDay extends LivewireController
     /**
      * Called by the global-modal component (see config/global-modal.php)
      * before the modal closes.
+     * Refreshes the attendance report (Index), which re-mounts the working
+     * hours Table with fresh data, but only if attendance was created or
+     * deleted in this modal ($hasChanges), so closing without changes
+     * doesn't trigger a needless reload of the table.
      */
     public function beforeCloseAction()
     {
-        dd("im closing for today");
+        if (!$this->hasChanges) return;
+
+        $this->hasChanges = false;
+        $this->dispatch('refresh-attendance-report')->to(AttendanceReport::class);
     }
 
     /**
@@ -117,6 +129,7 @@ class WorkerAttendancePerDay extends LivewireController
                 return $this->notifyMe($response['message'], 'danger');
             }
 
+            $this->hasChanges = true;
             return $this->notifyMe($response['message']);
         } catch (\Throwable $th) {
             return $this->showException($th->getMessage());
