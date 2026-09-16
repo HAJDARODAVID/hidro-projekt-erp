@@ -23,6 +23,19 @@
                             <x-ui.input size="sm" wModel='routeData.method' />
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <b>Divider after</b>
+                                <x-ui.tool-tips message="Show a vertical line after this tab in the module tab bar." />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" wire:model.change='routeData.divider_after' />
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </x-ui.card>

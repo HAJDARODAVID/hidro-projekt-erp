@@ -21,7 +21,8 @@ class RoutesBasicInfo extends LivewireController
 
     public function updatedRouteData($value, $key)
     {
-        if ($value == "") $value = NULL;
+        /**Strict check so a FALSE from a switch (Exp: divider_after) isn't turned into NULL */
+        if ($value === "") $value = NULL;
         $editAppModuleRouteService = app(EditAppModuleRouteService::class);
         $editAppModuleRouteService->ofId($this->routeID)->setNewValue([$key => $value]);
         $editAppModuleRouteService = $editAppModuleRouteService->save();

@@ -41,12 +41,19 @@ class GetModuleRoutesForTabLinks
 
     /**
      * This will return a array of the routes.
+     * The key is the route name, the value holds the tab title and if a
+     * vertical divider should be shown after the tab (see the "Divider after"
+     * switch in the app settings module routes).
+     * Exp: home => ['title' => 'Home', 'divider_after' => FALSE]
      */
     public function getRouteLinksArray()
     {
         $output = [];
         foreach ($this->moduleRoutes as $route) {
-            $output[$route['route_name']] = $route['title'];
+            $output[$route['route_name']] = [
+                'title'         => $route['title'],
+                'divider_after' => (bool) $route['divider_after'],
+            ];
         }
         return $output;
     }

@@ -370,6 +370,7 @@ Route::prefix('/')
                     ->group(function () {
                         Route::get('/', 'index')->name('getAllEmployeeWorkingHours');
                         Route::get('/employee', 'getEmployeeWorkingHours')->name('getEmployeeWorkingHours');
+                        Route::get('/subcontractor', 'getSubcontractorHours')->name('getSubcontractorHours');
                     });
                 // Route::controller(PayrollController::class)
                 //     ->prefix('/payroll')

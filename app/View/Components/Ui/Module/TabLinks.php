@@ -18,7 +18,7 @@ class TabLinks extends Component
         $routes = [],
         $specialIndexIcon = NULL,
     ) {
-        $this->routes = $this->checkIfRoutesExists($routes);
+        $this->routes = $this->normalizeRoutes($this->checkIfRoutesExists($routes));
         $this->specialIndexIcon = $specialIndexIcon;
     }
 
@@ -31,6 +31,24 @@ class TabLinks extends Component
     {
         foreach ($routes as $routeName => $title) {
             if (!(Route::has($routeName))) unset($routes[$routeName]);
+        }
+        return $routes;
+    }
+
+    /**
+     * Make sure every route is an array with a title and a divider_after flag.
+     * The value can be a plain title (Exp: home => 'Home', used when a controller
+     * passes custom tab links) or an array as returned by GetModuleRoutesForTabLinks.
+     * 
+     * @return array
+     */
+    private function normalizeRoutes($routes)
+    {
+        foreach ($routes as $routeName => $link) {
+            $routes[$routeName] = [
+                'title'         => is_array($link) ? ($link['title'] ?? NULL) : $link,
+                'divider_after' => is_array($link) ? (bool) ($link['divider_after'] ?? FALSE) : FALSE,
+            ];
         }
         return $routes;
     }

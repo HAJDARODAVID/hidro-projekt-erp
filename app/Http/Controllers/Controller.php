@@ -87,6 +87,8 @@ class Controller extends BaseController
      * Sets the main module tab links component data.
      * The array has to be a a key value pair where the key is the route name and the value the displayed name.
      * Exp: home => Home (Good example right?)
+     * The value can also be an array with a title and a divider_after flag, which shows a vertical line after that tab.
+     * Exp: home => ['title' => 'Home', 'divider_after' => TRUE]
      * Use it in moduleConfig() to add to all methods, but you can overwrite the links in the method itself.
      * If the $tabLinks array is empty it will check if there are registered routes for this module. 
      * 
