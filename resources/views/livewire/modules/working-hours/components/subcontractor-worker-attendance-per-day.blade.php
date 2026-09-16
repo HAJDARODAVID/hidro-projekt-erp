@@ -1,31 +1,57 @@
-<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction, attendance.date, attendance.worker_id" :border=FALSE>
+<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction, attendance.date, attendance.worker_id, dateTo" :border=FALSE>
     <div class="row">
         <div class="col-md-5">
             <x-ui.card title="{{ translator('Add new attendance') }}">
                 <div class="row">
-                    <div class="col-md-4">
-                        @if ($selectWorker)
+                    @if ($selectWorker)
+                        <div class="col-md-4">
                             <x-ui-input
                                 type="date" size="sm"
-                                label="{{ translator('Date') }}"
+                                label="{{ translator('From') }}"
                                 model="attendance.date" event="change"
                             />
-                        @else
+                        </div>
+                        <div class="col-md-4">
+                            <x-ui-input
+                                type="date" size="sm"
+                                label="{{ translator('To') }}"
+                                model="dateTo" event="change"
+                            />
+                        </div>
+                        <div class="col-md d-flex align-items-end">
+                            <div class="form-check form-switch m-0 mb-1" title="{{ translator('Skip Saturdays and Sundays when saving a date range') }}">
+                                <input class="form-check-input" type="checkbox" id="skip-weekends" wire:model.live="skipWeekends">
+                                <label class="form-check-label small" for="skip-weekends">{{ translator('Skip weekends') }}</label>
+                            </div>
+                        </div>
+                    @else
+                        <div class="col-md-4">
                             <x-ui-input
                                 type="date" size="sm"
                                 label="{{ translator('Date') }}"
                                 model="attendance.date" :disabled='true'
                             />
-                        @endif
-                    </div>
-                    <div class="col-md">
-                        <x-ui-input
-                            size="sm"
-                            label="{{ translator('Subcontractor') }}"
-                            model="workerInfo.subcontractor" :disabled='true'
-                        />
-                    </div>
+                        </div>
+                        <div class="col-md">
+                            <x-ui-input
+                                size="sm"
+                                label="{{ translator('Subcontractor') }}"
+                                model="workerInfo.subcontractor" :disabled='true'
+                            />
+                        </div>
+                    @endif
                 </div>
+                @if ($selectWorker)
+                    <div class="row mt-2">
+                        <div class="col-md">
+                            <x-ui-input
+                                size="sm"
+                                label="{{ translator('Subcontractor') }}"
+                                model="workerInfo.subcontractor" :disabled='true'
+                            />
+                        </div>
+                    </div>
+                @endif
                 <div class="row mt-2">
                     <div class="col-md">
                         @if ($selectWorker)
@@ -45,22 +71,31 @@
                         @endif
                     </div>
                 </div>
-                <div class="row mt-2" wire:key="work-diary-{{ $attendance['date'] }}">
+                <div class="row mt-2" wire:key="work-diary-{{ $attendance['date'] }}-{{ $isRange ? 'range' : 'day' }}">
                     <div class="col-md">
-                        <x-ui-select
-                            :options=$workDiaryOptionsItems
-                            label="{{ translator('Workday diary') }}"
-                            initOpt="{{ translator('w/o workday diary') }}"
-                            size="sm"
-                            model="attendance.working_day_record_id"
-                        />
+                        @if ($isRange)
+                            <div class="form-group">
+                                <label>{{ translator('Workday diary') }}</label>
+                                <div class="form-control form-control-sm no-border-radius text-muted" style="background-color: #e9ecef;">
+                                    <i>{{ translator('Not available for a date range') }}</i>
+                                </div>
+                            </div>
+                        @else
+                            <x-ui-select
+                                :options=$workDiaryOptionsItems
+                                label="{{ translator('Workday diary') }}"
+                                initOpt="{{ translator('w/o workday diary') }}"
+                                size="sm"
+                                model="attendance.working_day_record_id"
+                            />
+                        @endif
                     </div>
                 </div>
                 <div class="row mt-2">
                     <div class="col-md">
                         <x-ui.input
                             type="number"
-                            label="{{ translator('Hours') }}"
+                            label="{{ $isRange ? translator('Hours per day') : translator('Hours') }}"
                             class="form-control-sm"
                             wModel="hourInput"
                             style="text-align: center;font-weight: bold;"
@@ -71,7 +106,7 @@
                             <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
                         </div>
                     </div>
-                </div>                
+                </div>
             </x-ui.card>
         </div>
         <div class="col-md">
@@ -80,6 +115,9 @@
                     <thead>
                         <tr class="text-uppercase text-muted small">
                             <th style="width: 40px">#</th>
+                            @if ($isRange)
+                                <th style="width: 110px">{{ translator('Date') }}</th>
+                            @endif
                             <th style="width: 380px">{{ translator('Workday diary') }}</th>
                             <th class="text-center" style="width: 70px">{{ translator('Hours') }}</th>
                             <th style="width: 68px" class="text-end">{{ translator('Actions') }}</th>
@@ -89,6 +127,9 @@
                         @forelse ($attCollection as $att)
                             <tr>
                                 <td class="text-muted">{{ $att->getId() }}</td>
+                                @if ($isRange)
+                                    <td>{{ $att->getDate() }}</td>
+                                @endif
                                 <td>@if($att->getConstructionSiteName()){{ $att->getConstructionSiteName() }} @else {{ translator('w/o workday diary') }} @endif</td>
                                 <td class="text-end">
                                     <x-ui-input
@@ -108,10 +149,12 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center">
+                                <td colspan="{{ $isRange ? 5 : 4 }}" class="text-center">
                                     <i>
                                         @if ($selectWorker && empty($attendance['worker_id']))
                                             {{ translator('Select a worker to see the attendance!') }}
+                                        @elseif ($isRange)
+                                            {{ translator('No attendance in the selected range!') }}
                                         @else
                                             {{ translator('No attendance for this day!') }}
                                         @endif

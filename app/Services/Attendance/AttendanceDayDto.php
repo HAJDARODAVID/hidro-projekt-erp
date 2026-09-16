@@ -24,6 +24,29 @@ class AttendanceDayDto extends BaseDTO
     /** Work type code */
     protected $workType;
 
+    /** Attendance date (Y-m-d), set when the DTO is part of a date range list */
+    protected $date;
+
+    /**
+     * Get the value of date
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * Set the value of date
+     *
+     * @return  self
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
     /**
      * Get the value of id
      */

@@ -12,31 +12,40 @@ use Illuminate\Support\Collection;
  * Class GetSubcontractorWorkerAttendanceByDateService.
  *
  * Subcontractor (cooperator) worker counterpart of the GetWorkerAttendanceByDateService.
+ * Optionally lists a date range (date .. dateTo) instead of a single day.
  */
 class GetSubcontractorWorkerAttendanceByDateService extends BaseService
 {
     private DateTime $date;
 
+    private DateTime|null $dateTo;
+
     private int|null $workerId;
 
-    public function __construct(DateTime $date, int|null $workerId)
+    public function __construct(DateTime $date, int|null $workerId, DateTime|null $dateTo = null)
     {
         $this->date = $date;
         $this->workerId = $workerId;
+        $this->dateTo = $dateTo;
     }
 
     /**
      * Execute the service.
-     * This will get all the attendance records for the subcontractor worker on the given date,
-     * each formatted as an AttendanceDayDto.
+     * This will get all the attendance records for the subcontractor worker on the given date (or date range),
+     * each formatted as an AttendanceDayDto, ordered by date.
      *
      * @return self
      */
     public function execute(): self
     {
         try {
+            $from = $this->date->format('Y-m-d');
+            $to = $this->dateTo ? $this->dateTo->format('Y-m-d') : $from;
+            if ($to < $from) [$from, $to] = [$to, $from];
+
             $attendance = AttendanceCoOpModel::where('worker_id', $this->workerId)
-                ->where('date', $this->date->format('Y-m-d'))
+                ->whereBetween('date', [$from, $to])
+                ->orderBy('date')
                 ->orderBy('id')
                 ->get();
 
@@ -51,6 +60,7 @@ class GetSubcontractorWorkerAttendanceByDateService extends BaseService
 
                 $dto = (new AttendanceDayDto())
                     ->setId($att->id)
+                    ->setDate($att->date)
                     ->setConstructionSiteName($workDiary ? ($workDiary->user?->name ?? '-') . ' | ' . ($workDiary->constructionSite?->name ?? translator('No construction site')) : null)
                     ->setWorkingHours($att->work_hours);
 
