@@ -26,7 +26,7 @@
                     <td style="text-align: center; font-weight: bold;">{{ $data->formatHours($data->subcontractorTotal($subID)) }}</td>
                     <td style="text-align: right; font-weight: bold; border-right: 3px double #3f3f3f !important;">{{ $data->formatCost($data->subcontractorCost($subID)) }}</td>
                     @foreach ($dates as $date)
-                        <td style="text-align: center; font-weight: bold;">{{ $data->formatHours($data->subcontractorDayTotal($date, $subID)) }}</td>
+                        <td style="text-align: center; font-weight: bold;">{{-- {{ $data->formatHours($data->subcontractorDayTotal($date, $subID)) }}--}}</td> 
                     @endforeach
                 </tr>
                 {{-- Workers of the subcontractor --}}
@@ -58,6 +58,7 @@
                 </tr>
             @endforelse
             {{-- Sum of all the subcontractors --}}
+            {{--
             <tr style="border-top: 3px double #3f3f3f;">
                 <td style="font-weight: bold;">{{ translator('Sum') }}</td>
                 <td style="text-align: center; font-weight: bold;">{{ $data->formatHours($data->total()) }}</td>
@@ -66,6 +67,7 @@
                     <td style="text-align: center; font-weight: bold; @if ($date->format('N') > 5) background-color: #c9c9c9; @endif">{{ $data->formatHours($data->dayTotal($date)) }}</td>
                 @endforeach
             </tr>
+            --}}
         </tbody>
     </table>
 </div>
