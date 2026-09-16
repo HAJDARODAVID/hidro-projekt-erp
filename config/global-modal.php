@@ -31,4 +31,10 @@ return [
         'header-style' => null,
         'max-width' => '450px',
     ],
+    'subcontractor-hours-export' => [
+        'component-path' => 'modules.working-hours.components.subcontractor-hours-export-modal',
+        'header-name' => 'Subcontractor hours export',
+        'header-style' => null,
+        'max-width' => '750px',
+    ],
 ];

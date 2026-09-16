@@ -91,7 +91,7 @@ class GetSubcontractorsMonthlyHoursReportService extends BaseService
                 uasort($output[$subID]['workers'], fn($a, $b) => strcmp($a['worker-info']['name'], $b['worker-info']['name']));
             }
 
-            $output['info']['hour-cost'] = $this->getBaseWorkHourCost();
+            $output['info']['hour-cost'] = self::getBaseWorkHourCost();
 
             /**Put the finished data to the payload response */
             $this->setData($output);
@@ -123,7 +123,7 @@ class GetSubcontractorsMonthlyHoursReportService extends BaseService
      *
      * @return float
      */
-    private function getBaseWorkHourCost(): float
+    public static function getBaseWorkHourCost(): float
     {
         $param = AppParametersModel::where('param_name_srt', self::BASE_WORK_HOUR_COST_PARAM)->where('active', TRUE)->first();
         return $param ? (float) $param->value : 0;

@@ -9,7 +9,14 @@
                 <x-ui.select :options=$years class="form-select-sm"  wModel='selectedYear' style="width: 100px" />
             </div>
         </x-slot:title>
-        <x-slot:headerActions></x-slot:headerActions>
+        <x-slot:headerActions>
+            <x-ui.modal.modal-open-btn
+                btn-type="suc.sm"
+                icon="file-earmark-spreadsheet"
+                target-component="subcontractor-hours-export"
+                :params="['month' => $selectedMonth, 'year' => $selectedYear]"
+            />
+        </x-slot:headerActions>
         <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear, refreshMe">
             @if (Session::get('is_phone'))
                 @livewire('modules.working-hours.components.subcontractor-mobile-table', ['tableData' => $data], key('subcontractor-hours-mobile'.now()))
