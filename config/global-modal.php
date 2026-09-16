@@ -37,4 +37,11 @@ return [
         'header-style' => null,
         'max-width' => '750px',
     ],
+    'subcontractor-attendance-info' => [
+        'component-path' => 'modules.working-hours.components.subcontractor-worker-attendance-per-day',
+        'header-name' => 'Subcontractor attendance',
+        'header-style' => null,
+        'max-width' => '1050px',
+        'before-close' => 'beforeCloseAction',
+    ],
 ];

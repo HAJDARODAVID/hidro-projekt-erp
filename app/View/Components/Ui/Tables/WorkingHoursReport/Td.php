@@ -21,14 +21,17 @@ class Td extends Component
     public $trigger = TRUE;
     /** Apply the missing-attendance style when the cell is empty */
     public $missingStyle = TRUE;
+    /** Global modal component (see config/global-modal.php) opened when the cell is clicked */
+    public $component = 'worker-attendance-info';
 
     /**
      * Create a new component instance.
      */
-    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null, $trigger = TRUE, $missingStyle = TRUE)
+    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null, $trigger = TRUE, $missingStyle = TRUE, $component = 'worker-attendance-info')
     {
         $this->trigger = $trigger;
         $this->missingStyle = $missingStyle;
+        $this->component = $component;
         $this->attendance = $attendance;
         $this->styleObject = new WorkingDayReportStyleService();
         /**Clickable cells (global modal trigger) get a pointer */

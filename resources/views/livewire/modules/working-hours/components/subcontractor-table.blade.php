@@ -44,10 +44,10 @@
                         @foreach ($dates as $date)
                             <x-ui.tables.working-hours-report.td
                                 :date=$date
-                                att="cursor:pointer"
                                 :attendance="$data->formatHours($data->hours($date, $subID, $workerID))"
-                                :trigger=FALSE
+                                component="subcontractor-attendance-info"
                                 :missingStyle=FALSE
+                                data-params="{{ json_encode(['worker' => $workerID, 'date' => $date->format('Y-m-d')]) }}"
                             />
                         @endforeach
                     </tr>
