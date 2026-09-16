@@ -31,6 +31,8 @@ class Td extends Component
         $this->missingStyle = $missingStyle;
         $this->attendance = $attendance;
         $this->styleObject = new WorkingDayReportStyleService();
+        /**Clickable cells (global modal trigger) get a pointer */
+        if ($trigger) $this->styleSetUp($this->styleObject->clickableField());
         $this->setAction($action);
         if ($date->format('N') > 5 && $attendance == null) {
             $this->styleSetUp($this->styleObject->weekendStyle());
@@ -101,6 +103,17 @@ class Td extends Component
     private function width($att): void
     {
         $this->style['width'] = $att;
+        return;
+    }
+
+    /**
+     * Cursor setter (exp: cursor:pointer)
+     * 
+     * @return void
+     */
+    private function cursor($att): void
+    {
+        $this->style['cursor'] = $att;
         return;
     }
 

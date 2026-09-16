@@ -44,6 +44,7 @@
                         @foreach ($dates as $date)
                             <x-ui.tables.working-hours-report.td
                                 :date=$date
+                                att="cursor:pointer"
                                 :attendance="$data->formatHours($data->hours($date, $subID, $workerID))"
                                 :trigger=FALSE
                                 :missingStyle=FALSE
