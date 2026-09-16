@@ -1,5 +1,10 @@
 <div class="p-3 pt-0" style="position: absolute;top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px;margin-bottom: 10px; overflow-y: auto; overflow-x: auto">
-    @php $dates = $data->getDates(); @endphp
+    @php
+        $dates = $data->getDates();
+        /**Default date for the modal opened from the subcontractor name: today in the current month, else the 1st of the shown month */
+        $isCurrentMonth = $data->getMonth() == now()->format('n') && $data->getYear() == now()->format('Y');
+        $defaultDate = $isCurrentMonth ? now()->format('Y-m-d') : sprintf('%04d-%02d-01', $data->getYear(), $data->getMonth());
+    @endphp
     <table class="table table-responsive table-bordered">
         <thead style="border-bottom: 3px double #3f3f3f;">
             <tr>
@@ -17,7 +22,13 @@
             @forelse ($data->getSubcontractors() as $subID => $subcontractor)
                 {{-- Subcontractor row with the sums of all its workers --}}
                 <tr style="background-color: #e9ecef;">
-                    <td style="font-weight: bold;">
+                    <td
+                        style="font-weight: bold; cursor: pointer;"
+                        title="{{ translator('Add attendance') }}"
+                        data-trigger="global-modal"
+                        data-component="subcontractor-attendance-info"
+                        data-params="{{ json_encode(['subcontractor' => $subID, 'date' => $defaultDate]) }}"
+                    >
                         <div class="d-flex gap-2">
                             <i class="bi bi-building"></i>
                             <div class="">{{ $subcontractor['name'] }}</div>

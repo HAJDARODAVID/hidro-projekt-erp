@@ -1,14 +1,22 @@
-<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction" :border=FALSE>
+<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction, attendance.date, attendance.worker_id" :border=FALSE>
     <div class="row">
         <div class="col-md-5">
             <x-ui.card title="{{ translator('Add new attendance') }}">
                 <div class="row">
                     <div class="col-md-4">
-                        <x-ui-input
-                            type="date" size="sm"
-                            label="{{ translator('Date') }}"
-                            model="params.date" :disabled='true'
-                        />
+                        @if ($selectWorker)
+                            <x-ui-input
+                                type="date" size="sm"
+                                label="{{ translator('Date') }}"
+                                model="attendance.date" event="change"
+                            />
+                        @else
+                            <x-ui-input
+                                type="date" size="sm"
+                                label="{{ translator('Date') }}"
+                                model="attendance.date" :disabled='true'
+                            />
+                        @endif
                     </div>
                     <div class="col-md">
                         <x-ui-input
@@ -20,14 +28,24 @@
                 </div>
                 <div class="row mt-2">
                     <div class="col-md">
-                        <x-ui-input
-                            size="sm"
-                            label="{{ translator('Worker') }}"
-                            model="workerInfo.name" :disabled='true'
-                        />
+                        @if ($selectWorker)
+                            <x-ui-select
+                                :options=$workersOptionsItems
+                                label="{{ translator('Worker') }}"
+                                initOpt="{{ translator('Select worker') }}"
+                                size="sm"
+                                model="attendance.worker_id"
+                            />
+                        @else
+                            <x-ui-input
+                                size="sm"
+                                label="{{ translator('Worker') }}"
+                                model="workerInfo.name" :disabled='true'
+                            />
+                        @endif
                     </div>
                 </div>
-                <div class="row mt-2">
+                <div class="row mt-2" wire:key="work-diary-{{ $attendance['date'] }}">
                     <div class="col-md">
                         <x-ui-select
                             :options=$workDiaryOptionsItems
@@ -48,11 +66,12 @@
                             style="text-align: center;font-weight: bold;"
                         />
                     </div>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-end">
-                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
-                </div>
+                    <div class="col-md">
+                        <div class="d-flex justify-content-end align-items-end h-100">
+                            <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
+                        </div>
+                    </div>
+                </div>                
             </x-ui.card>
         </div>
         <div class="col-md">
@@ -89,7 +108,15 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center"><i>{{ translator('No attendance for this day!') }}</i></td>
+                                <td colspan="4" class="text-center">
+                                    <i>
+                                        @if ($selectWorker && empty($attendance['worker_id']))
+                                            {{ translator('Select a worker to see the attendance!') }}
+                                        @else
+                                            {{ translator('No attendance for this day!') }}
+                                        @endif
+                                    </i>
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>

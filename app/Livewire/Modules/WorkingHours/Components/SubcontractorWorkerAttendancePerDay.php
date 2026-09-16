@@ -5,6 +5,7 @@ namespace App\Livewire\Modules\WorkingHours\Components;
 use DateTime;
 use Illuminate\Support\Collection;
 use App\Livewire\LivewireController;
+use App\Models\CooperatorsModel;
 use App\Models\CooperatorWorkersModel;
 use App\Services\Attendance\CreateAttendanceService;
 use App\Services\Attendance\DeleteAttendanceService;
@@ -14,21 +15,34 @@ use App\Services\Attendance\GetSubcontractorWorkerAttendanceByDateService;
 
 /**
  * Modal for adding/removing the attendance of a subcontractor (cooperator) worker on one day.
- * Opened from the subcontractor hours table by clicking on a date cell (see config/global-modal.php).
+ * Opened from the subcontractor hours table (see config/global-modal.php):
+ *  - by clicking on a date cell of a worker: worker and date are fixed (params: worker, date)
+ *  - by clicking on the subcontractor name: the worker is selected from a dropdown with all the
+ *    workers of that subcontractor and the date can be changed (params: subcontractor, date)
  * Subcontractor counterpart of the WorkerAttendancePerDay component.
  */
 class SubcontractorWorkerAttendancePerDay extends LivewireController
 {
-    /**Params passed in from the global modal: ['worker' => cooperator worker ID, 'date' => 'Y-m-d'] */
+    /**
+     * Params passed in from the global modal:
+     * ['worker' => cooperator worker ID, 'date' => 'Y-m-d'] or
+     * ['subcontractor' => cooperator ID, 'date' => 'Y-m-d']
+     */
     public array $params = [];
 
     /**Set to true when attendance was created or deleted, so the table is only refreshed on close if something changed */
     public bool $hasChanges = false;
 
+    /**TRUE when the worker is chosen over the dropdown (opened from the subcontractor name) */
+    public bool $selectWorker = false;
+
     public array $attendance = [];
 
     /**Display info of the worker ['name' => string, 'subcontractor' => string] */
     public array $workerInfo = [];
+
+    /**Options for the worker select [id => name], all the workers of the subcontractor */
+    public array $workersOptionsItems = [];
 
     public array $workDiaryOptionsItems = [];
 
@@ -38,8 +52,11 @@ class SubcontractorWorkerAttendancePerDay extends LivewireController
 
     public function mount()
     {
+        $this->selectWorker = empty($this->params['worker']) && !empty($this->params['subcontractor']);
+
         $this->resetAttendance()
             ->getWorkerInfo()
+            ->getWorkersOptionsItems()
             ->getWorkDiariesOptionsItems();
     }
 
@@ -56,8 +73,11 @@ class SubcontractorWorkerAttendancePerDay extends LivewireController
     public function saveNewAttendanceAction()
     {
         try {
-            if (!$this->attendance['worker_id'] || !$this->attendance['date']) {
-                return $this->notifyMe(translator('Worker and date are required!'), 'danger');
+            if (!$this->attendance['worker_id']) {
+                return $this->notifyMe(translator('Worker is required!'), 'danger');
+            }
+            if (!$this->attendance['date']) {
+                return $this->notifyMe(translator('Date is required!'), 'danger');
             }
             if (!is_numeric($this->attendance['work_hours']) || (float) $this->attendance['work_hours'] <= 0) {
                 return $this->notifyMe(translator('Work hours are required!'), 'danger');
@@ -127,11 +147,18 @@ class SubcontractorWorkerAttendancePerDay extends LivewireController
 
     /**
      * Get the worker and subcontractor names formatted for the display.
+     * In the select worker mode only the subcontractor name is set.
      *
      * @return self
      */
     private function getWorkerInfo()
     {
+        if ($this->selectWorker) {
+            $subcontractor = CooperatorsModel::find($this->params['subcontractor']);
+            $this->workerInfo['subcontractor'] = $subcontractor?->name ?? '';
+            return $this;
+        }
+
         $worker = CooperatorWorkersModel::with('getCoOpInfo')->find($this->params['worker'] ?? null);
         if ($worker) {
             $this->workerInfo['name'] = str_pad($worker->id, 3, '0', STR_PAD_LEFT) . ' | ' . $worker->fullName;
@@ -141,37 +168,67 @@ class SubcontractorWorkerAttendancePerDay extends LivewireController
     }
 
     /**
+     * Get options that will be used in the worker select element.
+     * All the workers of the subcontractor, active ones first.
+     */
+    private function getWorkersOptionsItems()
+    {
+        if (!$this->selectWorker) return $this;
+
+        $workers = CooperatorWorkersModel::where('cooperator_id', $this->params['subcontractor'])
+            ->orderBy('status', 'DESC')
+            ->orderBy('lastName')
+            ->orderBy('firstName')
+            ->get();
+
+        $this->workersOptionsItems = [];
+        foreach ($workers as $worker) {
+            $name = str_pad($worker->id, 3, '0', STR_PAD_LEFT) . ' | ' . $worker->fullName;
+            if ($worker->status != CooperatorWorkersModel::COOPERATORS_WORKER_STATUS_ACTIVE) $name .= ' (' . translator('inactive') . ')';
+            $this->workersOptionsItems[$worker->id] = $name;
+        }
+        return $this;
+    }
+
+    /**
      * Get options that will be used in the select element.
-     * Gets all the work diaries for the given day.
+     * Gets all the work diaries for the selected day.
      */
     private function getWorkDiariesOptionsItems()
     {
-        $service = new GetAllWorkDiariesForDateService(new DateTime($this->params['date'] ?? null));
+        $this->workDiaryOptionsItems = [];
+        if (empty($this->attendance['date'])) return $this;
+
+        $service = new GetAllWorkDiariesForDateService(new DateTime($this->attendance['date']));
         $this->workDiaryOptionsItems = $service->executeForDropdown('with-user')->getResponse()['data'];
         return $this;
     }
 
     /**
      * Set the default attendance array keys and values.
+     * The selected worker and date are kept, so more entries can be added in a row.
      */
     protected function resetAttendance()
     {
         $this->attendance = [
-            'worker_id' => $this->params['worker'] ?? null,
+            'worker_id' => $this->attendance['worker_id'] ?? $this->params['worker'] ?? null,
             'working_day_record_id' => null,
             'work_hours' => null,
-            'date' => $this->params['date'] ?? null,
+            'date' => $this->attendance['date'] ?? $this->params['date'] ?? date('Y-m-d'),
         ];
         $this->hourInput = null;
         return $this;
     }
 
     /**
-     * Get all the attendance of the worker for the given day.
+     * Get all the attendance of the selected worker for the selected day.
      */
     protected function getWorkerAttendance()
     {
-        $service = new GetSubcontractorWorkerAttendanceByDateService(new DateTime($this->params['date'] ?? null), $this->params['worker'] ?? null);
+        $this->attCollection = new Collection();
+        if (empty($this->attendance['worker_id']) || empty($this->attendance['date'])) return $this;
+
+        $service = new GetSubcontractorWorkerAttendanceByDateService(new DateTime($this->attendance['date']), (int) $this->attendance['worker_id']);
         $response = $service->execute()->getResponse();
         if (!$response['success']) $this->showException($response['message']);
         $this->attCollection = $response['success'] ? $response['data'] : new Collection();
@@ -192,6 +249,23 @@ class SubcontractorWorkerAttendancePerDay extends LivewireController
     public function updatedHourInput(null|int|string $value)
     {
         $this->attendance['work_hours'] = $value;
+    }
+
+    /**
+     * Normalize the select placeholder option (see components.ui.v2.select) to NULL
+     * and reload the work diaries when the date is changed (select worker mode).
+     *
+     * @return void
+     */
+    public function updatedAttendance($value, $key)
+    {
+        if (in_array($key, ['worker_id', 'working_day_record_id']) && ($value === 'init-option' || $value === '')) {
+            $this->attendance[$key] = null;
+        }
+        if ($key == 'date') {
+            $this->attendance['working_day_record_id'] = null;
+            $this->getWorkDiariesOptionsItems();
+        }
     }
 
     public function render()
