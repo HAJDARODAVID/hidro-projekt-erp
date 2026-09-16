@@ -17,12 +17,18 @@ class Td extends Component
     public $attendance = null;
     public $action = null;
     public $actionParam = null;
+    /** Render the global-modal trigger attributes on the cell */
+    public $trigger = TRUE;
+    /** Apply the missing-attendance style when the cell is empty */
+    public $missingStyle = TRUE;
 
     /**
      * Create a new component instance.
      */
-    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null)
+    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null, $trigger = TRUE, $missingStyle = TRUE)
     {
+        $this->trigger = $trigger;
+        $this->missingStyle = $missingStyle;
         $this->attendance = $attendance;
         $this->styleObject = new WorkingDayReportStyleService();
         $this->setAction($action);
@@ -32,7 +38,7 @@ class Td extends Component
             /**Are hours set */
             if (is_numeric($attendance)) $this->styleSetUp($this->styleObject->checkIfOver($attendance, 12)->good());
             /**Missing attendance style */
-            if ($attendance == null && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
+            if ($attendance == null && $this->missingStyle && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
             /**Error style */
             if ($attendance == 'ERR') $this->styleSetUp($this->styleObject->error());
             /**Other absence */
@@ -41,7 +47,7 @@ class Td extends Component
                 $this->styleSetUp($this->absenceBackgroundColorStyle($attendance));
             }
         }
-        $att = explode('.', $att);
+        $att = explode('.', $att ?? '');
         foreach ($att as $item) {
             $itemExploded = explode(':', $item);
             $method = $itemExploded[0] ?? null;

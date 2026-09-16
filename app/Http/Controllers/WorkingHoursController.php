@@ -28,4 +28,13 @@ class WorkingHoursController extends Controller
     {
         return $this->module('employee');
     }
+
+    /**
+     * Get the monthly hours overview of the subcontractor (cooperator) workers,
+     * grouped by the subcontractor they belong to.
+     */
+    public function getSubcontractorHours()
+    {
+        return $this->module('subcontractor');
+    }
 }
