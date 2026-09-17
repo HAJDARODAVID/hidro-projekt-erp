@@ -73,22 +73,15 @@
                 </div>
                 <div class="row mt-2" wire:key="work-diary-{{ $attendance['date'] }}-{{ $isRange ? 'range' : 'day' }}">
                     <div class="col-md">
-                        @if ($isRange)
-                            <div class="form-group">
-                                <label>{{ translator('Workday diary') }}</label>
-                                <div class="form-control form-control-sm no-border-radius text-muted" style="background-color: #e9ecef;">
-                                    <i>{{ translator('Not available for a date range') }}</i>
-                                </div>
-                            </div>
-                        @else
-                            <x-ui-select
-                                :options=$workDiaryOptionsItems
-                                label="{{ translator('Workday diary') }}"
-                                initOpt="{{ translator('w/o workday diary') }}"
-                                size="sm"
-                                model="attendance.working_day_record_id"
-                            />
-                        @endif
+                        <x-ui-select
+                            :options=$workDiaryOptionsItems
+                            label="{{ translator('Workday diary') }}"
+                            initOpt="{{ $isRange ? translator('Not available for a date range') : translator('w/o workday diary') }}"
+                            size="sm"
+                            model="attendance.working_day_record_id"
+                            :disabled="$isRange"
+                            title="{{ $isRange ? translator('Not available for a date range') : '' }}"
+                        />
                     </div>
                 </div>
                 <div class="row mt-2">
