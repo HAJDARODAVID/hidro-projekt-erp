@@ -108,4 +108,13 @@ class BaseService
             'data' => $this->data,
         ];
     }
+
+    /**
+     * Gets only the data response array.
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BdeController;
 use App\Http\Controllers\CostOverviewController;
 use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\FinanceAccountingController;
 use App\Http\Controllers\HidroProjekt\AdminController;
 use App\Http\Controllers\HidroProjekt\AssetsController;
 use App\Http\Controllers\HidroProjekt\ConstructionSiteController;
@@ -388,7 +389,12 @@ Route::prefix('/')
         |
         */
         Route::prefix('/fa')
-            ->group(function () {});
+            ->group(function () {
+                Route::controller(FinanceAccountingController::class)
+                    ->group(function () {
+                        Route::get('/payroll', 'getPayrollModule')->name('getPayrollModule');
+                    });
+            });
 
         /*
         |--------------------------------------------------------------------------
