@@ -3,6 +3,9 @@
 namespace App\Services\Payroll;
 
 use App\Exceptions\ErrorMessage;
+use App\Models\Employees\Worker;
+use App\Models\Employees\WorkerStatus;
+use App\Models\Employees\WorkerType;
 use App\Services\Attendance\MonthlyHoursOverviewReportDto;
 use App\Services\Attendance\MonthlyHoursOverviewReportService;
 use App\Services\BaseService;
@@ -46,9 +49,7 @@ class GetAllPayrollDataService extends BaseService
             $bonusConfig = PayrollBonusConfigDto::load();
 
             $output = [];
-            foreach ($monthlyHoursOverviewReportData as $workerID => $data) {
-                $monthlyHoursDto = MonthlyHoursOverviewReportDto::fromArray($data)->setWorkerID($workerID);
-
+            foreach ($this->buildHoursDtos($monthlyHoursOverviewReportData) as $workerID => $monthlyHoursDto) {
                 $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
                     ->setBonusConfig($bonusConfig)
                     ->execute();
@@ -56,11 +57,45 @@ class GetAllPayrollDataService extends BaseService
 
                 $output[$workerID] = $calculation->getResponse()['data']->toArray();
             }
-            //dd($output);
+            /**Sort the rows by worker ID */
+            ksort($output, SORT_NUMERIC);
             $this->setData($output);
         } catch (\Throwable $th) {
             $this->setErrorMessage($th->getMessage());
         }
         return $this;
+    }
+
+    /**
+     * Build one hours DTO per worker for the payroll.
+     * Starts with the workers found in the attendance report, then appends every
+     * active worker (payroll type) who has no attendance rows in the period,
+     * so they still show up in the payroll with zero hours.
+     *
+     * @param array $reportData Output of the MonthlyHoursOverviewReportService keyed by worker ID
+     * @return MonthlyHoursOverviewReportDto[] Keyed by worker ID
+     */
+    private function buildHoursDtos(array $reportData): array
+    {
+        $dtos = [];
+        foreach ($reportData as $workerID => $data) {
+            $dtos[$workerID] = MonthlyHoursOverviewReportDto::fromArray($data)->setWorkerID($workerID);
+        }
+
+        $activeWorkers = Worker::where('status', WorkerStatus::WORKER_STATUS_ACTIVE)
+            ->whereIn('type', WorkerType::init()->getTypesForPayroll())
+            ->whereNotIn('id', array_keys($dtos))
+            ->orderBy('firstName')
+            ->orderBy('lastName')
+            ->get();
+
+        foreach ($activeWorkers as $worker) {
+            $dtos[$worker->id] = (new MonthlyHoursOverviewReportDto())
+                ->setWorkerID($worker->id)
+                ->setName($worker->fullName)
+                ->setStatus($worker->status);
+        }
+
+        return $dtos;
     }
 }

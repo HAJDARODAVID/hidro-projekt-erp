@@ -25,6 +25,9 @@ class WorkerType
     /** Array of types that can have or be in the attendance of the company */
     private $typeForAttendance = [self::TYPE_WORKER, self::TYPE_GROUP_LEADER];
 
+    /** Array of types that will be in the payroll */
+    private $typeForPayroll = [self::TYPE_WORKER, self::TYPE_GROUP_LEADER, self::TYPE_ADM_STAFF, self::TYPE_CLEANING, self::TYPE_MANAGER];
+
     /** Array of types that should be excluded from other */
     private $excludedTypes = [self::TYPE_S_ADMIN];
 
@@ -148,6 +151,16 @@ class WorkerType
     public function getTypesForAttendance()
     {
         return $this->typeForAttendance;
+    }
+
+    /**
+     * Get types that will be in the payroll
+     *
+     * @return array
+     */
+    public function getTypesForPayroll()
+    {
+        return $this->typeForPayroll;
     }
 
     /**

@@ -15,26 +15,30 @@
                     {{ translator('No payroll data for the selected period') }}
                 </div>
             @else
-                <div class="tableFixHead">
-                    <table class="table table-responsive table-striped">
-                        <thead>
-                            <tr>
+                <div class="p-3 pt-0" style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin-top: 10px; margin-bottom: 10px; overflow-y: auto; overflow-x: auto">
+                    <table class="table table-striped">
+                        <thead style="position: sticky; top: 0; background: linear-gradient(to bottom, #f8f8f8, #e6e6e6); box-shadow: 0 2px 0 0 #aaa; z-index: 1;">
+                            <tr class="align-middle">
                                 <th>{{ translator('Worker') }}</th>
-                                <th style="text-align: center">{{ translator('Work hours') }}[h]</th>
+                                <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Work hours') }}[h]</th>
                                 <th style="text-align: center">{{ translator('PL') }}[d]</th>
                                 <th style="text-align: center">{{ translator('SL') }}[d]</th>
                                 <th style="text-align: center">{{ translator('HD') }}[d]</th>
                                 <th style="text-align: center">{{ translator('Home') }}[d]</th>
                                 <th style="text-align: center">{{ translator('Field') }}[d]</th>
-                                <th style="text-align: center">{{ translator('Hourly rate') }}[€]</th>
-                                <th style="text-align: center">{{ translator('Gross') }}[€]</th>
-                                <th style="text-align: center">{{ translator('Deductions') }}[€]</th>
-                                <th style="text-align: center">{{ translator('Net') }}[€]</th>
+                                <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Hourly rate') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Base') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Home') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Field') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Travel expense') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Phone expense') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Bonus') }}[€]</th>
+                                <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Overall') }}[€]</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($data as $row)
-                                <tr>
+                            @foreach ($data as $index => $row)
+                                <tr class="align-middle">
                                     <td style="width: 250px">
                                         <div class="d-flex gap-2">
                                             <x-ui.employees.status-indicator empID="{{ $row['workerID'] }}" />
@@ -44,16 +48,28 @@
                                             <div class="">{{ $row['name'] }}</div>
                                         </div>
                                     </td>
-                                    <td style="text-align: center; width: 80px">{{ number_format(floatval($row['hours']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 80px; border-left: 1px solid #ccc">{{ number_format(floatval($row['hours']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px">{{ number_format(floatval($row['paidLeaveDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px">{{ number_format(floatval($row['sickLeaveDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['holidayDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['homeDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['fieldDays']), 2, ',', '.') }}</td>
-                                    <td style="text-align: center">{{ number_format(floatval($row['hourRate']), 2, ',', '.') }}</td>
-                                    <td style="text-align: center">{{ number_format(floatval($row['gross']), 2, ',', '.') }}</td>
-                                    <td style="text-align: center">{{ number_format(floatval($row['deductions']), 2, ',', '.') }}</td>
-                                    <td style="text-align: center">{{ number_format(floatval($row['net']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 100px; border-left: 1px solid #ccc">
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.hourRate" />
+                                    </td>
+                                    <td style="text-align: center; width: 100px">{{ number_format(floatval($row['gross']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['homeBonus']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['fieldBonus']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 100px;">
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.travelExpense" />
+                                    </td>
+                                    <td style="text-align: center; width: 100px;">
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.phoneExpense" />
+                                    </td>
+                                    <td style="text-align: center; width: 100px;">
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.bonus" />
+                                    </td>
+                                    <td class="fw-bold" style="text-align: center; border-left: 1px solid #ccc">{{ number_format(floatval($row['net']), 2, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

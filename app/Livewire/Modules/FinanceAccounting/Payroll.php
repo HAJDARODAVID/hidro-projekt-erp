@@ -20,7 +20,7 @@ class Payroll extends LivewireController
     public $selectedYear = NULL;
 
     /**Payroll rows for the selected period */
-    protected $data = [];
+    public $data = [];
 
     public function mount()
     {
@@ -29,6 +29,18 @@ class Payroll extends LivewireController
 
         $this->years = Years::getYearsList();
         $this->selectedYear = $this->selectedYear == NULL ? date('Y') : $this->selectedYear;
+
+        $this->getPayrollData();
+    }
+
+    public function updatedSelectedMonth()
+    {
+        $this->getPayrollData();
+    }
+
+    public function updatedSelectedYear()
+    {
+        $this->getPayrollData();
     }
 
     /**
@@ -55,9 +67,6 @@ class Payroll extends LivewireController
 
     public function render()
     {
-        $this->getPayrollData();
-        return view('livewire.modules.finance-accounting.payroll', [
-            'data' => $this->data,
-        ]);
+        return view('livewire.modules.finance-accounting.payroll');
     }
 }
