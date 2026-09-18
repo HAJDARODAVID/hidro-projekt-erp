@@ -19,7 +19,9 @@
                     <table class="table table-striped">
                         <thead style="position: sticky; top: 0; background: linear-gradient(to bottom, #f8f8f8, #e6e6e6); box-shadow: 0 2px 0 0 #aaa; z-index: 1;">
                             <tr class="align-middle">
-                                <th>{{ translator('Worker') }}</th>
+                                <th style="width: 250px">
+                                    <x-ui.v2.input type="search" size="sm" :placeholder="translator('Worker')" model="search" event="live.debounce.300ms" />
+                                </th>
                                 <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Work hours') }}[h]</th>
                                 <th style="text-align: center">{{ translator('PL') }}[d]</th>
                                 <th style="text-align: center">{{ translator('SL') }}[d]</th>
@@ -37,7 +39,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($data as $index => $row)
+                            @forelse ($rows as $index => $row)
                                 <tr class="align-middle">
                                     <td style="width: 250px">
                                         <div class="d-flex gap-2">
@@ -71,7 +73,11 @@
                                     </td>
                                     <td class="fw-bold" style="text-align: center; border-left: 1px solid #ccc">{{ number_format(floatval($row['net']), 2, ',', '.') }}</td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="15" class="text-center text-muted py-4">{{ translator('No workers match the search') }}</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

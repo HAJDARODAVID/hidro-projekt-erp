@@ -22,6 +22,9 @@ class Payroll extends LivewireController
     /**Payroll rows for the selected period */
     public $data = [];
 
+    /**Search value for filtering the rows by worker name or ID */
+    public $search = '';
+
     public function mount()
     {
         $this->months = Months::MONTHS_HR;
@@ -65,8 +68,30 @@ class Payroll extends LivewireController
         return $this;
     }
 
+    /**
+     * Filter the payroll rows by the search value (worker name or ID).
+     * The original array keys are kept so the inputs stay bound to the right row.
+     *
+     * @return array
+     */
+    private function getFilteredRows(): array
+    {
+        $search = trim((string) $this->search);
+        if ($search === '') return $this->data;
+
+        /**IDs are shown zero padded, so compare against the search without the leading zeros */
+        $idSearch = ltrim($search, '0');
+
+        return array_filter($this->data, function ($row) use ($search, $idSearch) {
+            if (mb_stripos((string) $row['name'], $search) !== FALSE) return TRUE;
+            return $idSearch !== '' && str_contains((string) $row['workerID'], $idSearch);
+        });
+    }
+
     public function render()
     {
-        return view('livewire.modules.finance-accounting.payroll');
+        return view('livewire.modules.finance-accounting.payroll', [
+            'rows' => $this->getFilteredRows(),
+        ]);
     }
 }
