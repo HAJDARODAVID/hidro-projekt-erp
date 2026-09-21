@@ -21,7 +21,6 @@ class BasicInfo extends Model
 
     protected $casts = [
         'worker_id'  => 'integer',
-        'payroll_id' => 'integer',
         'h_rate'     => 'float',
         'fix_rate'   => 'float',
         'travel_exp' => 'float',
@@ -31,7 +30,6 @@ class BasicInfo extends Model
 
     protected $fillable = [
         'worker_id',
-        'payroll_id',
         'h_rate',
         'fix_rate',
         'travel_exp',
@@ -42,10 +40,5 @@ class BasicInfo extends Model
     public function getWorker(): BelongsTo
     {
         return $this->belongsTo(Worker::class, 'worker_id', 'id');
-    }
-
-    public function getPayroll(): BelongsTo
-    {
-        return $this->belongsTo(Payroll::class, 'payroll_id', 'id');
     }
 }

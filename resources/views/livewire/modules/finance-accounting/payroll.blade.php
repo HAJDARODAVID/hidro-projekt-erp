@@ -59,7 +59,7 @@
                                     <td style="text-align: center; width: 100px; border-left: 1px solid #ccc">
                                         <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.hourRate" />
                                     </td>
-                                    <td style="text-align: center; width: 100px">{{ number_format(floatval($row['gross']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 100px">{{ number_format(floatval($row['base']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['homeBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['fieldBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 100px;">

@@ -48,14 +48,23 @@ class GetAllPayrollDataService extends BaseService
             /**Load the bonus amounts once for all workers */
             $bonusConfig = PayrollBonusConfigDto::load();
 
+            /**Payroll items of the period: saved items hand over the editable values, missing ones get created */
+            $itemsSync = (new SyncPayrollItemsService($this->month, $this->year))->execute();
+            if (!$itemsSync->getResponseStatus()) throw new ErrorMessage($itemsSync->getResponse()['message']);
+
             $output = [];
             foreach ($this->buildHoursDtos($monthlyHoursOverviewReportData) as $workerID => $monthlyHoursDto) {
                 $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
                     ->setBonusConfig($bonusConfig)
+                    ->setEditableValues($itemsSync->getEditableValues($workerID))
                     ->execute();
                 if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
 
-                $output[$workerID] = $calculation->getResponse()['data']->toArray();
+                /** @var WorkerPayrollCalculationDto $calculationDto */
+                $calculationDto = $calculation->getResponse()['data'];
+                $itemsSync->createItemIfMissing($workerID, $calculationDto);
+
+                $output[$workerID] = $calculationDto->toArray();
             }
             /**Sort the rows by worker ID */
             ksort($output, SORT_NUMERIC);

@@ -34,6 +34,9 @@ class CalculateWorkerPayrollService extends BaseService
     /**Sum of deductions [€] for the worker, positive amount */
     protected $deductions = 0.0;
 
+    /**Values changed on the payroll itself (saved payroll item), they replace the payroll info values */
+    protected ?PayrollEditableValuesDto $editableValues = NULL;
+
     public function __construct(MonthlyHoursOverviewReportDto $hoursDto)
     {
         $this->hoursDto = $hoursDto;
@@ -76,6 +79,19 @@ class CalculateWorkerPayrollService extends BaseService
     }
 
     /**
+     * Pass the values changed on the payroll (hourly rate, travel expense, phone expense, bonus).
+     * Set properties replace the payroll info values, NULL properties are ignored.
+     *
+     * @param PayrollEditableValuesDto|null $editableValues
+     * @return self
+     */
+    public function setEditableValues(?PayrollEditableValuesDto $editableValues): self
+    {
+        $this->editableValues = $editableValues;
+        return $this;
+    }
+
+    /**
      * Calculate the payroll. The data is a WorkerPayrollCalculationDto.
      *
      * @return self
@@ -86,7 +102,7 @@ class CalculateWorkerPayrollService extends BaseService
             $workerID = $this->hoursDto->getWorkerID();
             if ($workerID === NULL) throw new ErrorMessage('Worker ID is not set on the monthly hours DTO.');
 
-            $this->loadPayrollInfo((int) $workerID)->loadBonusConfig();
+            $this->loadPayrollInfo((int) $workerID)->loadBonusConfig()->applyEditableValues();
 
             $hours      = (float) $this->hoursDto->getWorkHoursTotal();
             $homeDays   = (int) $this->hoursDto->getWorkHome();
@@ -101,7 +117,7 @@ class CalculateWorkerPayrollService extends BaseService
 
             $homeBonus  = $homeDays * $this->bonusConfig->getHomeDayBonus();
             $fieldBonus = $fieldDays * $this->bonusConfig->getFieldDayBonus();
-            $bonus      = $this->isEligibleForBonus($sickDays) ? $this->bonusConfig->getMonthlyBonus() : 0.0;
+            $bonus      = $this->getBonusAmount($sickDays);
 
             $gross      = $base + $homeBonus + $fieldBonus + $bonus
                 + (float) $this->payrollInfo->getTravelExpense()
@@ -164,6 +180,39 @@ class CalculateWorkerPayrollService extends BaseService
     {
         if ($this->bonusConfig === NULL) $this->bonusConfig = PayrollBonusConfigDto::load();
         return $this;
+    }
+
+    /**
+     * Replace the payroll info values with the ones changed on the payroll.
+     * The loaded payroll info is cloned so the passed in DTO stays untouched.
+     *
+     * @return self
+     */
+    private function applyEditableValues(): self
+    {
+        if ($this->editableValues === NULL) return $this;
+
+        $this->payrollInfo = clone $this->payrollInfo;
+        if ($this->editableValues->getHourRate() !== NULL)      $this->payrollInfo->setHourRate($this->editableValues->getHourRate());
+        if ($this->editableValues->getTravelExpense() !== NULL) $this->payrollInfo->setTravelExpense($this->editableValues->getTravelExpense());
+        if ($this->editableValues->getPhoneExpense() !== NULL)  $this->payrollInfo->setPhoneExpense($this->editableValues->getPhoneExpense());
+
+        return $this;
+    }
+
+    /**
+     * The bonus amount: the one changed on the payroll when set,
+     * otherwise the monthly bonus when the worker is eligible.
+     *
+     * @param int $sickDays
+     * @return float
+     */
+    private function getBonusAmount(int $sickDays): float
+    {
+        if ($this->editableValues !== NULL && $this->editableValues->getBonus() !== NULL) {
+            return $this->editableValues->getBonus();
+        }
+        return $this->isEligibleForBonus($sickDays) ? $this->bonusConfig->getMonthlyBonus() : 0.0;
     }
 
     /**

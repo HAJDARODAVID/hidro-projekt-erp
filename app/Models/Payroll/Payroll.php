@@ -39,11 +39,6 @@ class Payroll extends Model
         return $this->hasMany(Deduction::class, 'payroll_id', 'id');
     }
 
-    public function getBasicInfo(): HasMany
-    {
-        return $this->hasMany(BasicInfo::class, 'payroll_id', 'id');
-    }
-
     /**
      * Limit the query to the payroll of one month/year.
      */
