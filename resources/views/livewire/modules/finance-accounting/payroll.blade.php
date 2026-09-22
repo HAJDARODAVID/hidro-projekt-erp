@@ -10,7 +10,10 @@
             </div>
         </x-slot:title>
         <x-slot:headerActions>
-            <x-ui.lock-btn :locked="$locked" type="dar.sm" action="lockingBtn" />
+            <div class="d-flex gap-2 align-items-center">
+                <x-v-divider style="height: 31px" />
+                <x-ui.lock-btn :locked="$locked" type="dar.sm" action="lockingBtn" />
+            </div>
         </x-slot:headerActions>
         <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear">
             @if (empty($data))
