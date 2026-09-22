@@ -5,7 +5,9 @@ namespace App\Livewire\Modules\FinanceAccounting;
 use App\Services\Years;
 use App\Services\Months;
 use Livewire\Attributes\Url;
+use App\Exceptions\ErrorMessage;
 use App\Livewire\LivewireController;
+use App\Services\Payroll\GetPayrollService;
 use App\Services\Payroll\GetAllPayrollDataService;
 use App\Services\Payroll\UpdatePayrollItemService;
 
@@ -93,6 +95,25 @@ class Payroll extends LivewireController
         } else {
             $this->showException($service->getResponse()['message']);
         }
+    }
+
+    /**
+     * Toggle the locked state of the payroll of the selected period, then refresh the table.
+     *
+     * @return void
+     */
+    public function lockingBtn()
+    {
+        try {
+            $payroll = GetPayrollService::byPeriod((int) $this->selectedMonth, (int) $this->selectedYear)->get();
+            if ($payroll === NULL) throw new ErrorMessage('Payroll not found.');
+
+            $payroll->update(['locked' => !$payroll->locked]);
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+
+        $this->getPayrollData();
     }
 
     /**

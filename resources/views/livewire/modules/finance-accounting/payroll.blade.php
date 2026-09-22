@@ -9,6 +9,9 @@
                 <x-ui.select :options=$years class="form-select-sm" wModel='selectedYear' style="width: 100px" />
             </div>
         </x-slot:title>
+        <x-slot:headerActions>
+            <x-ui.lock-btn :locked="$locked" type="dar.sm" action="lockingBtn" />
+        </x-slot:headerActions>
         <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear">
             @if (empty($data))
                 <div class="text-center text-muted py-5">
