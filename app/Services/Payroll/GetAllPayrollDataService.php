@@ -31,41 +31,22 @@ class GetAllPayrollDataService extends BaseService
     /**
      * Generate the payroll data for the selected period.
      * Each row is expected to hold: worker, hours, rate, gross, deductions, net.
+     * A locked payroll is frozen, so its saved items are returned as is; an unlocked one is
+     * recalculated against the live attendance, keeping its saved items in sync with it.
      *
      * @return self
      */
     public function execute(): self
     {
         try {
-            $monthlyHoursOverviewReportData = [];
-
-            $monthlyHoursOverviewReportService = (new MonthlyHoursOverviewReportService($this->month, $this->year))->execute();
-            if ($monthlyHoursOverviewReportService->getResponseStatus()) {
-                $monthlyHoursOverviewReportData = $monthlyHoursOverviewReportService->getData();
-            } else {
-                throw new ErrorMessage($monthlyHoursOverviewReportService->getResponse()['message']);
-            }
-            /**Load the bonus amounts once for all workers */
-            $bonusConfig = PayrollBonusConfigDto::load();
-
             /**Payroll items of the period: saved items hand over the editable values, missing ones get created */
             $itemsSync = (new SyncPayrollItemsService($this->month, $this->year))->execute();
             if (!$itemsSync->getResponseStatus()) throw new ErrorMessage($itemsSync->getResponse()['message']);
 
-            $output = [];
-            foreach ($this->buildHoursDtos($monthlyHoursOverviewReportData) as $workerID => $monthlyHoursDto) {
-                $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
-                    ->setBonusConfig($bonusConfig)
-                    ->setEditableValues($itemsSync->getEditableValues($workerID))
-                    ->execute();
-                if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
+            $output = $itemsSync->getPayroll()->locked
+                ? $this->buildLockedOutput($itemsSync)
+                : $this->buildCalculatedOutput($itemsSync);
 
-                /** @var WorkerPayrollCalculationDto $calculationDto */
-                $calculationDto = $calculation->getResponse()['data'];
-                $itemsSync->createItemIfMissing($workerID, $calculationDto);
-
-                $output[$workerID] = $calculationDto->toArray();
-            }
             /**Sort the rows by worker ID */
             ksort($output, SORT_NUMERIC);
             $this->setData($output);
@@ -73,6 +54,56 @@ class GetAllPayrollDataService extends BaseService
             $this->setErrorMessage($th->getMessage());
         }
         return $this;
+    }
+
+    /**
+     * A locked payroll is frozen: hand back the saved payroll data of its items as is,
+     * no attendance lookup or recalculation needed.
+     *
+     * @param SyncPayrollItemsService $itemsSync
+     * @return array Keyed by worker ID
+     */
+    private function buildLockedOutput(SyncPayrollItemsService $itemsSync): array
+    {
+        $output = [];
+        foreach ($itemsSync->getItems() as $workerID => $item) {
+            $output[$workerID] = $item->payroll_data;
+        }
+        return $output;
+    }
+
+    /**
+     * An unlocked payroll is recalculated against the live attendance for every worker, so
+     * changes made after the items were saved (e.g. attendance edits) are picked up.
+     *
+     * @param SyncPayrollItemsService $itemsSync
+     * @return array Keyed by worker ID
+     * @throws ErrorMessage
+     */
+    private function buildCalculatedOutput(SyncPayrollItemsService $itemsSync): array
+    {
+        $monthlyHoursOverviewReportService = (new MonthlyHoursOverviewReportService($this->month, $this->year))->execute();
+        if (!$monthlyHoursOverviewReportService->getResponseStatus()) throw new ErrorMessage($monthlyHoursOverviewReportService->getResponse()['message']);
+
+        /**Load the bonus amounts once for all workers */
+        $bonusConfig = PayrollBonusConfigDto::load();
+
+        $output = [];
+        foreach ($this->buildHoursDtos($monthlyHoursOverviewReportService->getData()) as $workerID => $monthlyHoursDto) {
+            $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
+                ->setBonusConfig($bonusConfig)
+                ->setEditableValues($itemsSync->getEditableValues($workerID))
+                ->execute();
+            if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
+
+            /** @var WorkerPayrollCalculationDto $calculationDto */
+            $calculationDto = $calculation->getResponse()['data'];
+            $itemsSync->createItemIfMissing($workerID, $calculationDto);
+            $itemsSync->updateItemIfExists($workerID, $calculationDto);
+
+            $output[$workerID] = $calculationDto->toArray();
+        }
+        return $output;
     }
 
     /**

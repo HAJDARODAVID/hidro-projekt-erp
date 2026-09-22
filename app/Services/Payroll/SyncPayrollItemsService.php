@@ -15,6 +15,8 @@ use App\Services\BaseService;
  *  - for a worker with a saved item it hands over the values that can change on the payroll
  *    (hourly rate, travel expense, phone expense, bonus) so the calculation uses them
  *  - for a worker without an item it creates one from the calculation result
+ *  - for a worker with an item on an unlocked payroll it refreshes it with the calculation
+ *    result, since the attendance behind it may have changed since it was last saved
  *
  * Usage:
  *  $sync = (new SyncPayrollItemsService($month, $year))->execute();
@@ -22,6 +24,7 @@ use App\Services\BaseService;
  *      ->setEditableValues($sync->getEditableValues($workerID))
  *      ->execute();
  *  $sync->createItemIfMissing($workerID, $calculation->getResponse()['data']);
+ *  $sync->updateItemIfExists($workerID, $calculation->getResponse()['data']);
  */
 class SyncPayrollItemsService extends BaseService
 {
@@ -80,6 +83,16 @@ class SyncPayrollItemsService extends BaseService
     }
 
     /**
+     * Get all the payroll items of the period, keyed by worker ID.
+     *
+     * @return Items[]
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    /**
      * Does the worker have a payroll item on this payroll.
      *
      * @param int $workerID
@@ -132,6 +145,27 @@ class SyncPayrollItemsService extends BaseService
         if (!$create->getResponseStatus()) throw new ErrorMessage($create->getResponse()['message']);
 
         $this->items[$workerID] = $create->getResponse()['data'];
+        return $this;
+    }
+
+    /**
+     * Refresh the worker's saved payroll item with the fresh calculation, since the attendance
+     * behind it may have changed since the item was last saved. A locked payroll is left as is.
+     *
+     * @param int $workerID
+     * @param WorkerPayrollCalculationDto $calculation
+     * @return self
+     * @throws ErrorMessage
+     */
+    public function updateItemIfExists(int $workerID, WorkerPayrollCalculationDto $calculation): self
+    {
+        if ($this->payroll === NULL) throw new ErrorMessage('The payroll of the period is not loaded, run execute() first.');
+        if (!$this->hasItem($workerID) || $this->payroll->locked) return $this;
+
+        $item = $this->items[$workerID];
+        $item->payroll_data = $calculation->toArray();
+        $item->save();
+
         return $this;
     }
 }
