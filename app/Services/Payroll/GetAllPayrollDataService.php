@@ -22,10 +22,23 @@ class GetAllPayrollDataService extends BaseService
     /** @var int */
     protected $year;
 
+    /**Whether the payroll of the period is locked, set once execute() has run */
+    protected bool $locked = FALSE;
+
     public function __construct(int $month, int $year)
     {
         $this->month = $month;
         $this->year = $year;
+    }
+
+    /**
+     * Is the payroll of the period locked. Only meaningful after execute() has run.
+     *
+     * @return bool
+     */
+    public function isLocked(): bool
+    {
+        return $this->locked;
     }
 
     /**
@@ -43,7 +56,9 @@ class GetAllPayrollDataService extends BaseService
             $itemsSync = (new SyncPayrollItemsService($this->month, $this->year))->execute();
             if (!$itemsSync->getResponseStatus()) throw new ErrorMessage($itemsSync->getResponse()['message']);
 
-            $output = $itemsSync->getPayroll()->locked
+            $this->locked = (bool) $itemsSync->getPayroll()->locked;
+
+            $output = $this->locked
                 ? $this->buildLockedOutput($itemsSync)
                 : $this->buildCalculatedOutput($itemsSync);
 

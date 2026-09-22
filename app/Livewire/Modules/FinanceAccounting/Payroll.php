@@ -23,6 +23,9 @@ class Payroll extends LivewireController
     /**Payroll rows for the selected period */
     public $data = [];
 
+    /**Whether the payroll of the selected period is locked */
+    public $locked = FALSE;
+
     /**Search value for filtering the rows by worker name or ID */
     #[Url('search')]
     public $search = '';
@@ -104,12 +107,15 @@ class Payroll extends LivewireController
             $service = (new GetAllPayrollDataService((int) $this->selectedMonth, (int) $this->selectedYear))->execute();
             if ($service->getResponse()['success']) {
                 $this->data = $service->getResponse()['data'];
+                $this->locked = $service->isLocked();
             } else {
                 $this->data = [];
+                $this->locked = FALSE;
                 $this->showException($service->getResponse()['message']);
             }
         } catch (\Throwable $th) {
             $this->data = [];
+            $this->locked = FALSE;
             $this->showException($th->getMessage());
         }
         return $this;
