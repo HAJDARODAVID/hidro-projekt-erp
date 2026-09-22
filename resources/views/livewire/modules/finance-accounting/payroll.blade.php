@@ -57,19 +57,19 @@
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['homeDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['fieldDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 100px; border-left: 1px solid #ccc">
-                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.hourRate" />
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.hourRate" :saved=$saved />
                                     </td>
                                     <td style="text-align: center; width: 100px">{{ number_format(floatval($row['base']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['homeBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['fieldBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 100px;">
-                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.travelExpense" />
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.travelExpense" :saved=$saved />
                                     </td>
                                     <td style="text-align: center; width: 100px;">
-                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.phoneExpense" />
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.phoneExpense" :saved=$saved />
                                     </td>
                                     <td style="text-align: center; width: 100px;">
-                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.bonus" />
+                                        <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center']" model="data.{{ $index }}.bonus" :saved=$saved />
                                     </td>
                                     <td class="fw-bold" style="text-align: center; border-left: 1px solid #ccc">{{ number_format(floatval($row['net']), 2, ',', '.') }}</td>
                                 </tr>

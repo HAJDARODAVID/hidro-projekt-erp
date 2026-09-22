@@ -7,6 +7,7 @@ use App\Services\Months;
 use Livewire\Attributes\Url;
 use App\Livewire\LivewireController;
 use App\Services\Payroll\GetAllPayrollDataService;
+use App\Services\Payroll\UpdatePayrollItemService;
 
 class Payroll extends LivewireController
 {
@@ -23,6 +24,7 @@ class Payroll extends LivewireController
     public $data = [];
 
     /**Search value for filtering the rows by worker name or ID */
+    #[Url('search')]
     public $search = '';
 
     public function mount()
@@ -47,6 +49,50 @@ class Payroll extends LivewireController
     }
 
     /**
+     * Run when a value is changed in the payroll table (data.{workerID}.{field}).
+     * Updates the payroll item, refreshes the row, and marks the input as saved (is-valid).
+     *
+     * @param mixed $value
+     * @param string $key
+     * @return void
+     */
+    public function updatedData($value, $key)
+    {
+        $this->saved = [];
+        [$workerID, $field] = explode('.', $key);
+        $workerID = (int) $workerID;
+
+        try {
+            $service = UpdatePayrollItemService::forWorker((int) $this->selectedMonth, (int) $this->selectedYear, $workerID);
+            switch ($field) {
+                case 'hourRate':
+                    $service->updateHourRate($value);
+                    break;
+                case 'travelExpense':
+                    $service->updateTravelExpense($value);
+                    break;
+                case 'phoneExpense':
+                    $service->updatePhoneExpense($value);
+                    break;
+                case 'bonus':
+                    $service->updateBonus($value);
+                    break;
+                default:
+                    return;
+            }
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+
+        if ($service->getResponseStatus()) {
+            $this->data[$workerID] = $service->getResponse()['data']->toArray();
+            $this->saved['data.' . $workerID . '.' . $field] = TRUE;
+        } else {
+            $this->showException($service->getResponse()['message']);
+        }
+    }
+
+    /**
      * Populate the payroll data for the selected month/year using the service.
      *
      * @return self
@@ -54,6 +100,7 @@ class Payroll extends LivewireController
     private function getPayrollData()
     {
         try {
+            $this->saved = [];
             $service = (new GetAllPayrollDataService((int) $this->selectedMonth, (int) $this->selectedYear))->execute();
             if ($service->getResponse()['success']) {
                 $this->data = $service->getResponse()['data'];
