@@ -55,12 +55,15 @@
                             @forelse ($rows as $index => $row)
                                 <tr class="align-middle">
                                     <td style="width: 250px">
-                                        <div class="d-flex gap-2">
+                                        <div class="d-flex gap-2 align-items-center">
                                             <x-ui.employees.status-indicator empID="{{ $row['workerID'] }}" />
                                             <x-v-divider px=0 />
                                             <div class="">{{ str_pad($row['workerID'], 3, '0', STR_PAD_LEFT) }}</div>
                                             <x-v-divider px=0 />
-                                            <div class="">{{ $row['name'] }}</div>
+                                            <div class="{{ (floatval($row['fixRate'] ?? 0) <= 0 && floatval($row['hourRate'] ?? 0) <= 0) ? 'text-danger' : '' }}">{{ $row['name'] }}</div>
+                                            @if (floatval($row['deductions'] ?? 0) > 0)
+                                                <i class="bi bi-exclamation-triangle-fill ms-auto" style="color: #fd7e14" title="{{ translator('Has deductions') }}"></i>
+                                            @endif
                                         </div>
                                     </td>
                                     <td style="text-align: center; width: 80px; border-left: 1px solid #ccc">{{ number_format(floatval($row['hours']), 2, ',', '.') }}</td>
