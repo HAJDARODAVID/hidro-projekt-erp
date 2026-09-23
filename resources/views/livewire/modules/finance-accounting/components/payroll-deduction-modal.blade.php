@@ -5,8 +5,8 @@
         </div>
     @endif
 
-    <div class="row g-2 align-items-end">
-        <div class="col-12">
+    <div class="d-flex gap-4 flex-wrap">
+        <div class="flex-grow-1">
             <x-ui.select
                 :options="$workers"
                 :initOption="translator('Select worker')"
@@ -15,18 +15,18 @@
                 :disabled="$presetWorkerID !== NULL || $locked"
             />
         </div>
-        <div class="col-6">
-            <x-ui.v2.input type="number" step="0.01" min="0.01" label="{{ translator('Amount') }}[€]" model="amount" :disabled="$locked" />
+        <div style="min-width: 160px">
+            <x-ui-input type="number" step="0.01" min="0.01" label="{{ translator('Amount') }}[€]" model="amount" :disabled="$locked" />
         </div>
-        <div class="col-6 d-flex justify-content-end">
-            <x-ui.btn type="suc" text="{{ translator('Add deduction') }}" action="confirmBtn" :disabled="$locked" />
-        </div>
-        <div class="col-12">
-            <div class="form-group">
-                <label>{{ translator('Reason') }}</label>
-                <textarea class="form-control no-border-radius" rows="2" maxlength="255" wire:model="reason" placeholder="{{ translator('Reason') }}" @if ($locked) disabled @endif></textarea>
-            </div>
-        </div>
+    </div>
+
+    <div class="form-group pt-2">
+        <label>{{ translator('Reason') }}</label>
+        <textarea class="form-control no-border-radius" rows="2" maxlength="255" wire:model="reason" placeholder="{{ translator('Reason') }}" @if ($locked) disabled @endif></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end pt-3">
+        <x-ui.btn type="suc" text="{{ translator('Add deduction') }}" action="confirmBtn" :disabled="$locked" />
     </div>
 
     <hr>
