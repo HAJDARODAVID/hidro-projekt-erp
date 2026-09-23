@@ -6,8 +6,10 @@ use App\Services\Years;
 use App\Services\Months;
 use Livewire\Attributes\Url;
 use App\Exceptions\ErrorMessage;
+use App\Exports\Payroll\PayrollExport;
 use App\Livewire\LivewireController;
 use App\Services\Payroll\GetPayrollService;
+use App\Services\Payroll\PayrollExportDto;
 use App\Services\Payroll\GetAllPayrollDataService;
 use App\Services\Payroll\UpdatePayrollItemService;
 
@@ -95,6 +97,23 @@ class Payroll extends LivewireController
         } else {
             $this->showException($service->getResponse()['message']);
         }
+    }
+
+    /**
+     * Export the currently visible payroll rows (selected month/year, filtered by search) to Excel.
+     *
+     * @return \App\Exports\Payroll\PayrollExport|void
+     */
+    public function exportPayrollAction()
+    {
+        $rows = $this->getFilteredRows();
+        if (empty($rows)) return $this->showException(translator('No payroll data for the selected period'));
+
+        return new PayrollExport(
+            new PayrollExportDto($rows, ['month' => $this->selectedMonth, 'year' => $this->selectedYear]),
+            $this->selectedMonth,
+            $this->selectedYear
+        );
     }
 
     /**

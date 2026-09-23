@@ -11,6 +11,7 @@
         </x-slot:title>
         <x-slot:headerActions>
             <div class="d-flex gap-2 align-items-center">
+                <x-ui.btn type="suc.sm" icon="file-earmark-spreadsheet" wClickMethod="exportPayrollAction" />
                 <x-v-divider style="height: 31px" />
                 <x-ui.lock-btn :locked="$locked" type="dar.sm" action="lockingBtn" />
             </div>

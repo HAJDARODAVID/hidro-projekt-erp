@@ -128,7 +128,8 @@ class ExcelDataMapper
     {
         foreach ($this->rawData as $dataKey => $data) {
             foreach ($keys as $key) {
-                if (isset($this->rawData[$dataKey][$key])) unset($this->rawData[$dataKey][$key]);
+                /**array_key_exists (not isset) so a key holding NULL still gets removed */
+                if (array_key_exists($key, $this->rawData[$dataKey])) unset($this->rawData[$dataKey][$key]);
             }
         }
         return $this;
