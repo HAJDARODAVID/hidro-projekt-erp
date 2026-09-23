@@ -25,7 +25,7 @@
         @case ('attendance')
             @livewire(
                 'modules.working-hours.components.attendance-calendar',
-                ['workerID' => $workerID, 'month' => $selectedMonth, 'year' => $selectedYear],
+                ['workerID' => $workerID, 'month' => $selectedMonth, 'year' => $selectedYear, 'displayCard' => false],
                 key('payroll-worker-info-attendance-' . $workerID)
             )
             @break

@@ -9,6 +9,7 @@ use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Days;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 
 /**
  * Class AttendanceCalendar.
@@ -20,7 +21,16 @@ class AttendanceCalendar extends LivewireController
     /**Gives the component the worker ID for the data */
     public $workerID = NULL;
 
+    /**
+     * Wrap the calendar in a card that holds the month/year select. Pass FALSE to get
+     * the bare calendar, whose period is then set by the host over the mount params.
+     */
+    public $displayCard = TRUE;
+
+    #[Url(as: 'month', keep: true)]
     public $selectedMonth = NULL;
+
+    #[Url(as: 'year', keep: true)]
     public $selectedYear = NULL;
 
     /**Short day names of the calendar header, monday first */
@@ -32,11 +42,19 @@ class AttendanceCalendar extends LivewireController
      */
     public array $weeks = [];
 
+    /**
+     * A period passed in wins over the one in the URL, so a host that is tied to a period
+     * (e.g. the payroll of a month) opens the calendar on it.
+     *
+     * @param int|null $month
+     * @param int|null $year
+     * @return void
+     */
     public function mount($month = NULL, $year = NULL)
     {
         $this->dayNames = Days::DAY_NAME_SHORT_HR;
-        $this->selectedMonth = $month ?? date('n');
-        $this->selectedYear = $year ?? date('Y');
+        $this->selectedMonth = $month ?? $this->selectedMonth ?? date('n');
+        $this->selectedYear = $year ?? $this->selectedYear ?? date('Y');
 
         $this->buildCalendar();
     }
