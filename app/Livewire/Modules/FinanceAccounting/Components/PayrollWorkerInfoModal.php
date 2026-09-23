@@ -33,6 +33,7 @@ class PayrollWorkerInfoModal extends LivewireController
         $this->setTabs([
             'payroll-info' => translator('Payroll info'),
             'deductions'   => translator('Deductions'),
+            'attendance'   => translator('Attendance'),
         ]);
     }
 

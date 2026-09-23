@@ -54,6 +54,6 @@ return [
         'component-path' => 'modules.finance-accounting.components.payroll-worker-info-modal',
         'header-name' => 'Worker info',
         'header-style' => null,
-        'max-width' => '700px',
+        'max-width' => '900px',
     ],
 ];

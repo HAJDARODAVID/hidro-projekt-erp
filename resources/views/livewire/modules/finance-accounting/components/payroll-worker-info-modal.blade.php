@@ -22,5 +22,12 @@
                 key('payroll-worker-info-deductions-' . $workerID)
             )
             @break
+        @case ('attendance')
+            @livewire(
+                'modules.working-hours.components.attendance-calendar',
+                ['workerID' => $workerID, 'month' => $selectedMonth, 'year' => $selectedYear],
+                key('payroll-worker-info-attendance-' . $workerID)
+            )
+            @break
     @endswitch
 </div>

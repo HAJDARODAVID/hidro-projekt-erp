@@ -24,6 +24,7 @@ class Employee extends LivewireController
     {
         $this->setTabs([
             'monthly-overview' => 'Monthly overview',
+            'calendar' => 'Calendar',
         ]);
         $this->getWorkers();
     }
