@@ -9,7 +9,7 @@ use App\Models\Payroll\Deduction;
 use App\Models\Payroll\Payroll as PayrollModel;
 use App\Services\Payroll\GetPayrollService;
 
-class PayrollDeductionModal extends LivewireController
+class PayrollDeduction extends LivewireController
 {
     /**Params passed in from the global modal (see config/global-modal.php) */
     public array $params = [];
