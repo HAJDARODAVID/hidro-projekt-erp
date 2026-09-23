@@ -4,6 +4,7 @@ namespace App\Services\Payroll;
 
 use App\Exceptions\ErrorMessage;
 use App\Models\Employees\Worker;
+use App\Models\Payroll\Deduction;
 use App\Models\Payroll\Items;
 use App\Services\Attendance\MonthlyHoursOverviewReportDto;
 use App\Services\Attendance\MonthlyHoursOverviewReportService;
@@ -108,6 +109,7 @@ class UpdatePayrollItemService extends BaseService
 
             $calculation = (new CalculateWorkerPayrollService($this->getHoursDto()))
                 ->setEditableValues($editableValues)
+                ->setDeductions($this->getDeductionsTotal())
                 ->execute();
             if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
 
@@ -153,5 +155,18 @@ class UpdatePayrollItemService extends BaseService
             ->setWorkerID($worker->id)
             ->setName($worker->fullName)
             ->setStatus($worker->status);
+    }
+
+    /**
+     * Sum of deductions of the worker for this payroll, so editing one value
+     * on the row does not wipe out an already applied deduction.
+     *
+     * @return float
+     */
+    private function getDeductionsTotal(): float
+    {
+        return (float) Deduction::where('payroll_id', $this->item->payroll_id)
+            ->where('worker_id', $this->item->worker_id)
+            ->sum('amount');
     }
 }

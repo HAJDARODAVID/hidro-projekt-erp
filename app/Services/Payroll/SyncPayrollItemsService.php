@@ -22,6 +22,7 @@ use App\Services\BaseService;
  *  $sync = (new SyncPayrollItemsService($month, $year))->execute();
  *  $calculation = (new CalculateWorkerPayrollService($hoursDto))
  *      ->setEditableValues($sync->getEditableValues($workerID))
+ *      ->setDeductions($sync->getDeductionsTotal($workerID))
  *      ->execute();
  *  $sync->createItemIfMissing($workerID, $calculation->getResponse()['data']);
  *  $sync->updateItemIfExists($workerID, $calculation->getResponse()['data']);
@@ -40,6 +41,9 @@ class SyncPayrollItemsService extends BaseService
     /**Payroll items of the period keyed by worker ID */
     protected array $items = [];
 
+    /**Sum of deductions [€] of the period, keyed by worker ID */
+    protected array $deductionTotals = [];
+
     public function __construct(int $month, int $year)
     {
         $this->month = $month;
@@ -55,15 +59,19 @@ class SyncPayrollItemsService extends BaseService
     public function execute(): self
     {
         try {
-            $this->payroll = GetPayrollService::byPeriod($this->month, $this->year)->with('getPayrollItems')->get();
+            $this->payroll = GetPayrollService::byPeriod($this->month, $this->year)->with('getPayrollItems', 'getDeductions')->get();
 
             if ($this->payroll === NULL) {
                 $create = (new CreatePayrollService($this->month, $this->year))->execute();
                 if (!$create->getResponseStatus()) throw new ErrorMessage($create->getResponse()['message']);
-                $this->payroll = $create->getResponse()['data']->load('getPayrollItems');
+                $this->payroll = $create->getResponse()['data']->load('getPayrollItems', 'getDeductions');
             }
 
             $this->items = $this->payroll->getPayrollItems->keyBy('worker_id')->all();
+            $this->deductionTotals = $this->payroll->getDeductions
+                ->groupBy('worker_id')
+                ->map(fn($deductions) => (float) $deductions->sum('amount'))
+                ->all();
 
             $this->setData($this->payroll);
         } catch (\Throwable $th) {
@@ -125,6 +133,17 @@ class SyncPayrollItemsService extends BaseService
     {
         $item = $this->getItem($workerID);
         return $item ? PayrollEditableValuesDto::fromPayrollItem($item) : NULL;
+    }
+
+    /**
+     * Get the sum of deductions of the worker for this payroll.
+     *
+     * @param int $workerID
+     * @return float
+     */
+    public function getDeductionsTotal(int $workerID): float
+    {
+        return $this->deductionTotals[$workerID] ?? 0.0;
     }
 
     /**

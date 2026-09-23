@@ -4,6 +4,7 @@ namespace App\Livewire\Modules\FinanceAccounting;
 
 use App\Services\Years;
 use App\Services\Months;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use App\Exceptions\ErrorMessage;
 use App\Exports\Payroll\PayrollExport;
@@ -114,6 +115,17 @@ class Payroll extends LivewireController
             $this->selectedMonth,
             $this->selectedYear
         );
+    }
+
+    /**
+     * Refresh the payroll data, e.g. after a deduction was added/removed on the deduction modal.
+     *
+     * @return void
+     */
+    #[On('refresh-payroll-data')]
+    public function refreshPayrollData(): void
+    {
+        $this->getPayrollData();
     }
 
     /**

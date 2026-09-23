@@ -108,6 +108,7 @@ class GetAllPayrollDataService extends BaseService
             $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
                 ->setBonusConfig($bonusConfig)
                 ->setEditableValues($itemsSync->getEditableValues($workerID))
+                ->setDeductions($itemsSync->getDeductionsTotal($workerID))
                 ->execute();
             if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
 

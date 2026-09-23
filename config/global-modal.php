@@ -44,4 +44,10 @@ return [
         'max-width' => '1050px',
         'before-close' => 'beforeCloseAction',
     ],
+    'payroll-deduction' => [
+        'component-path' => 'modules.finance-accounting.components.payroll-deduction-modal',
+        'header-name' => 'Payroll deduction',
+        'header-style' => null,
+        'max-width' => '700px',
+    ],
 ];
