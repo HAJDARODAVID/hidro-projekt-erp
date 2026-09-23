@@ -3,6 +3,9 @@
     x-data="{
         isOpen: false,
         beforeCloseMethod: null,
+        /** Set on every mousedown, so a drag that starts inside the modal and ends on the
+            overlay (which still fires a click on the overlay) does not close it. */
+        mouseDownOnOverlay: false,
         async close() {
             if (this.beforeCloseMethod) {
                 const el = this.$refs.modalBody?.querySelector('[wire\\:id]');
@@ -33,7 +36,8 @@
         x-transition.opacity
         class="position-fixed top-0 start-0 w-100 h-100 modal-bg-blur d-flex align-items-start justify-content-center pt-4 pb-4 px-2"
         style="z-index: 1600;"
-        @click.self="close()"
+        @mousedown="mouseDownOnOverlay = ($event.target === $el)"
+        @mouseup.self="if (mouseDownOnOverlay) close()"
     >
         <div
             class="bg-white shadow w-100 position-relative no-border-radius"
