@@ -54,7 +54,12 @@
                         <tbody>
                             @forelse ($rows as $index => $row)
                                 <tr class="align-middle">
-                                    <td style="width: 250px">
+                                    <td
+                                        style="width: 250px; cursor: pointer"
+                                        data-trigger="global-modal"
+                                        data-component="payroll-worker-info"
+                                        data-params='@json(["workerID" => $row["workerID"], "month" => $selectedMonth, "year" => $selectedYear])'
+                                    >
                                         <div class="d-flex gap-2 align-items-center">
                                             <x-ui.employees.status-indicator empID="{{ $row['workerID'] }}" />
                                             <x-v-divider px=0 />
