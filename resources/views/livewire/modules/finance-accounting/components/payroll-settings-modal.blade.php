@@ -5,9 +5,7 @@
 
     @switch ($activeTab)
         @case ('calculation')
-            <div class="text-center text-muted py-5">
-                {{ translator('Calculation settings') }}
-            </div>
+            @livewire('modules.finance-accounting.components.payroll-calculation-settings', key('payroll-settings-calculation'))
             @break
         @case ('bonus')
             <div class="text-center text-muted py-5">

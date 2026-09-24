@@ -48,7 +48,8 @@
                                 <th style="text-align: center">{{ translator('HD') }}[d]</th>
                                 <th style="text-align: center">{{ translator('Home') }}[d]</th>
                                 <th style="text-align: center">{{ translator('Field') }}[d]</th>
-                                <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Hourly rate') }}[€]</th>
+                                <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Base hours') }}[h]</th>
+                                <th style="text-align: center">{{ translator('Hourly rate') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Base') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Home') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Field') }}[€]</th>
@@ -78,16 +79,17 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td style="text-align: center; width: 80px; border-left: 1px solid #ccc">{{ number_format(floatval($row['hours']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 80px; border-left: 1px solid #ccc">{{ number_format(floatval($row['workHours'] ?? $row['hours']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px">{{ number_format(floatval($row['paidLeaveDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px">{{ number_format(floatval($row['sickLeaveDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['holidayDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['homeDays']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 50px;">{{ number_format(floatval($row['fieldDays']), 2, ',', '.') }}</td>
-                                    <td style="text-align: center; width: 100px; border-left: 1px solid #ccc">
+                                    <td style="text-align: center; width: 80px; border-left: 1px solid #ccc">{{ number_format(floatval($row['hours']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 70px">
                                         <x-ui.v2.input type="number" step="0.01" min="0" size="sm" :class="['text-center', 'no-spinner']" model="data.{{ $index }}.hourRate" :saved=$saved :disabled=$locked />
                                     </td>
-                                    <td style="text-align: center; width: 100px">{{ number_format(floatval($row['base']), 2, ',', '.') }}</td>
+                                    <td style="text-align: center; width: 80px">{{ number_format(floatval($row['base']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['homeBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 80px;">{{ number_format(floatval($row['fieldBonus']), 2, ',', '.') }}</td>
                                     <td style="text-align: center; width: 100px;">
@@ -103,7 +105,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="15" class="text-center text-muted py-4">{{ translator('No workers match the search') }}</td>
+                                    <td colspan="16" class="text-center text-muted py-4">{{ translator('No workers match the search') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>

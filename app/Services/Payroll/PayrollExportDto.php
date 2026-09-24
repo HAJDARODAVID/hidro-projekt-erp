@@ -9,11 +9,13 @@ class PayrollExportDto extends ExcelDataMapper
     public function prepare(): void
     {
         $this->padWorkerIDs()
+            ->fillWorkHours()
             ->roundAmounts()
             ->removeKeyFromData('status', 'fixRate', 'deductions', 'gross', 'missingPayrollInfo')
             ->reorderByKeys(
                 'workerID',
                 'name',
+                'workHours',
                 'hours',
                 'paidLeaveDays',
                 'sickLeaveDays',
@@ -32,7 +34,8 @@ class PayrollExportDto extends ExcelDataMapper
             ->setColumnHeaders([
                 'workerID'      => 'ID',
                 'name'          => 'Worker',
-                'hours'         => 'Work hours',
+                'workHours'     => 'Work hours',
+                'hours'         => 'Base hours',
                 'paidLeaveDays' => 'PL',
                 'sickLeaveDays' => 'SL',
                 'holidayDays'   => 'HD',
@@ -56,6 +59,18 @@ class PayrollExportDto extends ExcelDataMapper
     }
 
     /**
+     * Rows saved before the logged work hours were split from the base hours have no workHours,
+     * fall back to their hours so every row has the same keys.
+     */
+    private function fillWorkHours(): self
+    {
+        foreach ($this->rawData as $workerID => $row) {
+            if (!array_key_exists('workHours', $row)) $this->rawData[$workerID]['workHours'] = $row['hours'] ?? 0;
+        }
+        return $this;
+    }
+
+    /**
      * Worker IDs are shown zero padded in the payroll table, keep the export consistent.
      */
     private function padWorkerIDs(): self
@@ -71,7 +86,7 @@ class PayrollExportDto extends ExcelDataMapper
      */
     private function roundAmounts(): self
     {
-        $fields = ['hours', 'hourRate', 'base', 'homeBonus', 'fieldBonus', 'travelExpense', 'phoneExpense', 'bonus', 'net'];
+        $fields = ['workHours', 'hours', 'hourRate', 'base', 'homeBonus', 'fieldBonus', 'travelExpense', 'phoneExpense', 'bonus', 'net'];
 
         foreach ($this->rawData as $workerID => $row) {
             foreach ($fields as $field) {

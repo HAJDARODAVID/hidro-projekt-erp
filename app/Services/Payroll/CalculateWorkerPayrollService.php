@@ -11,14 +11,14 @@ use App\Services\Attendance\MonthlyHoursOverviewReportDto;
  * Takes the monthly hours overview of one worker, pulls the worker payroll info
  * (hour rate, fix rate, expenses, bonus) and calculates the payroll for that month.
  *
- * Calculation (mirrors the legacy PayrollAccountingService):
- *  - hours       = work-hours-total (work hours + paid leave + holiday)
- *  - base        = fixRate when set, otherwise hours * hourRate
+ * Calculation, the base and net rules are user defined (see PayrollCalculationConfigDto):
+ *  - hours       = sum of the hour sources selected in the config (work hours, PL, HD, SL)
+ *  - base        = fixRate when set and enabled in the config, otherwise hours * hourRate
  *  - homeBonus   = home days  * homeDayBonus
  *  - fieldBonus  = field days * fieldDayBonus
  *  - bonus       = monthlyBonus when the worker is eligible and has no sick leave, otherwise 0
- *  - gross       = base + homeBonus + fieldBonus + bonus + travelExpense + phoneExpense
- *  - net         = gross - deductions
+ *  - gross       = sum of the components set to "add" in the config
+ *  - net         = gross - sum of the components set to "subtract" in the config
  */
 class CalculateWorkerPayrollService extends BaseService
 {
@@ -30,6 +30,9 @@ class CalculateWorkerPayrollService extends BaseService
 
     /** @var PayrollBonusConfigDto|null */
     protected $bonusConfig = NULL;
+
+    /** @var PayrollCalculationConfigDto|null */
+    protected $calculationConfig = NULL;
 
     /**Sum of deductions [€] for the worker, positive amount */
     protected $deductions = 0.0;
@@ -63,6 +66,18 @@ class CalculateWorkerPayrollService extends BaseService
     public function setBonusConfig(PayrollBonusConfigDto $bonusConfig): self
     {
         $this->bonusConfig = $bonusConfig;
+        return $this;
+    }
+
+    /**
+     * Pass an already loaded calculation config to skip the lookup (use when calculating many workers).
+     *
+     * @param PayrollCalculationConfigDto $calculationConfig
+     * @return self
+     */
+    public function setCalculationConfig(PayrollCalculationConfigDto $calculationConfig): self
+    {
+        $this->calculationConfig = $calculationConfig;
         return $this;
     }
 
@@ -102,16 +117,23 @@ class CalculateWorkerPayrollService extends BaseService
             $workerID = $this->hoursDto->getWorkerID();
             if ($workerID === NULL) throw new ErrorMessage('Worker ID is not set on the monthly hours DTO.');
 
-            $this->loadPayrollInfo((int) $workerID)->loadBonusConfig()->applyEditableValues();
+            $this->loadPayrollInfo((int) $workerID)->loadBonusConfig()->loadCalculationConfig()->applyEditableValues();
 
-            $hours      = (float) $this->hoursDto->getWorkHoursTotal();
             $homeDays   = (int) $this->hoursDto->getWorkHome();
             $fieldDays  = (int) $this->hoursDto->getWorkField();
             $sickDays   = (int) $this->hoursDto->getSickLeave();
             $paidDays   = (int) $this->hoursDto->getPaidLeave();
             $holiDays   = (int) $this->hoursDto->getHoliday();
 
-            $base       = $this->payrollInfo->hasFixRate()
+            $workHours  = (float) $this->hoursDto->getWorkHours();
+            $hours      = $this->calculationConfig->calculateBaseHours(
+                $workHours,
+                $paidDays,
+                $holiDays,
+                $sickDays
+            );
+
+            $base       = $this->calculationConfig->getUseFixRate() && $this->payrollInfo->hasFixRate()
                 ? (float) $this->payrollInfo->getFixRate()
                 : $hours * (float) $this->payrollInfo->getHourRate();
 
@@ -119,15 +141,23 @@ class CalculateWorkerPayrollService extends BaseService
             $fieldBonus = $fieldDays * $this->bonusConfig->getFieldDayBonus();
             $bonus      = $this->getBonusAmount($sickDays);
 
-            $gross      = $base + $homeBonus + $fieldBonus + $bonus
-                + (float) $this->payrollInfo->getTravelExpense()
-                + (float) $this->payrollInfo->getPhoneExpense();
-            $net        = $gross - $this->deductions;
+            $totals     = $this->calculationConfig->calculateGrossAndNet([
+                PayrollCalculationConfigDto::COMPONENT_BASE           => $base,
+                PayrollCalculationConfigDto::COMPONENT_HOME_BONUS     => $homeBonus,
+                PayrollCalculationConfigDto::COMPONENT_FIELD_BONUS    => $fieldBonus,
+                PayrollCalculationConfigDto::COMPONENT_BONUS          => $bonus,
+                PayrollCalculationConfigDto::COMPONENT_TRAVEL_EXPENSE => (float) $this->payrollInfo->getTravelExpense(),
+                PayrollCalculationConfigDto::COMPONENT_PHONE_EXPENSE  => (float) $this->payrollInfo->getPhoneExpense(),
+                PayrollCalculationConfigDto::COMPONENT_DEDUCTIONS     => $this->deductions,
+            ]);
+            $gross      = $totals['gross'];
+            $net        = $totals['net'];
 
             $dto = (new WorkerPayrollCalculationDto())
                 ->setWorkerID($workerID)
                 ->setName($this->hoursDto->getName())
                 ->setStatus($this->hoursDto->getStatus())
+                ->setWorkHours($workHours)
                 ->setHours($hours)
                 ->setHourRate((float) $this->payrollInfo->getHourRate())
                 ->setFixRate($this->payrollInfo->getFixRate())
@@ -179,6 +209,17 @@ class CalculateWorkerPayrollService extends BaseService
     private function loadBonusConfig(): self
     {
         if ($this->bonusConfig === NULL) $this->bonusConfig = PayrollBonusConfigDto::load();
+        return $this;
+    }
+
+    /**
+     * Load the calculation config unless it was passed in.
+     *
+     * @return self
+     */
+    private function loadCalculationConfig(): self
+    {
+        if ($this->calculationConfig === NULL) $this->calculationConfig = PayrollCalculationConfigDto::load();
         return $this;
     }
 

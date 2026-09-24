@@ -19,7 +19,10 @@ class WorkerPayrollCalculationDto extends BaseDTO
     /**Worker status */
     protected $status;
 
-    /**Hours used for the calculation (work hours + paid leave + holiday) */
+    /**Logged work hours (without paid leave / holiday / sick leave) */
+    protected $workHours = 0.0;
+
+    /**Base hours used for the calculation (the hour sources selected in the calculation config) */
     protected $hours = 0.0;
 
     /**Hourly rate [€/h] */
@@ -55,10 +58,10 @@ class WorkerPayrollCalculationDto extends BaseDTO
     /**Sum of deductions [€], stored as a positive amount */
     protected $deductions = 0.0;
 
-    /**Gross amount: base + all bonuses + expenses [€] */
+    /**Gross amount: sum of the components added in the calculation config [€] */
     protected $gross = 0.0;
 
-    /**Net amount: gross - deductions [€] */
+    /**Net amount: gross - the components subtracted in the calculation config [€] */
     protected $net = 0.0;
 
     /**Number of sick leave days */
@@ -129,6 +132,26 @@ class WorkerPayrollCalculationDto extends BaseDTO
     public function setStatus($status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of workHours
+     */
+    public function getWorkHours()
+    {
+        return $this->workHours;
+    }
+
+    /**
+     * Set the value of workHours
+     *
+     * @return  self
+     */
+    public function setWorkHours($workHours)
+    {
+        $this->workHours = $workHours;
 
         return $this;
     }

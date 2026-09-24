@@ -100,13 +100,15 @@ class GetAllPayrollDataService extends BaseService
         $monthlyHoursOverviewReportService = (new MonthlyHoursOverviewReportService($this->month, $this->year))->execute();
         if (!$monthlyHoursOverviewReportService->getResponseStatus()) throw new ErrorMessage($monthlyHoursOverviewReportService->getResponse()['message']);
 
-        /**Load the bonus amounts once for all workers */
+        /**Load the bonus amounts and the calculation rules once for all workers */
         $bonusConfig = PayrollBonusConfigDto::load();
+        $calculationConfig = PayrollCalculationConfigDto::load();
 
         $output = [];
         foreach ($this->buildHoursDtos($monthlyHoursOverviewReportService->getData()) as $workerID => $monthlyHoursDto) {
             $calculation = (new CalculateWorkerPayrollService($monthlyHoursDto))
                 ->setBonusConfig($bonusConfig)
+                ->setCalculationConfig($calculationConfig)
                 ->setEditableValues($itemsSync->getEditableValues($workerID))
                 ->setDeductions($itemsSync->getDeductionsTotal($workerID))
                 ->execute();
