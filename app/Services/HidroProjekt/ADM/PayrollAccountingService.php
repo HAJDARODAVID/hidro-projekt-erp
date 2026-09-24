@@ -33,9 +33,9 @@ class PayrollAccountingService
         $this->dataFromUser = $dataFromUser;
         $this->attendance   = $this->getAttendance();
         $this->payroll      = $this->getPayrollDataFromTable();
-        $this->field_1      = AppParametersModel::where('param_name_srt', 'adm-fwb-home')->pluck('value')->first();
-        $this->field_2      = AppParametersModel::where('param_name_srt', 'adm-fwb-field')->pluck('value')->first();
-        $this->bonus        = AppParametersModel::where('param_name_srt', 'adm-wb')->pluck('value')->first();
+        $this->field_1      = AppParametersModel::where('param_name_srt', 'adm-fwb-home')->where('active', TRUE)->pluck('value')->first();
+        $this->field_2      = AppParametersModel::where('param_name_srt', 'adm-fwb-field')->where('active', TRUE)->pluck('value')->first();
+        $this->bonus        = AppParametersModel::where('param_name_srt', 'adm-wb')->where('active', TRUE)->pluck('value')->first();
 
         //$this->execute();
     }

@@ -8,9 +8,7 @@
             @livewire('modules.finance-accounting.components.payroll-calculation-settings', key('payroll-settings-calculation'))
             @break
         @case ('bonus')
-            <div class="text-center text-muted py-5">
-                {{ translator('Bonus settings') }}
-            </div>
+            @livewire('modules.finance-accounting.components.payroll-bonus-settings', key('payroll-settings-bonus'))
             @break
     @endswitch
 </div>

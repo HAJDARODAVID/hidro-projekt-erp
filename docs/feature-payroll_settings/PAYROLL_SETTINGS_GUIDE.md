@@ -28,7 +28,7 @@ The defaults reproduce the original calculation exactly, so nothing changes unti
 2. Click the blue **gear** button at the top right of the header, after the lock button.
 3. The **Payroll settings** modal opens with two tabs:
    - **Calculation**: the base and net rules described in this guide.
-   - **Bonus**: reserved for the bonus settings (placeholder for now).
+   - **Bonus**: the company-wide bonus amounts, see [1.8](#18-the-bonus-tab).
 
 ```mermaid
 flowchart LR
@@ -99,8 +99,8 @@ Available components:
 | Component | Where the amount comes from |
 |---|---|
 | **Base** | The result of the base section |
-| **Home days bonus** | Home days × home day bonus (company setting) |
-| **Field days bonus** | Field days × field day bonus (company setting) |
+| **Home days bonus** | Home days × home day bonus (Bonus tab) |
+| **Field days bonus** | Field days × field day bonus (Bonus tab) |
 | **Monthly bonus** | The monthly bonus if the worker is eligible (see [1.5](#15-monthly-bonus-eligibility)), or the value typed in the Bonus column |
 | **Travel expense** | Worker payroll info, or the value typed in the row |
 | **Phone expense** | Worker payroll info, or the value typed in the row |
@@ -201,6 +201,20 @@ flowchart TD
 
 - **Unlocked payroll**: recalculated with the current rules every time the table is loaded or a row value is edited.
 - **Locked payroll**: shows the saved snapshot. Unlock it if you want the new rules applied, then lock it again.
+
+### 1.8 The Bonus tab
+
+The Bonus tab sets the three company-wide bonus amounts used by the calculation:
+
+| Field | Used as |
+|---|---|
+| **Monthly bonus [€]** | The *Monthly bonus* component for eligible workers (see [1.5](#15-monthly-bonus-eligibility)) |
+| **Home day bonus [€/d]** | Home days × this amount = *Home days bonus* component |
+| **Field day bonus [€/d]** | Field days × this amount = *Field days bonus* component |
+
+Click **Save** to store the amounts (all must be 0 or more) and recalculate the payroll table behind the modal. Like the calculation rules, they apply to every **unlocked** payroll only.
+
+> **Technical note:** the amounts are stored in the legacy `app_params` table (`adm-wb`, `adm-fwb-home`, `adm-fwb-field`), so the legacy payroll and the *App params* admin screen see the same values. A change updates the value on the existing (active) row, no history rows are kept. A missing parameter is created on the first save.
 
 ---
 
@@ -340,6 +354,9 @@ Loading is tolerant: unknown keys and values are dropped, and anything missing f
 | [app/Services/Payroll/PayrollExportDto.php](../../app/Services/Payroll/PayrollExportDto.php) | Excel export with *Work hours* and *Base hours* columns |
 | [app/Livewire/Modules/FinanceAccounting/Components/PayrollSettingsModal.php](../../app/Livewire/Modules/FinanceAccounting/Components/PayrollSettingsModal.php) | Modal with the *Calculation* / *Bonus* tabs |
 | [app/Livewire/Modules/FinanceAccounting/Components/PayrollCalculationSettings.php](../../app/Livewire/Modules/FinanceAccounting/Components/PayrollCalculationSettings.php) | Calculation tab form (save / default) |
+| [app/Livewire/Modules/FinanceAccounting/Components/PayrollBonusSettings.php](../../app/Livewire/Modules/FinanceAccounting/Components/PayrollBonusSettings.php) | Bonus tab form (save) |
+| [app/Services/Payroll/PayrollBonusConfigDto.php](../../app/Services/Payroll/PayrollBonusConfigDto.php) | Bonus amounts: `load()` reads the active `app_params` rows |
+| [app/Services/Payroll/SavePayrollBonusConfigService.php](../../app/Services/Payroll/SavePayrollBonusConfigService.php) | Creates/edits the bonus amounts in `app_params` (updates the existing row) |
 | [resources/views/livewire/modules/finance-accounting/components/payroll-settings-modal.blade.php](../../resources/views/livewire/modules/finance-accounting/components/payroll-settings-modal.blade.php) | Modal view |
 | [resources/views/livewire/modules/finance-accounting/components/payroll-calculation-settings.blade.php](../../resources/views/livewire/modules/finance-accounting/components/payroll-calculation-settings.blade.php) | Calculation tab view |
 | [config/global-modal.php](../../config/global-modal.php) | Registers the `payroll-settings` modal |

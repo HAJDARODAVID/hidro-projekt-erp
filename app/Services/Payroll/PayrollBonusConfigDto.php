@@ -17,6 +17,20 @@ class PayrollBonusConfigDto extends BaseDTO
     const PARAM_HOME_DAY_BONUS  = 'adm-fwb-home';
     const PARAM_FIELD_DAY_BONUS = 'adm-fwb-field';
 
+    /**App parameter key => DTO property */
+    const PARAM_PROPERTIES = [
+        self::PARAM_MONTHLY_BONUS   => 'monthlyBonus',
+        self::PARAM_HOME_DAY_BONUS  => 'homeDayBonus',
+        self::PARAM_FIELD_DAY_BONUS => 'fieldDayBonus',
+    ];
+
+    /**Display names (app_params.param_name) used when a parameter does not exist yet */
+    const PARAM_NAMES = [
+        self::PARAM_MONTHLY_BONUS   => 'Bonus na plaću',
+        self::PARAM_HOME_DAY_BONUS  => 'Bonus za teren',
+        self::PARAM_FIELD_DAY_BONUS => 'Bonus za more',
+    ];
+
     /**Monthly bonus [€] for eligible workers without sick leave */
     protected $monthlyBonus = 0.0;
 
@@ -27,17 +41,17 @@ class PayrollBonusConfigDto extends BaseDTO
     protected $fieldDayBonus = 0.0;
 
     /**
-     * Load the values from the app parameters.
+     * Load the values from the active app parameters (app_params keeps the old values as inactive rows).
+     * Use SavePayrollBonusConfigService to change them.
      *
      * @return self
      */
     public static function load(): self
     {
-        $params = AppParametersModel::whereIn('param_name_srt', [
-            self::PARAM_MONTHLY_BONUS,
-            self::PARAM_HOME_DAY_BONUS,
-            self::PARAM_FIELD_DAY_BONUS,
-        ])->pluck('value', 'param_name_srt');
+        $params = AppParametersModel::whereIn('param_name_srt', array_keys(self::PARAM_PROPERTIES))
+            ->where('active', TRUE)
+            ->orderBy('id')
+            ->pluck('value', 'param_name_srt');
 
         return (new self())
             ->setMonthlyBonus((float) ($params[self::PARAM_MONTHLY_BONUS] ?? 0))
