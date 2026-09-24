@@ -56,4 +56,10 @@ return [
         'header-style' => null,
         'max-width' => '900px',
     ],
+    'payroll-settings' => [
+        'component-path' => 'modules.finance-accounting.components.payroll-settings-modal',
+        'header-name' => 'Payroll settings',
+        'header-style' => null,
+        'max-width' => '700px',
+    ],
 ];

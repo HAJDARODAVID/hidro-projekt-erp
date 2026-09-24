@@ -20,6 +20,13 @@
                 <x-ui.btn type="suc.sm" icon="file-earmark-spreadsheet" action="exportPayrollAction" />
                 <x-v-divider style="height: 31px" />
                 <x-ui.lock-btn :locked="$locked" type="dar.sm" action="lockingBtn" />
+                <x-v-divider style="height: 31px" />
+                <x-ui.modal.modal-open-btn
+                    btn-type="pri.sm"
+                    icon="gear"
+                    target-component="payroll-settings"
+                    :params="['month' => $selectedMonth, 'year' => $selectedYear]"
+                />
             </div>
         </x-slot:headerActions>
         <x-ui.card class="flex-fill d-flex flex-column" loading="selectedMonth, selectedYear">
