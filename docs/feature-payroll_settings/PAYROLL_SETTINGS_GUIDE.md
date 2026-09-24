@@ -326,7 +326,7 @@ Values are cached in Redis under `app_config:payroll_calculation` for 1 hour. `A
 | `base.use-fix-rate` | `true` / `false` |
 | `net.<component>` | `add`, `subtract`, `ignore` |
 
-Loading is tolerant: unknown keys and values are dropped, and anything missing falls back to the default. A missing row (migration not run) means the defaults apply.
+Loading is tolerant: unknown keys and values are dropped, and anything missing falls back to the default. A missing row (installer not run yet) means the defaults apply, and the first save creates it.
 
 ### 3.2 Files
 
@@ -343,7 +343,7 @@ Loading is tolerant: unknown keys and values are dropped, and anything missing f
 | [resources/views/livewire/modules/finance-accounting/components/payroll-settings-modal.blade.php](../../resources/views/livewire/modules/finance-accounting/components/payroll-settings-modal.blade.php) | Modal view |
 | [resources/views/livewire/modules/finance-accounting/components/payroll-calculation-settings.blade.php](../../resources/views/livewire/modules/finance-accounting/components/payroll-calculation-settings.blade.php) | Calculation tab view |
 | [config/global-modal.php](../../config/global-modal.php) | Registers the `payroll-settings` modal |
-| [database/migrations/2026_09_24_000001_seed_payroll_calculation_app_config.php](../../database/migrations/2026_09_24_000001_seed_payroll_calculation_app_config.php) | Seeds the config row with the defaults |
+| [installers/auto-installations/2026_09_24_120000_payroll_calculation_config.php](../../installers/auto-installations/2026_09_24_120000_payroll_calculation_config.php) | Auto-installer: seeds the config row with the defaults (never overwrites saved rules) |
 
 ### 3.3 Class relationships
 
@@ -431,7 +431,7 @@ The new row appears in the settings table automatically. Configs saved before th
 ### 3.6 Setup
 
 ```bash
-php artisan migrate        # seeds the payroll_calculation row
+php artisan auto-install:check   # runs the installer that seeds the payroll_calculation row
 php artisan config:clear   # only if the config is cached (global-modal.php changed)
 ```
 
