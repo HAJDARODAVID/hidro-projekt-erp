@@ -5,7 +5,9 @@ namespace App\Livewire\Modules\Employees\Components;
 use App\Exceptions\ErrorMessage;
 use App\Livewire\LivewireController;
 use App\Models\Employees\Worker;
+use App\Models\Payroll\Items;
 use App\Services\Payroll\GetWorkerPayrollInfoService;
+use App\Services\Payroll\UpdatePayrollItemService;
 use App\Services\Payroll\UpdateWorkerPayrollInfoService;
 use App\Services\Payroll\WorkerPayrollInfoDto;
 
@@ -15,6 +17,12 @@ class WorkerPayrollInfo extends LivewireController
     private const SAVEABLE_FIELDS = ['hourRate', 'fixRate', 'travelExpense', 'phoneExpense', 'bonus'];
 
     public $workerId;
+
+    /**
+     * Payroll item of the worker to keep in sync with these settings. Optional: without
+     * one the settings are only saved on the worker, which is what the worker module does.
+     */
+    public ?Items $payrollItem = NULL;
 
     public $hourRate = 0;
     public $fixRate = NULL;
@@ -29,8 +37,9 @@ class WorkerPayrollInfo extends LivewireController
 
     /**
      * Run when a field is changed (on blur for the amounts, right away for the bonus
-     * toggle). Saves the payroll settings, marks the changed field as saved (is-valid)
-     * and refreshes the payroll table behind the modal, if one is listening.
+     * toggle). Saves the payroll settings, carries the change over to the payroll item
+     * when there is one, marks the changed field as saved (is-valid) and refreshes the
+     * payroll table behind the modal, if one is listening.
      *
      * @param mixed $value
      * @param string $property
@@ -51,6 +60,8 @@ class WorkerPayrollInfo extends LivewireController
             $service = (new UpdateWorkerPayrollInfoService((int) $this->workerId))
                 ->execute($hourRate, $fixRate, $travelExpense, $phoneExpense, (bool) $this->bonus);
             if (!$service->getResponseStatus()) throw new ErrorMessage($service->getResponse()['message']);
+
+            $this->syncPayrollItem($property);
         } catch (\Throwable $th) {
             $this->saved[$property] = FALSE;
             return $this->showException($th->getMessage());
@@ -60,6 +71,31 @@ class WorkerPayrollInfo extends LivewireController
         $this->saved[$property] = TRUE;
         $this->dispatch('refresh-payroll-data');
         $this->notifyMe(translator('Payroll info for: ') . Worker::find($this->workerId)->fullName . translator(', successfully saved!.'));
+    }
+
+    /**
+     * Carry the changed setting over to the payroll item, so the payroll row of the
+     * worker follows it. A locked payroll is frozen and is left untouched.
+     * Settings the item holds an own value for are written onto it, the rest take
+     * effect over the recalculation, which reads the payroll info back.
+     *
+     * @param string $property
+     * @return void
+     * @throws ErrorMessage
+     */
+    private function syncPayrollItem(string $property): void
+    {
+        if ($this->payrollItem === NULL || $this->payrollItem->getPayroll->locked) return;
+
+        $service = new UpdatePayrollItemService($this->payrollItem);
+        $service = match ($property) {
+            'hourRate'      => $service->updateHourRate($this->hourRate),
+            'travelExpense' => $service->updateTravelExpense($this->travelExpense),
+            'phoneExpense'  => $service->updatePhoneExpense($this->phoneExpense),
+            default         => $service->recalculate(),
+        };
+
+        if (!$service->getResponseStatus()) throw new ErrorMessage($service->getResponse()['message']);
     }
 
     /**

@@ -88,6 +88,23 @@ class UpdatePayrollItemService extends BaseService
     }
 
     /**
+     * Recalculate the row against the worker's payroll info and the live attendance,
+     * keeping the values already changed on the item. Use it when a setting the item has
+     * no editable value for changed, e.g. the fix rate or the bonus eligibility.
+     *
+     * @return self
+     */
+    public function recalculate(): self
+    {
+        try {
+            $this->saveCalculation(PayrollEditableValuesDto::fromPayrollItem($this->item));
+        } catch (\Throwable $th) {
+            $this->setErrorMessage($th->getMessage());
+        }
+        return $this;
+    }
+
+    /**
      * Set one editable value, recalculate the payroll row and save it on the item.
      * The data is the recalculated WorkerPayrollCalculationDto.
      *
@@ -107,23 +124,36 @@ class UpdatePayrollItemService extends BaseService
             $editableValues = PayrollEditableValuesDto::fromPayrollItem($this->item);
             $editableValues->{'set' . ucfirst($property)}((float) $value);
 
-            $calculation = (new CalculateWorkerPayrollService($this->getHoursDto()))
-                ->setEditableValues($editableValues)
-                ->setDeductions($this->getDeductionsTotal())
-                ->execute();
-            if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
-
-            /** @var WorkerPayrollCalculationDto $calculationDto */
-            $calculationDto = $calculation->getResponse()['data'];
-
-            $this->item->payroll_data = $calculationDto->toArray();
-            $this->item->save();
-
-            $this->setData($calculationDto);
+            $this->saveCalculation($editableValues);
         } catch (\Throwable $th) {
             $this->setErrorMessage($th->getMessage());
         }
         return $this;
+    }
+
+    /**
+     * Run the calculation with the given editable values and save it on the item.
+     * The data is the recalculated WorkerPayrollCalculationDto.
+     *
+     * @param PayrollEditableValuesDto $editableValues
+     * @return void
+     * @throws ErrorMessage
+     */
+    private function saveCalculation(PayrollEditableValuesDto $editableValues): void
+    {
+        $calculation = (new CalculateWorkerPayrollService($this->getHoursDto()))
+            ->setEditableValues($editableValues)
+            ->setDeductions($this->getDeductionsTotal())
+            ->execute();
+        if (!$calculation->getResponseStatus()) throw new ErrorMessage($calculation->getResponse()['message']);
+
+        /** @var WorkerPayrollCalculationDto $calculationDto */
+        $calculationDto = $calculation->getResponse()['data'];
+
+        $this->item->payroll_data = $calculationDto->toArray();
+        $this->item->save();
+
+        $this->setData($calculationDto);
     }
 
     /**

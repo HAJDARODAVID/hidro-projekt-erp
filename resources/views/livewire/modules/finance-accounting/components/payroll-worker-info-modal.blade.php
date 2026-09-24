@@ -11,7 +11,7 @@
         @case ('payroll-info')
             @livewire(
                 'modules.employees.components.worker-payroll-info',
-                ['workerId' => $workerID],
+                ['workerId' => $workerID, 'payrollItem' => $payrollItem],
                 key('payroll-worker-info-payroll-info-' . $workerID)
             )
             @break
