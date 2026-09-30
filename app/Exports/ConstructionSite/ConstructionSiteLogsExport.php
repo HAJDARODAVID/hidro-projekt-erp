@@ -17,8 +17,8 @@ class ConstructionSiteLogsExport implements WithMultipleSheets, Responsable
     protected $data;
 
     /**
-     * Data for exporting
-     * @var string;
+     * Name of the exported file
+     * @var string
      */
     protected string $fileName = 'log';
 
@@ -28,7 +28,7 @@ class ConstructionSiteLogsExport implements WithMultipleSheets, Responsable
 
         //File name format: <construction-site-name>-log-<timestamp>.xlsx
         if ($constructionSiteName) {
-            $this->fileName = str_replace(' ', '-', mb_strtolower($constructionSiteName)) . '-' . $this->fileName;
+            $this->fileName = str_replace(' ', '_', mb_strtolower($constructionSiteName)) . '-' . $this->fileName;
         }
         $this->fileName = $this->fileName . '-' . date('U') . '.xlsx';
     }
