@@ -115,7 +115,10 @@
     
         </div>
         <div class="col">
-            <h1 class="h6">Dnevnik radova:</h1>
+            <div class="d-flex justify-content-between pb-2">
+                <h1 class="h6">Dnevnik radova:</h1>
+                @livewire("modules.construction-site.components.export-construction-site-logs-btn", ['constructionSiteId' => $constructionSite->id])
+            </div>
             <textarea class="form-control" id="job_description" rows="18" style="resize: none;" disabled>{{$allLogsForConstructionSite}}</textarea>
         </div>
     </div>
