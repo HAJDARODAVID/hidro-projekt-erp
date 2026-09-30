@@ -62,4 +62,10 @@ return [
         'header-style' => null,
         'max-width' => '700px',
     ],
+    'create-subcontractor' => [
+        'component-path' => 'modules.employees.components.create-subcontractor-modal',
+        'header-name' => 'New subcontractor',
+        'header-style' => null,
+        'max-width' => '550px',
+    ],
 ];

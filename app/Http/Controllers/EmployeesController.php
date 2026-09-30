@@ -39,4 +39,14 @@ class EmployeesController extends Controller
     {
         return $this->module('workplaces-info');
     }
+
+    /**
+     * Module for the subcontractors.
+     * List of the subcontractor companies, with the info (workers, ...) of the selected one.
+     */
+    public function getSubcontractorModule()
+    {
+        $this->setMainTitle('Radnici: kooperanti');
+        return $this->module('subcontractor');
+    }
 }

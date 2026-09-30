@@ -365,6 +365,7 @@ Route::prefix('/')
                         Route::get('/', 'index')->name('getAllEmployees');
                         Route::get('/worker-info', 'getWorkerInfo')->name('getWorkerInfo');
                         Route::get('/workplaces-info', 'getWorkplacesInfo')->name('getWorkplacesInfo');
+                        Route::get('/subcontractor', 'getSubcontractorModule')->name('getSubcontractorModule');
                     });
                 Route::controller(WorkingHoursController::class)
                     ->prefix('/working-hours')
