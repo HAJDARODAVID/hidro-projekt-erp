@@ -18,6 +18,9 @@ class ConstructionSiteLogsExportDto extends ExcelDataMapper
             "working_day_record_id" => "Work diary #",
             "worker"                => "Worker",
             "log"                   => "Log",
+            "company_hours"         => "Company workers hours",
+            "contractors_hours"     => "Subcontractors hours",
+            "total_hours"           => "Total hours",
         ])->setSpecialHeader([
             ['Construction site', 'addInfo.constructionSiteName'],
         ]);
