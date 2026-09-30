@@ -20,11 +20,16 @@ class ConstructionSiteLogsExport implements WithMultipleSheets, Responsable
      * Data for exporting
      * @var string;
      */
-    protected string $fileName = 'construction-site-logs';
+    protected string $fileName = 'log';
 
-    public function __construct($data)
+    public function __construct($data, ?string $constructionSiteName = NULL)
     {
         $this->data = $data;
+
+        //File name format: <construction-site-name>-log-<timestamp>.xlsx
+        if ($constructionSiteName) {
+            $this->fileName = str_replace(' ', '-', mb_strtolower($constructionSiteName)) . '-' . $this->fileName;
+        }
         $this->fileName = $this->fileName . '-' . date('U') . '.xlsx';
     }
 

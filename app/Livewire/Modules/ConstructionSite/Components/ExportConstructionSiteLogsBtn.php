@@ -29,7 +29,7 @@ class ExportConstructionSiteLogsBtn extends LivewireController
 
             $constructionSiteName = ConstructionSite::where('id', $this->constructionSiteId)->value('name');
 
-            return (new ConstructionSiteLogsExport(new ConstructionSiteLogsExportDto($logs, ['constructionSiteName' => $constructionSiteName])));
+            return (new ConstructionSiteLogsExport(new ConstructionSiteLogsExportDto($logs, ['constructionSiteName' => $constructionSiteName]), $constructionSiteName));
         } catch (\Throwable $th) {
             $this->showException($th->getMessage());
         }
