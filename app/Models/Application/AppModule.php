@@ -17,7 +17,8 @@ class AppModule extends Model
     protected static function booted(): void
     {
         static::creating(function (AppModule $appModule) {
-            $appModule->id = Str::uuid()->toString();
+            // Keep a preset ID (modules synced from another environment keep their ID)
+            if (empty($appModule->id)) $appModule->id = Str::uuid()->toString();
         });
     }
 

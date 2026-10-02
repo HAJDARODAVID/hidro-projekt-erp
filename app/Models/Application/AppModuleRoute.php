@@ -17,7 +17,8 @@ class AppModuleRoute extends Model
     protected static function booted(): void
     {
         static::creating(function (AppModuleRoute $appModuleRoute) {
-            $appModuleRoute->id = Str::uuid()->toString();
+            // Keep a preset ID (routes synced from another environment keep their ID)
+            if (empty($appModuleRoute->id)) $appModuleRoute->id = Str::uuid()->toString();
         });
     }
 

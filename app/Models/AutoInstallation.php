@@ -10,6 +10,7 @@ class AutoInstallation extends Model
         'file_name',
         'installation_type',
         'data',
+        'checksum',
         'success',
         'error',
         'installed_at',
