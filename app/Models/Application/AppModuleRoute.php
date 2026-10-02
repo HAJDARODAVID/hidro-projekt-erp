@@ -10,7 +10,7 @@ class AppModuleRoute extends Model
 {
     use HasFactory;
     protected $table = 'app_module_routes';
-    protected $fillable = ['title', 'route_name', 'method', 'active', 'resource_id', 'module_id', 'position', 'divider_after'];
+    protected $fillable = ['title', 'route_name', 'method', 'active', 'resource_id', 'module_id', 'position', 'divider'];
 
     public $incrementing = FALSE;
 
@@ -23,6 +23,5 @@ class AppModuleRoute extends Model
 
     protected $casts = [
         'active' => 'boolean',
-        'divider_after' => 'boolean',
     ];
 }
