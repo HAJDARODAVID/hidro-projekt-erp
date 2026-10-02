@@ -3,17 +3,23 @@
 namespace App\Livewire\Modules\WorkingHours\Components;
 
 use App\Livewire\LivewireController;
+use App\Livewire\Modules\WorkingHours\Index as AttendanceReport;
 use App\Models\Employees\AttendanceAbsenceType;
 use App\Models\Employees\Worker;
-use Illuminate\Support\Collection;
 use App\Services\Attendance\AbsenceBtnObject;
+use App\Services\Attendance\CreateAttendanceService;
+use App\Services\Attendance\DeleteAttendanceService;
 use App\Services\Attendance\GetWorkerAttendanceByDateService;
 use App\Services\WorkdayDiary\GetAllWorkDiariesForDateService;
 use DateTime;
+use Illuminate\Support\Collection;
 
 class WorkerAttendancePerDay extends LivewireController
 {
     public array $params = [];
+
+    /**Set to true when attendance was created or deleted, so the table is only refreshed on close if something changed */
+    public bool $hasChanges = false;
 
     public array $attendance = [];
     public array $workerInfo = [];
@@ -59,6 +65,75 @@ class WorkerAttendancePerDay extends LivewireController
     {
         $this->hourInput = null;
         $this->setHoursInputAtt()->setAttendanceAbsence(null);
+    }
+
+    /**
+     * Action for creating and saving a new attendance entry for the worker on the given day.
+     * Resets the form and lets the attendance table refresh on the next render.
+     */
+    public function saveNewAttendanceAction()
+    {
+        try {
+            if (!$this->attendance['worker_id'] || (!$this->attendance['work_hours'] && !$this->attendance['absence_reason'])) {
+                return $this->notifyMe(translator('Work hours or absence reason are required!'), 'danger');
+            }
+
+            $response = CreateAttendanceService::myWorker()
+                ->setWorkerID($this->attendance['worker_id'])
+                ->setDiaryID($this->attendance['working_day_record_id'])
+                ->setType($this->attendance['type'])
+                ->setWorkHours($this->attendance['work_hours'])
+                ->setAbsenceReason($this->attendance['absence_reason'])
+                ->setDate($this->attendance['date'])
+                ->execute();
+
+            if (is_array($response) && isset($response['success']) && $response['success'] === false) {
+                return $this->notifyMe($response['error'] ?? translator('Failed to save attendance!'), 'danger');
+            }
+
+            $this->hasChanges = true;
+            $this->resetAttendance();
+            return $this->notifyMe(translator('Attendance entry created!'));
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+    }
+
+    /**
+     * Called by the global-modal component (see config/global-modal.php)
+     * before the modal closes.
+     * Refreshes the attendance report (Index), which re-mounts the working
+     * hours Table with fresh data, but only if attendance was created or
+     * deleted in this modal ($hasChanges), so closing without changes
+     * doesn't trigger a needless reload of the table.
+     */
+    public function beforeCloseAction()
+    {
+        if (!$this->hasChanges) return;
+
+        $this->hasChanges = false;
+        $this->dispatch('refresh-attendance-report')->to(AttendanceReport::class);
+    }
+
+    /**
+     * Action for deleting an existing attendance entry.
+     *
+     * @param int $id Attendance record ID
+     */
+    public function deleteAttendanceAction($id)
+    {
+        try {
+            $response = DeleteAttendanceService::byID($id)->execute()->getResponse();
+
+            if (!$response['success']) {
+                return $this->notifyMe($response['message'], 'danger');
+            }
+
+            $this->hasChanges = true;
+            return $this->notifyMe($response['message']);
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
     }
 
     /*

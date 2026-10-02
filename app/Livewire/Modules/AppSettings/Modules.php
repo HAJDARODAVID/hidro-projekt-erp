@@ -5,6 +5,8 @@ namespace App\Livewire\Modules\AppSettings;
 use App\Models\Application\AppModule;
 use Livewire\Attributes\Url;
 use App\Livewire\LivewireController;
+use Illuminate\Support\Facades\File;
+use App\Services\Application\AppModulesSyncService;
 use App\Services\Application\Settings\GetAppModuleService;
 use App\Services\Application\Settings\EditAppModuleService;
 
@@ -91,9 +93,56 @@ class Modules extends LivewireController
         return $this->getAppModules();
     }
 
+    /**
+     * Local env only: export the modules and routes into the sync file (installers/auto-installations),
+     * commit it and the next deploy installs it.
+     *
+     * @return void
+     */
+    public function exportModules()
+    {
+        if (!app()->isLocal()) return $this->showException(translator('The modules can only be exported on the local environment.'));
+
+        try {
+            $export = AppModulesSyncService::exportToFile();
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+
+        $this->notifyMe(translator('Exported') . ': ' . $export['modules'] . ' ' . translator('modules') . ', ' . $export['routes'] . ' ' . translator('routes'));
+        if (!empty($export['warnings'])) $this->showException(implode("\n", $export['warnings']));
+    }
+
+    /**
+     * Not on the local env: create / update the modules and routes from the sync file.
+     *
+     * @return void
+     */
+    public function syncModulesFromFile()
+    {
+        if (app()->isLocal()) return $this->showException(translator('On the local environment the modules are exported, not synced.'));
+
+        try {
+            $stats = AppModulesSyncService::importFromFile();
+        } catch (\Throwable $th) {
+            return $this->showException($th->getMessage());
+        }
+
+        $this->getAppModules();
+        $this->notifyMe(translator('Synced') . ': '
+            . ($stats['modules_created'] ?? 0) . ' ' . translator('modules created') . ', '
+            . ($stats['routes_created'] ?? 0) . ' ' . translator('routes created') . ', '
+            . (($stats['modules_updated'] ?? 0) + ($stats['routes_updated'] ?? 0)) . ' ' . translator('updated'));
+    }
+
     public function render()
     {
         $this->getAppModules();
-        return view('livewire.modules.app-settings.modules');
+        return view('livewire.modules.app-settings.modules', [
+            'isLocalEnv'   => app()->isLocal(),
+            'syncFileDate' => File::exists(AppModulesSyncService::filePath())
+                ? date('d.m.Y H:i', File::lastModified(AppModulesSyncService::filePath()))
+                : NULL,
+        ]);
     }
 }

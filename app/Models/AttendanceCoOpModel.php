@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\CooperatorWorkersModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AttendanceCoOpModel extends Model
@@ -22,5 +23,10 @@ class AttendanceCoOpModel extends Model
 
     public function getWorkerInfo():HasOne{
         return $this->hasOne(CooperatorWorkersModel::class, 'id','worker_id');
+    }
+
+    public function getWorkingDayRecord(): BelongsTo
+    {
+        return $this->belongsTo(WorkingDayRecordModel::class, 'working_day_record_id', 'id');
     }
 }

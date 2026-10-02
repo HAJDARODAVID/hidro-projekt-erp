@@ -50,6 +50,9 @@ class Input extends Component
     /**Array of the saved elements  */
     public array $saved;
 
+    /**Whether the is-valid/is-invalid class was just set from $saved, so it should auto-fade after a few seconds */
+    public bool $isSavedFlash = false;
+
     /**Disables the element  */
     public bool $disabled;
 
@@ -146,6 +149,7 @@ class Input extends Component
         if (key_exists($this->model, $saved)) {
             if ($saved[$this->model] == TRUE) $this->addToClass('is-valid');
             if ($saved[$this->model] == FALSE) $this->addToClass('is-invalid');
+            $this->isSavedFlash = true;
         }
         return $this;
     }

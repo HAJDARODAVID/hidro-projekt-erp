@@ -1,3 +1,3 @@
-<th  {{ $attributes->merge(['style' => $style, 'class' => $class]) }} wire:click='{{ $lwAction }}({{ $lwActionAtt }})'>
+<th  {{ $attributes->merge(['style' => $style, 'class' => $class]) }} @if ($lwAction) wire:click='{{ $lwAction }}({{ $lwActionAtt }})' @endif>
     {{ $slot }}
 </th>

@@ -4,7 +4,33 @@
         <div class="row flex-fill g-0 gap-3">
             <div class="col-md-3 d-flex flex-column">
                 <x-ui.card title="Registered app modules" class="flex-fill d-flex flex-column">
-                    <x-slot:headerActions>@livewire('modules.app-settings.components.create-new-app-module-modal')</x-slot:headerActions>
+                    <x-slot:headerActions>
+                        <div class="d-flex gap-2">
+                            {{-- Local: export the modules into the sync file / other envs: install the sync file --}}
+                            @if ($isLocalEnv)
+                                <x-ui.btn
+                                    type="lig.sm"
+                                    icon="box-arrow-up"
+                                    action="exportModules"
+                                    title="{{ translator('Export modules and routes to the sync file') }}"
+                                    wire:loading.attr="disabled"
+                                    wire:target="exportModules"
+                                />
+                            @else
+                                <x-ui.btn
+                                    type="lig.sm"
+                                    icon="arrow-repeat"
+                                    action="syncModulesFromFile"
+                                    :disabled="$syncFileDate === NULL"
+                                    title="{{ $syncFileDate ? translator('Sync modules and routes from the file') . ' (' . $syncFileDate . ')' : translator('The sync file does not exist') }}"
+                                    wire:confirm="{{ translator('Sync the modules and routes from the file? Existing modules and routes are updated, new ones are created.') }}"
+                                    wire:loading.attr="disabled"
+                                    wire:target="syncModulesFromFile"
+                                />
+                            @endif
+                            @livewire('modules.app-settings.components.create-new-app-module-modal')
+                        </div>
+                    </x-slot:headerActions>
                     <x-ui.input size="sm" placeholder="Search" wModel="moduleSearch" wModelEvent="live.debounce.250ms" :removeAddOnXP=TRUE>
                         @if ($moduleSearch != NULL || $moduleSearch != "")
                             <x-slot:append>

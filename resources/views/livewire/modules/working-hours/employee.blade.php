@@ -53,6 +53,9 @@
                         <x-ui.nav-tab-content tabKey="monthly-overview" :selectedTab=$activeTab  divHeight='full' >
                             @livewire('modules.working-hours.components.monthly-overview-card',['workerID'=> $selectedWorker], key('monthly-overview-'.$selectedWorker))
                         </x-ui.nav-tab-content>
+                        <x-ui.nav-tab-content tabKey="calendar" :selectedTab=$activeTab divHeight='full'>
+                            @livewire('modules.working-hours.components.attendance-calendar',['workerID'=> $selectedWorker], key('attendance-calendar-'.$selectedWorker))
+                        </x-ui.nav-tab-content>
                         <x-ui.nav-tab-content tabKey="overview" :selectedTab=$activeTab >overview</x-ui.nav-tab-content>
                     @else
                         <div class="d-flex justify-content-center"><div class="py-3"><i>{{ translator('No worker selected!') }}</i></div></div>

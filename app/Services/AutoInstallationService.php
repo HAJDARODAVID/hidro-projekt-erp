@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AutoInstallation;
+use App\Services\Application\AppModulesSyncService;
 use App\Services\Config\BaseConfigService;
 use App\Services\Config\AppConfigDto;
 use Illuminate\Support\Facades\File;
@@ -10,6 +11,11 @@ use Illuminate\Support\Facades\Log;
 
 class AutoInstallationService extends BaseConfigService
 {
+    /**JSON types meant to be updated over time: run again when their data changes */
+    const RERUN_ON_CHANGE_TYPES = [
+        AppModulesSyncService::INSTALLATION_TYPE,
+    ];
+
     /**
      * Path where installation files are stored
      */
@@ -49,16 +55,14 @@ class AutoInstallationService extends BaseConfigService
                 continue;
             }
 
-            // Check if already installed
-            $installed = AutoInstallation::where('file_name', $fileName)->first();
-            if ($installed) {
-                $results['skipped'][] = $fileName;
-                continue;
-            }
-
             try {
+                if ($this->isUpToDate($file, $fileName)) {
+                    $results['skipped'][] = $fileName;
+                    continue;
+                }
+
                 $this->executeInstallation($file, $fileName, $results);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->recordFailedInstallation($fileName, $e->getMessage());
                 $results['failed'][] = [
                     'file' => $fileName,
@@ -69,6 +73,66 @@ class AutoInstallationService extends BaseConfigService
         }
 
         return $results;
+    }
+
+    /**
+     * Run one installation file now, even if it was already installed, and record the run.
+     *
+     * @param string $fileName file in the installation path
+     * @return array the summary returned by the installation handler (empty if it returns none)
+     * @throws \Throwable
+     */
+    public function installFile(string $fileName): array
+    {
+        $path = $this->installationPath . DIRECTORY_SEPARATOR . $fileName;
+        if (!File::exists($path)) throw new \Exception("Installation file not found: $fileName");
+
+        $results = ['success' => [], 'failed' => [], 'skipped' => [], 'summaries' => []];
+        try {
+            $this->executeInstallation(new \SplFileInfo($path), $fileName, $results);
+        } catch (\Throwable $e) {
+            $this->recordFailedInstallation($fileName, $e->getMessage());
+            Log::error('Auto-installation failed for ' . $fileName . ': ' . $e->getMessage());
+            throw $e;
+        }
+        return $results['summaries'][$fileName] ?? [];
+    }
+
+    /**
+     * Whether the file was already installed successfully (a failed installation is run again).
+     * Types in RERUN_ON_CHANGE_TYPES are also run again when their data changed since the last run.
+     */
+    protected function isUpToDate($file, string $fileName): bool
+    {
+        $installed = AutoInstallation::where('file_name', $fileName)->where('success', true)->first();
+        if (!$installed) return false;
+        if ($file->getExtension() !== 'json') return true;
+
+        $content = $this->readJSON($file);
+        if (!in_array($content['type'], self::RERUN_ON_CHANGE_TYPES, true)) return true;
+
+        return $installed->checksum === $this->checksum($content['data']);
+    }
+
+    /**
+     * Read and check a JSON installation file
+     */
+    protected function readJSON($file): array
+    {
+        $content = json_decode(File::get($file->getRealPath()), true);
+
+        if (!is_array($content) || !isset($content['type']) || !isset($content['data'])) {
+            throw new \Exception('JSON installation file must contain "type" and "data" keys');
+        }
+        return $content;
+    }
+
+    /**
+     * Checksum of the installation data, independent of the file formatting / line endings
+     */
+    protected function checksum($data): string
+    {
+        return hash('sha256', json_encode($data));
     }
 
     /**
@@ -101,11 +165,11 @@ class AutoInstallationService extends BaseConfigService
             $className->handle();
 
             // Record successful installation
-            AutoInstallation::create([
-                'file_name' => $fileName,
+            AutoInstallation::updateOrCreate(['file_name' => $fileName], [
                 'installation_type' => $installationType,
                 'data' => $data ? json_encode($data) : null,
                 'success' => true,
+                'error' => null,
                 'installed_at' => now(),
             ]);
 
@@ -121,33 +185,32 @@ class AutoInstallationService extends BaseConfigService
      */
     protected function executeJSONInstallation($file, string $fileName, array &$results): void
     {
-        $content = json_decode(File::get($file->getRealPath()), true);
-
-        if (!isset($content['type']) || !isset($content['data'])) {
-            throw new \Exception('JSON installation file must contain "type" and "data" keys');
-        }
+        $content = $this->readJSON($file);
 
         $installationType = $content['type'];
         $data = $content['data'];
 
         // Route to appropriate handler based on type
-        match ($installationType) {
+        $summary = match ($installationType) {
             'app_config' => $this->handleAppConfig($data),
             'seed_data' => $this->handleSeedData($data),
+            AppModulesSyncService::INSTALLATION_TYPE => AppModulesSyncService::import($data),
             default => throw new \Exception("Unknown installation type: $installationType"),
         };
 
-        // Record successful installation
-        AutoInstallation::create([
-            'file_name' => $fileName,
+        // Record successful installation (a re-runnable file stores only its summary, its data can be large)
+        AutoInstallation::updateOrCreate(['file_name' => $fileName], [
             'installation_type' => $installationType,
-            'data' => json_encode($data),
+            'data' => json_encode(in_array($installationType, self::RERUN_ON_CHANGE_TYPES, true) ? $summary : $data),
+            'checksum' => $this->checksum($data),
             'success' => true,
+            'error' => null,
             'installed_at' => now(),
         ]);
 
         $results['success'][] = $fileName;
-        Log::info('Auto-installation completed: ' . $fileName);
+        if (is_array($summary)) $results['summaries'][$fileName] = $summary;
+        Log::info('Auto-installation completed: ' . $fileName . ($summary ? ' ' . json_encode($summary) : ''));
     }
 
     /**
@@ -193,11 +256,12 @@ class AutoInstallationService extends BaseConfigService
      */
     protected function recordFailedInstallation(string $fileName, string $error): void
     {
-        AutoInstallation::create([
-            'file_name' => $fileName,
-            'success' => false,
-            'error' => $error,
-        ]);
+        // One row per file (file_name is unique), the next run tries the file again
+        $installation = AutoInstallation::firstOrNew(['file_name' => $fileName]);
+        $installation->installation_type ??= 'unknown';
+        $installation->success = false;
+        $installation->error = $error;
+        $installation->save();
     }
 
     /**

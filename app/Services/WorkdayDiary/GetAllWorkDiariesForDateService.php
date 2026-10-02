@@ -85,8 +85,8 @@ class GetAllWorkDiariesForDateService extends BaseService
 
             foreach ($workDayDiaries as $diary) {
                 $output = '';
-                if (in_array('with-user', $options)) $output .= $diary->user->name . ' | ';
-                $output .= $diary->constructionSite->name;
+                if (in_array('with-user', $options)) $output .= ($diary->user?->name ?? '-') . ' | ';
+                $output .= $diary->constructionSite?->name ?? translator('No construction site');
                 $formattedDiaries[$diary->id] = $output;
             }
             $this->setData($formattedDiaries);

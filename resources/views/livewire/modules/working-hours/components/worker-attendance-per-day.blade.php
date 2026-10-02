@@ -1,5 +1,5 @@
 
-<x-ui.card :noBodyPadding=TRUE loading="createNewDiary" :border=FALSE>
+<x-ui.card :noBodyPadding=TRUE loading="saveNewAttendanceAction" :border=FALSE>
     <div class="row">
         <div class="col-md-5">
             <x-ui.card title="{{ translator('Add new attendance') }}" style="">
@@ -67,19 +67,14 @@
                     </div>
                 </div>
                 <hr>
-                <div class="">
-                    <label>{{ translator('Comment') }}</label>
-                    <textarea class="form-control no-border-radius" style="width: 100%" rows="4" wire:model.blur='attendance.comment'></textarea>
-                </div>
-                <hr>
                 <div class="d-flex justify-content-end">
-                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" />
+                    <x-ui.btn icon="box-arrow-in-right" type="suc.sm" action="saveNewAttendanceAction" />
                 </div>
             </x-ui.card>
         </div>
         <div class="col-md">
             
-            <x-ui.card title="{{ translator('Existing attendance') }}" loading="addWorkerToAttendance, removeWorkerFromAttendance">
+            <x-ui.card title="{{ translator('Existing attendance') }}" loading="addWorkerToAttendance, removeWorkerFromAttendance, deleteAttendanceAction">
                 <table class="table table-hover align-middle mb-0 table-sm">
                     <thead>
                         <tr class="text-uppercase text-muted small">
@@ -97,7 +92,7 @@
                             @endphp
                            <tr>
                                 <td class="text-muted">{{ $att->getId() }}</td>
-                                <td>{{ $att->getConstructionSiteName() }}</td>
+                                <td>@if($att->getConstructionSiteName()){{ $att->getConstructionSiteName() }} @else {{ translator('w/o workday diary') }} @endif</td>
                                 <td class="text-end">
                                     <x-ui-input
                                         size="sm"
@@ -110,7 +105,7 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
-                                        <div class="position-relative d-inline-block" x-data="{ showComment: false }">
+                                        {{-- <div class="position-relative d-inline-block" x-data="{ showComment: false }">
                                             <x-ui.btn type="lig.sm" icon="file-text" @click="showComment = !showComment" />
                                             <div
                                                 x-show="showComment"
@@ -121,8 +116,8 @@
                                             >
                                                 -
                                             </div>
-                                        </div>
-                                        <x-ui.btn type="dan.sm" icon="trash" />
+                                        </div> --}}
+                                        <x-ui.btn type="dan.sm" icon="trash" action="deleteAttendanceAction" param="{{ $att->getId() }}" />
                                     </div>
                                 </td>
                             </tr> 

@@ -2,8 +2,6 @@
 
 namespace App\Services\Attendance;
 
-use App\Models\Employees\AttendanceAbsenceType;
-
 /**
  * Class WorkingDayReportStyleService.
  */
@@ -80,34 +78,16 @@ class WorkingDayReportStyleService
     }
 
     /**
-     * Return the style for sick leave attendance.
-     * 
+     * Return the style for other absence attendance.
+     * The background-color is resolved separately (redis/db configurable), see Td component.
+     *
      * @return array
      */
     public function otherAbsence($absence): array
     {
-        $attendanceAbsenceType = AttendanceAbsenceType::init();
-        switch ($absence) {
-            case $attendanceAbsenceType->getSickLeaveSht():
-                return [
-                    'background-color' => "#ff7e29",
-                    'font-weight' => 'bold',
-                ];
-                break;
-            case $attendanceAbsenceType->getPaidLeaveSht():
-                return [
-                    'background-color' => "#2998ff",
-                    'font-weight' => 'bold',
-                ];
-                break;
-            case $attendanceAbsenceType->getPaidLeaveSht():
-                return [
-                    'background-color' => "#b429ff",
-                    'font-weight' => 'bold',
-                ];
-                break;
-        }
-        return [];
+        return [
+            'font-weight' => 'bold',
+        ];
     }
 
     /**

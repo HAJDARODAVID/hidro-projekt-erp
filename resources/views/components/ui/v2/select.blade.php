@@ -6,9 +6,10 @@
         </div>
     @endif
     <select {{ $attributes->merge(['class' => implode(" " , $class)]) }}
-        @if($model) wire:model.{{ $event }} = '{{ $model }}' @endif 
+        @if($model) wire:model.{{ $event }} = '{{ $model }}' @endif
         @if($disabled) disabled @endif
-        @if($url) 
+        @if($isSavedFlash) data-flash-validation @endif
+        @if($url)
             x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('{{ $url }}', $event.target.value); history.replaceState({}, '', url); })()"
         @endif>
         @if ($initOpt) <option value="init-option" selected>{{ $initOpt }}</option> @endif

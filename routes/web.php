@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BdeController;
 use App\Http\Controllers\CostOverviewController;
 use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\FinanceAccountingController;
 use App\Http\Controllers\HidroProjekt\AdminController;
 use App\Http\Controllers\HidroProjekt\AssetsController;
 use App\Http\Controllers\HidroProjekt\ConstructionSiteController;
@@ -364,18 +365,36 @@ Route::prefix('/')
                         Route::get('/', 'index')->name('getAllEmployees');
                         Route::get('/worker-info', 'getWorkerInfo')->name('getWorkerInfo');
                         Route::get('/workplaces-info', 'getWorkplacesInfo')->name('getWorkplacesInfo');
+                        Route::get('/subcontractor', 'getSubcontractorModule')->name('getSubcontractorModule');
                     });
                 Route::controller(WorkingHoursController::class)
                     ->prefix('/working-hours')
                     ->group(function () {
                         Route::get('/', 'index')->name('getAllEmployeeWorkingHours');
                         Route::get('/employee', 'getEmployeeWorkingHours')->name('getEmployeeWorkingHours');
+                        Route::get('/subcontractor', 'getSubcontractorHours')->name('getSubcontractorHours');
                     });
                 // Route::controller(PayrollController::class)
                 //     ->prefix('/payroll')
                 //     ->group(function () {
                 //         Route::get('/', 'index')->name('getPayrollModule');
                 //     });
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Finance & Accounting
+        |--------------------------------------------------------------------------
+        |
+        | Register here all the routes that will be used in the finance & accounting.
+        |
+        */
+        Route::prefix('/fa')
+            ->group(function () {
+                Route::controller(FinanceAccountingController::class)
+                    ->group(function () {
+                        Route::get('/payroll', 'getPayrollModule')->name('getPayrollModule');
+                    });
             });
 
         /*

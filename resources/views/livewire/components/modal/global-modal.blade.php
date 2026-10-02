@@ -2,12 +2,29 @@
     x-cloak
     x-data="{
         isOpen: false,
-        close() {
+        beforeCloseMethod: null,
+        /** Set on every mousedown, so a drag that starts inside the modal and ends on the
+            overlay (which still fires a click on the overlay) does not close it. */
+        mouseDownOnOverlay: false,
+        async close() {
+            if (this.beforeCloseMethod) {
+                const el = this.$refs.modalBody?.querySelector('[wire\\:id]');
+                const childWire = el ? window.Livewire.find(el.getAttribute('wire:id')) : null;
+
+                if (childWire && typeof childWire[this.beforeCloseMethod] === 'function') {
+                    try {
+                        await childWire[this.beforeCloseMethod]();
+                    } catch (error) {
+                        console.error('[global-modal] before-close method failed:', error);
+                    }
+                }
+            }
+
             this.isOpen = false;
             $wire.clearComponent();
         }
     }"
-    @global-modal-open-overlay.window="isOpen = true"
+    @global-modal-open-overlay.window="isOpen = true; beforeCloseMethod = $event.detail.beforeClose ?? null"
     @keydown.window.escape="if (isOpen) close()"
 >
     <style>
@@ -19,7 +36,8 @@
         x-transition.opacity
         class="position-fixed top-0 start-0 w-100 h-100 modal-bg-blur d-flex align-items-start justify-content-center pt-4 pb-4 px-2"
         style="z-index: 1600;"
-        @click.self="close()"
+        @mousedown="mouseDownOnOverlay = ($event.target === $el)"
+        @mouseup.self="if (mouseDownOnOverlay) close()"
     >
         <div
             class="bg-white shadow w-100 position-relative no-border-radius"
@@ -32,6 +50,7 @@
 
             <div
                 class="px-4 py-3"
+                x-ref="modalBody"
                 wire:key="global-modal-content-{{ $modalService->isStable() ? $modalService->getComponentPath() : $renderVersion }}"
             >
                 @if ($modalService->getComponentPath())

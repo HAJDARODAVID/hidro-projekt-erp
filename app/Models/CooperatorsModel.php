@@ -11,11 +11,13 @@ class CooperatorsModel extends Model
     use HasFactory;
 
     const COOPERATORS_STATUS_ACTIVE = 1;
-    const COOPERATORS_STATUS_INACTIVE = -1;
+    const COOPERATORS_STATUS_INACTIVE = 0;
+    const COOPERATORS_STATUS_DELETED = -1;
 
     const COOPERATORS_STATUS = array(
         self::COOPERATORS_STATUS_ACTIVE => 'Aktivni',
         self::COOPERATORS_STATUS_INACTIVE => 'Ne aktivni',
+        self::COOPERATORS_STATUS_DELETED => 'Obrisani',
     );
 
     protected $table = 'cooperators';

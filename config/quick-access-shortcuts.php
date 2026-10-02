@@ -23,6 +23,21 @@ return [
             'type' => 'modal',
             'modal' => 'calculator',
         ],
+        [
+            'code' => 'MHR',
+            'label' => 'Monthly worker hours report',
+            'type' => 'modal',
+            'modal' => 'global',
+            'component' => 'monthly-hours-report',
+        ],
+        [
+            'code' => 'APP-MODULES',
+            'label' => 'Application modules',
+            'type' => 'route',
+            'route_names' => [
+                'getAllApplicationModules',
+            ],
+        ],
         // Example: open any Livewire component in the global modal via quick-access.
         // Set type to 'modal', modal to 'global', and add a 'component' key with the
         // Livewire component name (dot-notation, same as @livewire() / wire:navigate).

@@ -5,9 +5,7 @@ namespace App\Services\Attendance;
 use App\Models\WorkerModel;
 use App\Models\AttendanceCoOpModel;
 use App\Models\CooperatorWorkersModel;
-use App\Livewire\HidroProjekt\Hr\WorkerAttendanceModal;
 use App\Models\AttendanceModel;
-use App\Services\HidroProjekt\BDE\CooperatorsAttendanceService;
 
 /**
  * Class CreateAttendanceService.php.
@@ -64,7 +62,7 @@ class CreateAttendanceService
                 $attendance = new AttendanceCoOpModel;
             }
         }
-        if ($worker == NULL) return ['success' => FALSE, 'error' => "Ne postoji zapis radnika sa ID:" . $this->workerID . "!"];
+        if ($worker == NULL) return ['success' => false, 'error' => "Ne postoji zapis radnika sa ID:" . $this->workerID . "!"];
         $attendance->create([
             'worker_id' => $this->workerID,
             'working_day_record_id' => $this->diaryID,
@@ -73,6 +71,7 @@ class CreateAttendanceService
             'absence_reason' => $this->absenceReason,
             'date' => $this->date,
         ]);
+        return ['success' => true];
     }
 
     /**

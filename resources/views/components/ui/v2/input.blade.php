@@ -19,6 +19,7 @@
             placeholder="{{ $placeholder }}"
             @if($model) wire:model.{{ $event }} = '{{ $model }}' @endif
             @if($disabled) disabled @endif
+            @if($isSavedFlash) data-flash-validation @endif
             @if($url)
                 x-on:change="(() => { const url = new URL(window.location.href); url.searchParams.set('{{ $url }}', $event.target.value); history.replaceState({}, '', url); })()"
             @endif

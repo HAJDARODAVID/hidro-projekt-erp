@@ -7,48 +7,79 @@ use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 use App\Services\ConvertArrayToStyleString;
 use App\Models\Employees\AttendanceAbsenceType;
+use App\Services\Attendance\AbsenceBtnObject;
 use App\Services\Attendance\WorkingDayReportStyleService;
 
 class Td extends Component
 {
     private $styleObject;
     public $style = ['text-align' => 'center'];
-    public $attendance = NULL;
-    public $action = NULL;
-    public $actionParam = NULL;
+    public $attendance = null;
+    public $action = null;
+    public $actionParam = null;
+    /** Render the global-modal trigger attributes on the cell */
+    public $trigger = TRUE;
+    /** Apply the missing-attendance style when the cell is empty */
+    public $missingStyle = TRUE;
+    /** Global modal component (see config/global-modal.php) opened when the cell is clicked */
+    public $component = 'worker-attendance-info';
 
     /**
      * Create a new component instance.
      */
-    public function __construct($att = NULL, $date = NULL, $attendance = NULl, array|NULL $action = NULL)
+    public function __construct($att = null, $date = null, $attendance = null, array|null $action = null, $trigger = TRUE, $missingStyle = TRUE, $component = 'worker-attendance-info')
     {
+        $this->trigger = $trigger;
+        $this->missingStyle = $missingStyle;
+        $this->component = $component;
         $this->attendance = $attendance;
         $this->styleObject = new WorkingDayReportStyleService();
+        /**Clickable cells (global modal trigger) get a pointer */
+        if ($trigger) $this->styleSetUp($this->styleObject->clickableField());
         $this->setAction($action);
-        if ($date->format('N') > 5 && $attendance == NULL) {
+        if ($date->format('N') > 5 && $attendance == null) {
             $this->styleSetUp($this->styleObject->weekendStyle());
         } else {
             /**Are hours set */
             if (is_numeric($attendance)) $this->styleSetUp($this->styleObject->checkIfOver($attendance, 12)->good());
             /**Missing attendance style */
-            if ($attendance == NULL && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
+            if ($attendance == null && $this->missingStyle && now() > $date) $this->styleSetUp($this->styleObject->attendanceMissing());
             /**Error style */
             if ($attendance == 'ERR') $this->styleSetUp($this->styleObject->error());
             /**Other absence */
-            if (in_array($attendance, AttendanceAbsenceType::ABSENCE_TYPE_SHT)) $this->styleSetUp($this->styleObject->otherAbsence($attendance));
+            if (in_array($attendance, AttendanceAbsenceType::ABSENCE_TYPE_SHT)) {
+                $this->styleSetUp($this->styleObject->otherAbsence($attendance));
+                $this->styleSetUp($this->absenceBackgroundColorStyle($attendance));
+            }
         }
-        $att = explode('.', $att);
+        $att = explode('.', $att ?? '');
         foreach ($att as $item) {
             $itemExploded = explode(':', $item);
-            $method = $itemExploded[0] ?? NULL;
-            $attribute = $itemExploded[1] ?? NULL;
+            $method = $itemExploded[0] ?? null;
+            $attribute = $itemExploded[1] ?? null;
             if (method_exists(get_class($this), $method)) $this->$method($attribute);
         }
     }
 
     /**
+     * Resolve the background-color style for an absence short code (e.g. SL, PL, HD).
+     * Uses the redis/db configurable colors set for the absence btns, falling back
+     * to the type's default color.
+     *
+     * @return array
+     */
+    private function absenceBackgroundColorStyle(string $attendance): array
+    {
+        $absenceType = AttendanceAbsenceType::setByShtDesc($attendance);
+        if (!$absenceType) return [];
+
+        $backgroundColor = AbsenceBtnObject::getBackgroundColorForType($absenceType);
+        return $backgroundColor ? ['background-color' => $backgroundColor] : [];
+    }
+
+    /**
      * Set up additional style
-     * 
+     *
      * @return void
      */
     private function styleSetUp($style): void
@@ -79,6 +110,17 @@ class Td extends Component
     }
 
     /**
+     * Cursor setter (exp: cursor:pointer)
+     * 
+     * @return void
+     */
+    private function cursor($att): void
+    {
+        $this->style['cursor'] = $att;
+        return;
+    }
+
+    /**
      * Width setter
      * 
      * @return void
@@ -91,7 +133,7 @@ class Td extends Component
         return;
     }
 
-    private function setAction(array|NULL $action): void
+    private function setAction(array|null $action): void
     {
         /**Set action name */
         if (isset($action[0])) {

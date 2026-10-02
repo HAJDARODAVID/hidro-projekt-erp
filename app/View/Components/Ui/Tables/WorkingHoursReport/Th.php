@@ -24,7 +24,7 @@ class Th extends Component
         $this->lwAction = $lwAction;
         $this->lwActionAtt = $lwActionAtt;
         $this->styleObject = new WorkingDayReportStyleService();
-        $att = explode('.', $att);
+        $att = explode('.', $att ?? '');
         foreach ($att as $item) {
             $itemExploded = explode(':', $item);
             $method = $itemExploded[0] ?? NULL;
@@ -32,7 +32,7 @@ class Th extends Component
             if (method_exists(get_class($this), $method)) $this->$method($attribute);
         }
         if ($day > 5) $this->style = array_merge($this->style, $this->styleObject->weekendStyle());
-        $this->style = array_merge($this->style, $this->styleObject->clickableField());
+        if ($lwAction) $this->style = array_merge($this->style, $this->styleObject->clickableField());
     }
 
     /**

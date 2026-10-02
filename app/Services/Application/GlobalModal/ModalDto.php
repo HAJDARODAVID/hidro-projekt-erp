@@ -12,6 +12,7 @@ class ModalDto extends BaseDTO
     protected string|null $headerStyle;
     protected string|null $maxWidth;
     protected bool $stable;
+    protected string|null $beforeClose;
 
     public function __construct(
         string|null $name = null,
@@ -20,6 +21,7 @@ class ModalDto extends BaseDTO
         string|null $headerStyle = 'font-weight: 600; font-size: 1rem;',
         string|null $maxWidth = '1140px',
         bool $stable = false,
+        string|null $beforeClose = null,
         // string $headerStyle = 'font-weight: 600; font-size: 1rem;',
         // string $maxWidth = '1140px'
     ) {
@@ -29,6 +31,7 @@ class ModalDto extends BaseDTO
         $this->headerStyle = $headerStyle;
         $this->maxWidth = $maxWidth;
         $this->stable = $stable;
+        $this->beforeClose = $beforeClose;
 
         // $this->headerStyle = $headerStyle;
         // $this->maxWidth = $maxWidth;
@@ -102,6 +105,18 @@ class ModalDto extends BaseDTO
     public function setStable(bool $stable): self
     {
         $this->stable = $stable;
+
+        return $this;
+    }
+
+    public function getBeforeClose(): string|null
+    {
+        return $this->beforeClose;
+    }
+
+    public function setBeforeClose(string|null $beforeClose): self
+    {
+        $this->beforeClose = $beforeClose;
 
         return $this;
     }

@@ -1,15 +1,22 @@
-<x-ui.modal title='Attendance / absence' :modalStatus=$modalStatus >
-    <x-slot:subtitle>{{ translator('Date') }}: {{ date('Y-m-d', $date) }}</x-slot:subtitle>
-    <x-ui.card :noBodyPadding=TRUE loading="createNewDiary" :border=FALSE>
+<div>
+    <div class="text-muted small mb-2">{{ translator('Date') }}: {{ date('Y-m-d', $date) }}</div>
+    <x-ui.card :noBodyPadding=TRUE loading="applyAbsenceAction, deleteAllAttendanceAction" :border=FALSE>
         <div class="d-flex justify-content-center gap-3">
             @foreach ($absenceType as $typeCode => $typeData)
-                <x-ui.btn type="dar.lg" text="{{ translator($typeData['short-text']) }}" wClickMethod="applyAbsenceAction" wClickParam="{{ $typeCode }}" />
+                <button
+                    type="button"
+                    class="{{ $typeData['class'] }}"
+                    style="{{ $typeData['style'] }}"
+                    wire:click="applyAbsenceAction('{{ $typeCode }}')"
+                >
+                    <b>{{ translator($typeData['short-text']) }}</b>
+                </button>
             @endforeach
-            @if($showDeleteAtt) 
+            @if($showDeleteAtt)
                 <x-v-divider px=0 />
                 <x-ui.btn type="dan.lg" icon="trash" wClickMethod="deleteAllAttendanceAction" />
             @endif
         </div>
-        
+
     </x-ui.card>
-</x-ui.modal>
+</div>
