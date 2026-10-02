@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Modules\Employees\Components;
 
+use Livewire\Attributes\On;
 use App\Livewire\LivewireController;
 use App\Models\Employees\SubcontractorWorker;
 use App\Services\Subcontractors\UpdateSubcontractorWorkerService;
@@ -39,6 +40,17 @@ class SubcontractorWorkers extends LivewireController
             ->orderBy('lastName')
             ->get(['id', 'firstName', 'lastName', 'status'])
             ->toArray();
+    }
+
+    /**
+     * Runs after a new worker was created in the create modal. Reloads the list.
+     *
+     * @return void
+     */
+    #[On('subcontractor-worker-created')]
+    public function onWorkerCreated(): void
+    {
+        $this->getWorkers();
     }
 
     /**

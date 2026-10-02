@@ -80,6 +80,15 @@ class SubcontractorWorker extends Model
     }
 
     /**
+     * Workers with exactly this first and last name (surrounding spaces are ignored).
+     */
+    public function scopeWithName(Builder $query, ?string $firstName, ?string $lastName): Builder
+    {
+        return $query->where('firstName', trim((string) $firstName))
+            ->where('lastName', trim((string) $lastName));
+    }
+
+    /**
      * Filter by first name, last name, full name or ID, an empty search is ignored.
      */
     public function scopeSearch(Builder $query, ?string $search): Builder

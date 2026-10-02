@@ -85,6 +85,14 @@
                         </div>
                     </x-slot:title>
                     @if ($subcontractor)
+                        <x-slot:headerActions>
+                            <x-ui.modal.modal-open-btn
+                                btn-type="suc.sm"
+                                icon="person-plus"
+                                target-component="create-subcontractor-worker"
+                                :params="['subcontractorId' => $subcontractor->id]"
+                            />
+                        </x-slot:headerActions>
                         @switch ($activeTab)
                             @case ('workers')
                                 @livewire(
