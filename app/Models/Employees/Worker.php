@@ -2,8 +2,6 @@
 
 namespace App\Models\Employees;
 
-use App\Models\WorkerAddress;
-use App\Models\WorkerContact;
 use App\Models\PayrollBasicInfoModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
