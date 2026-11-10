@@ -29,6 +29,16 @@
                         "resource": null,
                         "position": 2,
                         "divider": null
+                    },
+                    {
+                        "id": "85117741-1a99-4d3d-a932-571c9978a6d1",
+                        "title": "ACL",
+                        "route_name": "getAclModule",
+                        "method": "getAclModule",
+                        "active": true,
+                        "resource": null,
+                        "position": 3,
+                        "divider": null
                     }
                 ]
             },
@@ -78,6 +88,25 @@
                         "resource": null,
                         "position": 4,
                         "divider": "left"
+                    }
+                ]
+            },
+            {
+                "id": "4eb6ebed-671d-4177-8632-90396cf0653c",
+                "name": "Finance & Accounting",
+                "module": "FinanceAccounting",
+                "controller": "FinanceAccountingController",
+                "active": true,
+                "routes": [
+                    {
+                        "id": "0b21bf25-2524-4484-b99a-cbcf61e3e180",
+                        "title": "Payroll",
+                        "route_name": "getPayrollModule",
+                        "method": "getPayrollModule",
+                        "active": true,
+                        "resource": null,
+                        "position": 1,
+                        "divider": null
                     }
                 ]
             },
