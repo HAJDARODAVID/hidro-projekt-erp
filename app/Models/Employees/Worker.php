@@ -30,7 +30,14 @@ class Worker extends Model
         'status',
         'is_worker',
         'type',
+        'workplace_id',
     ];
+
+    /**The workplace (contract) of the worker. workers.working_place keeps its name as text. */
+    public function workplace(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Workplace::class, 'workplace_id');
+    }
 
     public function getWorkerAddress(): HasOne
     {

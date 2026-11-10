@@ -37,7 +37,7 @@ The full field list (with numbers, tabs and types) is in
 | `tabs` | `"tab": false` hides a tab, `"tab": { "label": "…" }` renames it. Tabs: `basic`, `contract`, `requirements`, `pay`, `workers`. `basic` can't be hidden. A tab without fields disappears. |
 | `fields` | `"field": false` hides a field. `"field": { … }` changes `label`, `help` (tooltip), `options` (select / checks), `required`, `tab` (move it). |
 | `order` | `"tab": ["field", …]` order inside a tab. Fields not listed follow in the default order. |
-| `custom` | The company's own fields: `{ "tab", "label", "type", "options", "help", "required" }`. Types: `text`, `textarea`, `number`, `date`, `select`, `switch`, `checks`, `range`. **Prototype only**: the database has no column for them yet. |
+| `custom` | The company's own fields: `{ "tab", "label", "type", "options", "help", "required" }`. Types: `text`, `textarea`, `number`, `date`, `select`, `switch`, `checks`, `range`. Stored in `workplaces.custom_fields` (JSON). |
 
 Unknown fields, tabs or types are ignored and listed as warnings on the screen
 (*Field configuration → Show JSON*).

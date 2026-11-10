@@ -27,7 +27,7 @@ class UpdateWorkerInfoService extends BaseService
         'oib'       => ['worker', 'OIB'],
         'doe'       => ['worker', 'doe'],
         'ced'       => ['worker', 'ced'],
-        'workplace' => ['worker', 'working_place'],
+        'workplace' => ['worker', 'workplace_id'],
         'comment'   => ['worker', 'comment'],
         'phone'     => ['contact', 'mob'],
         'email'     => ['contact', 'email'],
@@ -65,7 +65,10 @@ class UpdateWorkerInfoService extends BaseService
         try {
             [$group, $column] = self::FIELDS[$field];
             match ($group) {
-                'worker'  => $this->worker->update([$column => $value]),
+                /**The workplace is linked by ID; its name is kept as text in working_place (old screens, PDFs) */
+                'worker'  => $field === 'workplace'
+                    ? $this->worker->update(['workplace_id' => $value, 'working_place' => $value ? Workplace::whereKey($value)->value('name') : NULL])
+                    : $this->worker->update([$column => $value]),
                 'contact' => WorkerContact::updateOrCreate(['worker_id' => $this->worker->id], [$column => $value]),
                 'address' => WorkerAddress::updateOrCreate(['worker_id' => $this->worker->id], [$column => $value]),
             };
@@ -90,7 +93,8 @@ class UpdateWorkerInfoService extends BaseService
 
         return match ($field) {
             'oib'   => preg_replace('/\s+/', '', (string) $value),
-            'zip'   => is_numeric($value) ? (int) $value : $value,
+            'zip'       => is_numeric($value) ? (int) $value : $value,
+            'workplace' => is_numeric($value) ? (int) $value : $value,
             'email' => mb_strtolower((string) $value),
             default => $value,
         };
@@ -109,9 +113,9 @@ class UpdateWorkerInfoService extends BaseService
             'oib'                      => ['nullable', 'digits:11'],
             'doe'                      => array_filter(['nullable', 'date', $this->worker->ced ? 'before_or_equal:' . $this->worker->ced : NULL]),
             'ced'                      => array_filter(['nullable', 'date', $this->worker->doe ? 'after_or_equal:' . $this->worker->doe : NULL]),
-            'workplace'                => ['nullable', 'string', 'max:255', function ($attribute, $value, $fail) {
-                // Only active workplaces can be picked, the current value may stay
-                if ($value !== $this->worker->working_place && !Workplace::where('status', TRUE)->where('name', $value)->exists()) {
+            'workplace'                => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                // Only active workplaces can be picked, the current one may stay
+                if ((int) $value !== (int) $this->worker->workplace_id && !Workplace::where('status', TRUE)->whereKey((int) $value)->exists()) {
                     $fail(translator('Select an active workplace.'));
                 }
             }],

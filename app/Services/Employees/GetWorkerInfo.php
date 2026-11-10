@@ -42,7 +42,7 @@ class GetWorkerInfo
                 'email'     => $this->workerInfo->getWorkerContact->email ?? NULL,
                 'doe'       => $this->workerInfo->doe,
                 'ced'       => $this->workerInfo->ced,
-                'workplace' => $this->workerInfo->working_place,
+                'workplace' => $this->workerInfo->workplace_id ? (string) $this->workerInfo->workplace_id : '',
                 'status'    => $this->workerInfo->statusDescriptionCro,
                 'street'    => $this->workerInfo->getWorkerAddress->street ?? NULL,
                 'town'      => $this->workerInfo->getWorkerAddress->town ?? NULL,

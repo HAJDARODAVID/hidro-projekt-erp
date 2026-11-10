@@ -69,6 +69,7 @@ class WorkplaceFieldsConfigService
         'specialConditions' => [16, 'contract',     'switch',   'Special working conditions',   NULL, 'Poslovi s posebnim uvjetima rada (medical checks required)'],
         'education'         => [17, 'requirements', 'select',   'Required education',           ['NSS', 'KV', 'SSS', 'VKV', 'VŠS', 'VSS'], NULL],
         'experience'        => [18, 'requirements', 'number',   'Experience [years]',           NULL, NULL],
+        // (licences / ppe / select options can be replaced per company in the customize file)
         'licences'          => [19, 'requirements', 'checks',   'Licences / certificates',      ['Vozačka B', 'Vozačka C', 'Vozačka C+E', 'Viličar', 'Rad na visini', 'Zavarivač', 'Prva pomoć', 'Zaštita od požara'], NULL],
         'safetyTraining'    => [20, 'requirements', 'switch',   'Safety at work training (ZNR)', NULL, NULL],
         'medicalCheck'      => [21, 'requirements', 'number',   'Medical check every [months]', NULL, '0 = not required'],
@@ -82,6 +83,38 @@ class WorkplaceFieldsConfigService
         'phoneExpense'      => [29, 'pay',          'number',   'Phone expense [€]',            NULL, 'Default for the payroll'],
         'monthlyBonus'      => [30, 'pay',          'switch',   'Eligible for the monthly bonus', NULL, NULL],
         'overtime'          => [31, 'pay',          'switch',   'Overtime allowed',             NULL, NULL],
+    ];
+
+    /**
+     * Column of each catalog field on the workplaces table. A range has a min and a max column.
+     * Custom fields (customize "custom") are stored in workplaces.custom_fields (JSON).
+     */
+    public const COLUMNS = [
+        'key' => 'key', 'name' => 'name', 'department' => 'department', 'reportsTo' => 'reports_to_id', 'nkz' => 'nkz',
+        'description' => 'description', 'headcount' => 'headcount', 'active' => 'status',
+        'contractType' => 'contract_type', 'duration' => 'duration_months', 'probation' => 'probation_months',
+        'notice' => 'notice_days', 'weeklyHours' => 'weekly_hours', 'schedule' => 'schedule', 'location' => 'location',
+        'specialConditions' => 'special_conditions',
+        'education' => 'education', 'experience' => 'experience_years', 'licences' => 'licences',
+        'safetyTraining' => 'safety_training', 'medicalCheck' => 'medical_check_months', 'ppe' => 'ppe',
+        'payGrade' => 'pay_grade', 'hourRate' => ['min' => 'hour_rate_min', 'max' => 'hour_rate_max'], 'fixRate' => 'fix_rate',
+        'fieldBonus' => 'field_bonus', 'homeBonus' => 'home_bonus', 'travelExpense' => 'travel_expense',
+        'phoneExpense' => 'phone_expense', 'monthlyBonus' => 'monthly_bonus', 'overtime' => 'overtime',
+    ];
+
+    /**Limits of number fields: field => [min, max, integer] (they also fit the column) */
+    public const NUMBER_LIMITS = [
+        'headcount'     => [0, 9999, TRUE],
+        'duration'      => [0, 120, TRUE],
+        'probation'     => [0, 6, TRUE],
+        'notice'        => [0, 365, TRUE],
+        'weeklyHours'   => [0, 168, FALSE],
+        'experience'    => [0, 60, TRUE],
+        'medicalCheck'  => [0, 120, TRUE],
+        'fixRate'       => [0, 99999999, FALSE],
+        'travelExpense' => [0, 999999, FALSE],
+        'phoneExpense'  => [0, 999999, FALSE],
+        'hourRate'      => [0, 999999, FALSE],
     ];
 
     /**Name of the customization file: customize/{company}/workplace_fields.json */
@@ -104,6 +137,21 @@ class WorkplaceFieldsConfigService
             $this->loadError = $th->getMessage() . ' - every field is shown until it is fixed.';
             return NULL;
         }
+    }
+
+    /**
+     * All visible field definitions of the active company, flat: [field => definition] (with the tab in it).
+     *
+     * @param array|null $config
+     * @return array
+     */
+    public function visibleFields(?array $config = NULL): array
+    {
+        $flat = [];
+        foreach ($this->resolve($config)['fields'] as $tab => $fields) {
+            foreach ($fields as $field => $definition) $flat[$field] = $definition + ['tab' => $tab];
+        }
+        return $flat;
     }
 
     /**

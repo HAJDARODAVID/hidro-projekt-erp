@@ -29,8 +29,8 @@ class BasicWorkerInfo extends LivewireController
     public $workerInfo;
 
     /**
-     * Workplace options [name => name]: the active workplaces, plus the worker's current one
-     * if it isn't active (any more), so it still shows. The name is what the worker stores.
+     * Workplace options [id => "KEY - name"]: the active workplaces, plus the worker's current one
+     * if it isn't active (any more), so it still shows.
      *
      * @var array
      */
@@ -55,12 +55,13 @@ class BasicWorkerInfo extends LivewireController
 
     private function setWorkplaceOptions(): void
     {
-        $this->workplaces = ['' => '—'] + Workplace::where('status', TRUE)->orderBy('name')->pluck('name', 'name')->toArray();
-
-        $current = $this->workerInfo['workplace'] ?? NULL;
-        if ($current !== NULL && $current !== '' && !array_key_exists($current, $this->workplaces)) {
-            $this->workplaces[$current] = $current;
-        }
+        $current = $this->workerInfo['workplace'] ?? '';
+        $this->workplaces = ['' => '—'] + Workplace::query()
+            ->where(fn ($q) => $q->where('status', TRUE)->when($current !== '', fn ($q) => $q->orWhere('id', (int) $current)))
+            ->orderBy('key')
+            ->get(['id', 'key', 'name', 'status'])
+            ->mapWithKeys(fn (Workplace $w) => [$w->id => $w->key . ' - ' . $w->name . ($w->status ? '' : ' (' . translator('inactive') . ')')])
+            ->toArray();
     }
 
     /**
