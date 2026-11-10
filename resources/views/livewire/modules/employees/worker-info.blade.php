@@ -38,7 +38,7 @@
                 </x-ui.card>
             </div>
             <div class="col-md d-flex flex-column">
-                <x-ui.card  class="flex-fill d-flex flex-column" headerHight=48 loading='selectWorker'>
+                <x-ui.card  class="flex-fill d-flex flex-column" headerHight=48 loading='selectWorker, selectTab'>
                     <x-slot:title>
                         <div class="d-flex gap-2 align-items-center">
                             @php $selectedWorkerData = $selectedWorker ? collect($workers)->firstWhere('id', $selectedWorker) : NULL; @endphp
@@ -49,7 +49,16 @@
                         
                     </x-slot:title>
                     @if ($selectedWorker)
-                        @livewire('modules.employees.components.basic-worker-info', ['workerId' => $selectedWorker], key($worker['id'].now()))
+                        @switch ($activeTab)
+                            @case ('payroll-info')
+                                @livewire('modules.employees.components.worker-payroll-info', ['workerId' => $selectedWorker], key('worker-info-payroll-info-' . $selectedWorker))
+                                @break
+                            @case ('user-right')
+                                @livewire('modules.employees.components.worker-user-rights', ['workerId' => $selectedWorker], key('worker-info-user-right-' . $selectedWorker))
+                                @break
+                            @default
+                                @livewire('modules.employees.components.basic-worker-info', ['workerId' => $selectedWorker], key('worker-info-basic-info-' . $selectedWorker))
+                        @endswitch
                     @else
                         <div class="d-flex justify-content-center"><div class="py-3"><i>{{ translator('No worker selected!') }}</i></div></div>
                     @endif

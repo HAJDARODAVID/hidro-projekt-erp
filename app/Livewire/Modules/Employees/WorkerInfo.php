@@ -7,6 +7,8 @@ use App\Livewire\LivewireController;
 use App\Models\Employees\Worker;
 use App\Models\Employees\WorkerStatus;
 use App\Models\Employees\WorkerType;
+use App\Services\Employees\HasWorkerAppUserService;
+use App\Livewire\Modules\Employees\Components\WorkerUserRights;
 
 class WorkerInfo extends LivewireController
 {
@@ -22,12 +24,54 @@ class WorkerInfo extends LivewireController
 
     public function mount()
     {
-        $this->setTabs([
-            'basic-info' => 'Basic info',
-            'payroll-info' => 'Payroll',
-            'user-right' => 'User rights',
-        ]);
+        $this->setTabs($this->getAvailableTabs());
         $this->getWorkers();
+    }
+
+    /**
+     * Tabs available for the selected worker. The user rights tab is only shown
+     * when the worker has an app user and the logged in user can assign roles.
+     *
+     * @return array
+     */
+    private function getAvailableTabs(): array
+    {
+        $tabs = [
+            'basic-info' => translator('Basic info'),
+            'payroll-info' => translator('Payroll'),
+        ];
+
+        if (
+            $this->selectedWorker
+            && app('user_rights')->hasRight(WorkerUserRights::ASSIGN_ROLES_RIGHT)
+            && HasWorkerAppUserService::byWorkerID((int) $this->selectedWorker)->hasUser()
+        ) {
+            $tabs['user-right'] = translator('User rights');
+        }
+
+        return $tabs;
+    }
+
+    /**
+     * Rebuild the tabs for the selected worker, keeping the active tab if it is still available.
+     *
+     * @return void
+     */
+    private function refreshTabs(): void
+    {
+        $this->tabs = $this->getAvailableTabs();
+        if (!array_key_exists($this->activeTab, $this->tabs)) $this->activeTab = array_key_first($this->tabs);
+    }
+
+    /**
+     * Select a tab, only if it is available for the selected worker.
+     *
+     * @param string $tabID
+     * @return void
+     */
+    public function selectTab($tabID): void
+    {
+        if (array_key_exists($tabID, $this->tabs)) $this->activeTab = $tabID;
     }
 
     /**
@@ -91,6 +135,7 @@ class WorkerInfo extends LivewireController
             //$this->selectedWorker = $appModule->exists() ? $uuid : NULL;
             $this->selectedWorker = $id;
         }
+        $this->refreshTabs();
     }
 
     public function render()
