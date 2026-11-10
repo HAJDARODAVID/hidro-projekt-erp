@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AutoInstallation;
 use App\Services\Application\AppModulesSyncService;
+use App\Services\Application\Acl\AclSyncService;
 use App\Services\Config\BaseConfigService;
 use App\Services\Config\AppConfigDto;
 use Illuminate\Support\Facades\File;
@@ -14,6 +15,7 @@ class AutoInstallationService extends BaseConfigService
     /**JSON types meant to be updated over time: run again when their data changes */
     const RERUN_ON_CHANGE_TYPES = [
         AppModulesSyncService::INSTALLATION_TYPE,
+        AclSyncService::INSTALLATION_TYPE,
     ];
 
     /**
@@ -195,6 +197,7 @@ class AutoInstallationService extends BaseConfigService
             'app_config' => $this->handleAppConfig($data),
             'seed_data' => $this->handleSeedData($data),
             AppModulesSyncService::INSTALLATION_TYPE => AppModulesSyncService::import($data),
+            AclSyncService::INSTALLATION_TYPE => AclSyncService::import($data),
             default => throw new \Exception("Unknown installation type: $installationType"),
         };
 

@@ -20,7 +20,7 @@ This manual has two parts:
    - [4. Roles tab](#4-roles-tab)
    - [5. Permissions tab](#5-permissions-tab)
    - [6. User access tab](#6-user-access-tab)
-   - [7. Importing the old ACL](#7-importing-the-old-acl)
+   - [7. Import: rebuilding the ACL from the sync file](#7-import-rebuilding-the-acl-from-the-sync-file)
    - [8. Common tasks](#8-common-tasks)
 5. [Part 2 — Using the ACL in code](#part-2--using-the-acl-in-code)
    - [9. Protecting routes](#9-protecting-routes)
@@ -130,9 +130,12 @@ The tabs of the App control center come from the database (module routes), not f
 The page now shows as a tab next to *Modules* and *Translator*. It also works without the tab
 by opening `/app/acl` directly.
 
-### 3.4 (Optional) Import the old ACL
+### 3.4 (Optional) Fill the ACL
 
-See [Importing the old ACL](#7-importing-the-old-acl).
+- **From the sync file:** on dev/production the deploy installs it, or use the **sync** button.
+  To make an environment match the file exactly, use **Import** (see [section 7](#7-import-rebuilding-the-acl-from-the-sync-file)).
+- **From the old ACL:** run `ManageAclService::importFromLegacy()` once (see
+  [Importing the old ACL](#importing-the-old-acl-code-only)).
 
 ### Who can open the ACL screen?
 
@@ -144,7 +147,9 @@ Everything under `/app` is limited to **super admins** (`s-admin-access-only` mi
 # Part 1 — Using the ACL screen
 
 Open **App control center → Access control** (`/app/acl`). The page has three tabs
-(**Roles**, **Permissions**, **User access**) and an **Import old ACL** button at the top right.
+(**Roles**, **Permissions**, **User access**). At the top right there are two buttons:
+**export** (on local) or **sync** (on other environments), and **Import**, which rebuilds the
+ACL from the sync file.
 The selected tab is kept in the URL (`?tab=roles`), so a link opens the same tab.
 
 A good order for a fresh setup is **Permissions → Roles → User access**.
@@ -270,9 +275,41 @@ Use **Search** to find a permission by key or name.
 > Use overrides for **exceptions**. If several users need the same overrides, make a role
 > for them instead. Roles are easier to keep track of.
 
-## 7. Importing the old ACL
+## 7. Import: rebuilding the ACL from the sync file
 
-The **Import old ACL** button (top right) copies the old ACL into the new one:
+The **Import** button (top right) rebuilds the ACL from the last ACL sync file
+(`installers/auto-installations/app_sync_acl.json`, see
+[the ACL sync file](#shipping-permissions-with-a-feature-the-acl-sync-file)). Afterwards the
+permissions, roles and role permissions are **exactly** what the file holds:
+
+| | What happens |
+|---|---|
+| Permission / role in the file | Created, or updated (matched by ID, then key). A role's **Active** is taken from the file. |
+| Permission / role **not** in the file | **Deleted**, with its role permissions, user roles and user overrides. |
+| Permissions of a role | Set to exactly the file's list. Extra ones are removed. |
+| User roles and overrides of what stays | Kept. They're not in the file. |
+
+Things to know:
+
+- **It deletes.** You'll be asked to confirm. Export first if you want to keep what you have.
+- It runs in one database transaction: if anything fails, nothing changes.
+- The button is disabled when there's no sync file. A file with no permissions and no roles is
+  refused, so an empty file can't wipe the ACL.
+- It works on every environment. On dev/production, the **sync** button next to it is the
+  safe version: it only creates, updates and adds, and never deletes.
+- When it finishes, a message shows what was created, updated and deleted, plus any warnings
+  (e.g. a route that doesn't exist on this server).
+
+### Importing the old ACL (code only)
+
+The one-time copy of the old ACL into the new one no longer has a button. It's still available
+from code, e.g. in `php artisan tinker`:
+
+```php
+App\Services\Application\Acl\ManageAclService::importFromLegacy();
+```
+
+It copies the old ACL like this:
 
 | Old (`/adm/acl`) | → | New |
 |---|---|---|
@@ -511,11 +548,45 @@ $stats = ManageAclService::importFromLegacy();
 ManageAclService::permissionCatalog('payroll');   // optional search
 ```
 
-### Shipping permissions with a feature
+### Shipping permissions with a feature: the ACL sync file
 
-The ACL data lives in the database of each environment. It is **not** part of the modules
-sync file (`AppModulesSyncService`). To have a new permission exist everywhere, either
-create it in the screen on every environment, or create it in a migration or an
+The ACL has a sync file of its own, **`installers/auto-installations/app_sync_acl.json`**
+(`AclSyncService`, type `acl_sync`). It's built like the modules sync, but it's a separate file.
+
+**Workflow**
+
+1. On **local**, create or change the permissions and roles in `/app/acl`.
+2. Export them: the **export** button (box with an arrow up) in the ACL header, or
+   `php artisan acl:export`.
+3. Review the git diff of `app_sync_acl.json` and commit it.
+4. The next deploy installs it (`auto-install:check`). It runs again whenever the file's data changes.
+   On dev/production you can also install it right away with the **sync** button (circle arrows).
+
+**What's in the file:** permissions (key, name, description, module, guarded route), roles
+(key, name, description, active) and the permissions of each role.
+
+**What's not:** user roles and user overrides. Users differ between databases, so who gets
+which role is decided on each server.
+
+**Import rules**
+
+- Permissions and roles are matched by **ID**, then by **key**. A row matched by key takes
+  over the ID from the file, so the next sync matches it by ID.
+- Name, description, module and guarded route come from the file.
+- A role's **Active** switch is only set when the role is created. Switching a role on or off
+  on the server isn't undone by the next sync.
+- Role permissions are only **added**. Permissions given to a role on the server are kept,
+  and a permission removed from a role on local is **not** removed on the server. Remove it
+  there by hand.
+- Nothing is ever deleted.
+- Modules and routes are looked up by ID, then by module name and route name. If they don't
+  exist on the server, the permission is saved without them and the sync shows a warning.
+- If the file gives a route to a permission while another permission guards it on the server,
+  the file wins and the other binding is removed (with a warning).
+- The file name sorts after `app_modules_sync.json`, so on a deploy the modules and routes are
+  installed first and the routes the permissions guard already exist.
+
+**Without the sync file**, you can still create a permission in a migration or an
 auto-installation file:
 
 ```php
@@ -589,6 +660,9 @@ deleted, the ACL rows stay but no longer do anything.
 | `app/Models/Application/Acl/AclPermission.php`, `AclRole.php` | Models |
 | `app/Services/Application/Acl/AclService.php` | **Reading**: may this user do X? Caching, super admin. |
 | `app/Services/Application/Acl/ManageAclService.php` | **Writing**: all changes, validation, old ACL import, permission catalog |
+| `app/Services/Application/Acl/AclSyncService.php` | ACL sync file: export / import of permissions and roles between environments |
+| `app/Console/Commands/ExportAclCommand.php` | `php artisan acl:export` |
+| `installers/auto-installations/app_sync_acl.json` | The ACL sync file (generated, commit it) |
 | `app/Http/Middleware/AclAccess.php` | `acl` route middleware (registered in `app/Http/Kernel.php`) |
 | `app/Providers/AppServiceProvider.php` | `Gate::before` hook (permission keys as Gate abilities) |
 | `app/Services/Application/GetModuleRoutesForTabLinks.php` | Hides the tabs of guarded routes |
@@ -642,8 +716,8 @@ worker tabs and the `/adm/acl` screen.
 - A route can be guarded by **one** permission. For "A or B", use `acl:a,b` in code.
 - Keys of roles and permissions can't be changed after creation. To rename one, create a new
   permission, move the roles over, and delete the old one.
-- ACL data isn't synced between environments with the modules sync file (see
-  [Shipping permissions with a feature](#shipping-permissions-with-a-feature)).
+- The ACL sync file only adds role permissions and never deletes. Removals have to be
+  done on each server (see [the ACL sync file](#shipping-permissions-with-a-feature-the-acl-sync-file)).
 - The `acl` middleware is applied to the whole v3 group. Before the migration is run, it lets
   everything through (it treats missing tables as "nothing is guarded").
 - The import never deletes. Something removed in the old ACL stays in the new one until you
