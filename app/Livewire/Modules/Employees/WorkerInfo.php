@@ -3,6 +3,7 @@
 namespace App\Livewire\Modules\Employees;
 
 use Livewire\Attributes\Url;
+use Livewire\Attributes\On;
 use App\Livewire\LivewireController;
 use App\Models\Employees\Worker;
 use App\Models\Employees\WorkerStatus;
@@ -97,6 +98,17 @@ class WorkerInfo extends LivewireController
     public function updatedWorkerSearch($value): void
     {
         if ($value == "") $this->workerSearch = NULL;
+        $this->getWorkers();
+    }
+
+    /**
+     * The name of the selected worker was changed in the basic info: refresh the list (and the title).
+     *
+     * @return void
+     */
+    #[On('worker-info-name-changed')]
+    public function refreshWorkers(): void
+    {
         $this->getWorkers();
     }
 
