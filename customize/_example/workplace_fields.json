@@ -1,0 +1,21 @@
+{
+    "$comment": "Example of every option. Copy to customize/{company}/workplace_fields.json and keep what you need. Fields: App\\Services\\Config\\WorkplaceFieldsConfigService::CATALOG",
+
+    "only": ["department", "description", "contractType", "weeklyHours", "hourRate", "fixRate"],
+
+    "tabs": {
+        "workers": false,
+        "pay": { "label": "Plaća" }
+    },
+
+    "fields": {
+        "nkz": false,
+        "department":  { "label": "Odjel", "options": ["Uprava", "Teren"], "required": true },
+        "description": { "label": "Opis posla", "help": "Ide u ugovor o radu" },
+        "hourRate":    { "tab": "basic" }
+    },
+
+    "order": {
+        "basic": ["name", "key", "department", "description"]
+    }
+}
