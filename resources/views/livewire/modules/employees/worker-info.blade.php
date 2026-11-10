@@ -41,15 +41,14 @@
                 <x-ui.card  class="flex-fill d-flex flex-column" headerHight=48 loading='selectWorker'>
                     <x-slot:title>
                         <div class="d-flex gap-2 align-items-center">
-                            <div class="">{{ translator('Worker info') }}</div>
-                            <x-v-divider />
+                            @php $selectedWorkerData = $selectedWorker ? collect($workers)->firstWhere('id', $selectedWorker) : NULL; @endphp
+                            <div class="">{{ translator('Worker info') }}@if ($selectedWorkerData): <span class="fw-bold">{{ $selectedWorkerData['firstName'] }} {{ $selectedWorkerData['lastName'] }}</span>@endif</div>
+                            <x-v-divider class="align-self-stretch" />
                             <x-ui.nav-tabs :tabs=$tabs :selectedTab=$activeTab py=1/>
                         </div>
                         
                     </x-slot:title>
                     @if ($selectedWorker)
-                        <b><i>{{ mb_strtoupper("ime i prezime") }}</i></b>
-                        <hr>
                         @livewire('modules.employees.components.basic-worker-info', ['workerId' => $selectedWorker], key($worker['id'].now()))
                     @else
                         <div class="d-flex justify-content-center"><div class="py-3"><i>{{ translator('No worker selected!') }}</i></div></div>
