@@ -39,4 +39,12 @@ class ApplicationController extends Controller
     {
         return $this->module('translator');
     }
+
+    /**
+     * Show the access control (roles, permissions, user access) module.
+     */
+    public function getAclModule()
+    {
+        return $this->module('acl');
+    }
 }

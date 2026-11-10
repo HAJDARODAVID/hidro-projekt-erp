@@ -305,9 +305,10 @@ Route::get('/test2', [App\Http\Controllers\Test2::class, 'redisKeys']);
 
 /**
  * VERSION 3.0.0
+ * 'acl': a route bound to a permission in /app/acl is only open to users holding it.
  */
 Route::prefix('/')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'acl'])
     ->group(function () {
 
         /*
@@ -346,6 +347,7 @@ Route::prefix('/')
                         Route::get('/', 'index')->name('applicationDashboard');
                         Route::get('/modules', 'getAllApplicationModules')->name('getAllApplicationModules');
                         Route::get('/translator', 'getTranslatorModules')->name('getTranslatorModules');
+                        Route::get('/acl', 'getAclModule')->name('getAclModule');
                     });
             });
 

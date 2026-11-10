@@ -73,6 +73,7 @@ class Kernel extends HttpKernel
         'emptyWorkingDay'     => CheckIfAllWorkingDayHaveConstSite::class,
         'checkIfUSerIsActive' => CheckIfUserIsActive::class,
         's-admin-access-only' => \App\Http\Middleware\SAdminAccessOnly::class,
-        'only-local'          => \App\Http\Middleware\RestrictToLocal::class
+        'only-local'          => \App\Http\Middleware\RestrictToLocal::class,
+        'acl'                 => \App\Http\Middleware\AclAccess::class,
     ];
 }

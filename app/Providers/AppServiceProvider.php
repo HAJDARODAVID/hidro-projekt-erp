@@ -12,6 +12,8 @@ use App\View\Components\Ui\V2\Select;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Gate;
+use App\Services\Application\Acl\AclService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -34,6 +36,14 @@ class AppServiceProvider extends ServiceProvider
         // Register observers
         AppConfig::observe(AppConfigObserver::class);
         AppUserConfig::observe(AppUserConfigObserver::class);
+
+        // New ACL: every permission key from /app/acl works as a Gate ability
+        // (@can('payroll.view'), $user->can(...), ->middleware('can:...')).
+        // Abilities the ACL doesn't know fall through to the other gates/policies.
+        Gate::before(function ($user, string $ability) {
+            if (!AclService::isKnownPermission($ability)) return NULL;
+            return AclService::forUser($user)->can($ability) ? TRUE : NULL;
+        });
 
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();

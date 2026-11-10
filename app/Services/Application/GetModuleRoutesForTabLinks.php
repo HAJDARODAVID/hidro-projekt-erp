@@ -4,6 +4,7 @@ namespace App\Services\Application;
 
 use App\Models\Application\AppModule;
 use App\Models\Application\AppModuleRoute;
+use App\Services\Application\Acl\AclService;
 
 /**
  * Class GetModuleRoutes.
@@ -49,7 +50,10 @@ class GetModuleRoutesForTabLinks
     public function getRouteLinksArray()
     {
         $output = [];
+        $acl = AclService::current();
         foreach ($this->moduleRoutes as $route) {
+            /**Hide the tabs the user may not open (new ACL) */
+            if (!$acl->canRoute($route['route_name'])) continue;
             $output[$route['route_name']] = [
                 'title'         => $route['title'],
                 'divider'       => $route['divider'],
