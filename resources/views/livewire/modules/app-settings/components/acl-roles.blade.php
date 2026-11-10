@@ -18,8 +18,8 @@
                     @forelse ($roles as $role)
                         <x-ui.list-item :selected="$role['id'] === $selectedRole" wClickMethod="selectRole" wClickParam="{{ $role['id'] }}">
                             <x-slot:slotLeft>
-                                <div class="@if (!$role['active']) text-muted text-decoration-line-through @endif">{{ $role['name'] }}</div>
-                                <small class="text-muted">{{ $role['key'] }}</small>
+                                <div class="@if (!$role['active']) text-muted text-decoration-line-through @endif">{{ $role['key'] }}</div>
+                                <small class="text-muted">{{ $role['name'] }}</small>
                             </x-slot:slotLeft>
                             <x-slot:slotRight>
                                 <small class="text-muted" title="{{ translator('Permissions') }} / {{ translator('Users') }}">
