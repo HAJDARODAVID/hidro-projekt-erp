@@ -4,6 +4,9 @@ namespace App\Livewire\Modules\Employees\Components;
 
 use App\Exceptions\ErrorMessage;
 use App\Livewire\LivewireController;
+use Livewire\Attributes\Locked;
+use App\Services\Application\Acl\AclService;
+use App\Livewire\Modules\FinanceAccounting\Payroll;
 use App\Models\Employees\Worker;
 use App\Models\Payroll\Items;
 use App\Services\Payroll\GetWorkerPayrollInfoService;
@@ -17,6 +20,10 @@ class WorkerPayrollInfo extends LivewireController
     private const SAVEABLE_FIELDS = ['hourRate', 'fixRate', 'travelExpense', 'phoneExpense', 'bonus'];
 
     public $workerId;
+
+    /**Can the user change the payroll settings? Only for the view, the server checks again on every change. */
+    #[Locked]
+    public bool $canEdit = FALSE;
 
     /**
      * Payroll item of the worker to keep in sync with these settings. Optional: without
@@ -32,6 +39,7 @@ class WorkerPayrollInfo extends LivewireController
 
     public function mount()
     {
+        $this->canEdit = AclService::current()->can(Payroll::EDIT_PERMISSION);
         $this->loadPayrollInfo();
     }
 
@@ -50,6 +58,12 @@ class WorkerPayrollInfo extends LivewireController
         if (!in_array($property, self::SAVEABLE_FIELDS, TRUE)) return;
 
         $this->saved = [];
+
+        /**Disabled inputs can be bypassed in the browser, so check the permission again; without it throw the change away */
+        if (!AclService::current()->can(Payroll::EDIT_PERMISSION)) {
+            $this->loadPayrollInfo();
+            return $this->showException(translator('You are not allowed to change the payroll!'));
+        }
 
         try {
             $hourRate = $this->normalizeAmount($this->hourRate, translator('Enter a valid hourly rate.'));

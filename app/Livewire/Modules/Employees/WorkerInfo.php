@@ -12,6 +12,9 @@ use App\Livewire\Modules\Employees\Components\WorkerUserRights;
 
 class WorkerInfo extends LivewireController
 {
+    /**ACL permission needed to see the payroll tab */
+    public const PAYROLL_PERMISSION = 'employees.worker-info.payroll';
+
     #[Url('search')]
     public $workerSearch = NULL;
 
@@ -30,7 +33,8 @@ class WorkerInfo extends LivewireController
 
     /**
      * Tabs available for the selected worker. The user rights tab is only shown
-     * when the worker has an app user and the logged in user can assign roles.
+     * when the worker has an app user and the logged in user holds the ACL permission
+     * (the permission itself is checked by filterTabsByPermission()).
      *
      * @return array
      */
@@ -38,15 +42,11 @@ class WorkerInfo extends LivewireController
     {
         $tabs = [
             'basic-info' => translator('Basic info'),
-            'payroll-info' => translator('Payroll'),
+            'payroll-info' => ['title' => translator('Payroll'), 'permission' => self::PAYROLL_PERMISSION],
         ];
 
-        if (
-            $this->selectedWorker
-            && app('user_rights')->hasRight(WorkerUserRights::ASSIGN_ROLES_RIGHT)
-            && HasWorkerAppUserService::byWorkerID((int) $this->selectedWorker)->hasUser()
-        ) {
-            $tabs['user-right'] = translator('User rights');
+        if ($this->selectedWorker && HasWorkerAppUserService::byWorkerID((int) $this->selectedWorker)->hasUser()) {
+            $tabs['user-right'] = ['title' => translator('User rights'), 'permission' => WorkerUserRights::PERMISSION];
         }
 
         return $tabs;
@@ -59,19 +59,8 @@ class WorkerInfo extends LivewireController
      */
     private function refreshTabs(): void
     {
-        $this->tabs = $this->getAvailableTabs();
+        $this->tabs = $this->filterTabsByPermission($this->getAvailableTabs());
         if (!array_key_exists($this->activeTab, $this->tabs)) $this->activeTab = array_key_first($this->tabs);
-    }
-
-    /**
-     * Select a tab, only if it is available for the selected worker.
-     *
-     * @param string $tabID
-     * @return void
-     */
-    public function selectTab($tabID): void
-    {
-        if (array_key_exists($tabID, $this->tabs)) $this->activeTab = $tabID;
     }
 
     /**

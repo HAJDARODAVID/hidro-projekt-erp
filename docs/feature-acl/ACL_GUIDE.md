@@ -447,6 +447,27 @@ public function save()
 }
 ```
 
+### Tabs that need a permission (`setTabs()` / `<x-ui.nav-tabs />`)
+
+Components with `TabTrait` (every `LivewireController`) can mark a tab with a permission.
+Pass an array instead of a title:
+
+```php
+$this->setTabs([
+    'basic-info'   => translator('Basic info'),
+    'payroll-info' => ['title' => translator('Payroll'), 'permission' => 'employees.worker-info.payroll'],
+]);
+```
+
+- Users without the permission don't get the tab: it isn't rendered and can't be selected.
+- `$tabs` is `#[Locked]`, and `selectTab()` / `updatedActiveTab()` only accept tabs in
+  `$tabs`, so a hidden tab can't be opened from the browser either.
+- If you rebuild the tabs yourself, run them through `$this->filterTabsByPermission($tabs)`.
+- `<x-ui.nav-tabs />` doesn't change: it still gets `[key => title]`.
+- Hiding the tab is enough for the tab's content in **this** component. If the same child
+  component is used elsewhere (e.g. `worker-payroll-info` in the payroll modal), it isn't
+  protected there by this.
+
 ### Gate: what is and isn't handled
 
 The ACL hooks into the Gate with `Gate::before()` in `AppServiceProvider`:
@@ -605,9 +626,12 @@ deleted, the ACL rows stay but no longer do anything.
 Import the old ACL first, so the old keys (e.g. `can-assign-roles`) exist as permissions and
 the same keys keep working in the new checks.
 
+**Already on the new ACL:** *Employees → Worker info*: the **Payroll** tab
+(`employees.worker-info.payroll`), the **User rights** tab (`employees.worker-info.user-rights`,
+assigns new ACL roles) and editing the basic info (`employees.worker-info.edit`).
+
 **Still on the old ACL** (as of this writing): the old menu (`MenuService`), the old HR
-worker tabs, the `/adm/acl` screen, and the **User rights** tab of *Employees → Worker info*
-(`WorkerUserRights`).
+worker tabs and the `/adm/acl` screen.
 
 ## 18. Limitations and things to know
 

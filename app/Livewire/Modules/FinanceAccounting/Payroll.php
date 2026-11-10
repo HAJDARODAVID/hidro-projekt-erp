@@ -6,6 +6,8 @@ use App\Services\Years;
 use App\Services\Months;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Locked;
+use App\Services\Application\Acl\AclService;
 use App\Exceptions\ErrorMessage;
 use App\Exports\Payroll\PayrollExport;
 use App\Livewire\LivewireController;
@@ -16,6 +18,13 @@ use App\Services\Payroll\UpdatePayrollItemService;
 
 class Payroll extends LivewireController
 {
+    /**ACL permission needed to change the payroll values (hourly rate, expenses, bonus) */
+    public const EDIT_PERMISSION = 'finance.payroll.edit';
+
+    /**Can the user change the payroll values? Only for the view, the server checks again on every change. */
+    #[Locked]
+    public bool $canEdit = FALSE;
+
     public $months = [];
     public $years = [];
 
@@ -37,6 +46,7 @@ class Payroll extends LivewireController
 
     public function mount()
     {
+        $this->canEdit = AclService::current()->can(self::EDIT_PERMISSION);
         $this->months = Months::MONTHS_HR;
         $this->selectedMonth = $this->selectedMonth == NULL ? date('n') : $this->selectedMonth;
 
@@ -67,6 +77,13 @@ class Payroll extends LivewireController
     public function updatedData($value, $key)
     {
         $this->saved = [];
+
+        /**Disabled inputs can be bypassed in the browser, so check the permission again; without it throw the change away */
+        if (!AclService::current()->can(self::EDIT_PERMISSION)) {
+            $this->getPayrollData();
+            return $this->showException(translator('You are not allowed to change the payroll!'));
+        }
+
         [$workerID, $field] = explode('.', $key);
         $workerID = (int) $workerID;
 
