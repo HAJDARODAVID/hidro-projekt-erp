@@ -16,6 +16,14 @@ use Illuminate\Support\Facades\File;
 class CustomizeService
 {
     /**
+     * Files already read in this process: [path => [version, data]].
+     * No Redis / Laravel cache on purpose: the file is tiny and an edit must show at once.
+     * The version (modified time + size) is checked on every get(), so an edited file is
+     * read again, also in long running processes (queue workers, Octane).
+     */
+    private static array $memo = [];
+
+    /**
      * The active company (= folder name).
      * Today from APP_COMPANY in .env (config/customize.php), later from the company table:
      * this is the only place that has to change for that.
@@ -66,14 +74,24 @@ class CustomizeService
     public static function get(string $name, ?string $company = NULL): ?array
     {
         $path = self::filePath($name, $company);
-        if (!File::exists($path)) return NULL;
+        clearstatcache(TRUE, $path);
+        if (!File::exists($path)) {
+            unset(self::$memo[$path]);
+            return NULL;
+        }
+
+        /**Same file version (modified time + size) as last read: reuse it, no new read / parse */
+        $version = filemtime($path) . ':' . filesize($path);
+        if (isset(self::$memo[$path]) && self::$memo[$path][0] === $version) return self::$memo[$path][1];
 
         $data = json_decode(File::get($path), TRUE);
         if (!is_array($data)) {
+            unset(self::$memo[$path]);
             throw new \RuntimeException('Customization file is not valid JSON: ' . str_replace(base_path() . DIRECTORY_SEPARATOR, '', $path) . ' (' . json_last_error_msg() . ')');
         }
 
         unset($data['$comment']);
+        self::$memo[$path] = [$version, $data];
         return $data;
     }
 

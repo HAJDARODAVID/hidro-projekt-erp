@@ -90,16 +90,37 @@ class WorkplaceFieldsConfigService
      * Custom fields (customize "custom") are stored in workplaces.custom_fields (JSON).
      */
     public const COLUMNS = [
-        'key' => 'key', 'name' => 'name', 'department' => 'department', 'reportsTo' => 'reports_to_id', 'nkz' => 'nkz',
-        'description' => 'description', 'headcount' => 'headcount', 'active' => 'status',
-        'contractType' => 'contract_type', 'duration' => 'duration_months', 'probation' => 'probation_months',
-        'notice' => 'notice_days', 'weeklyHours' => 'weekly_hours', 'schedule' => 'schedule', 'location' => 'location',
+        'key' => 'key',
+        'name' => 'name',
+        'department' => 'department',
+        'reportsTo' => 'reports_to_id',
+        'nkz' => 'nkz',
+        'description' => 'description',
+        'headcount' => 'headcount',
+        'active' => 'status',
+        'contractType' => 'contract_type',
+        'duration' => 'duration_months',
+        'probation' => 'probation_months',
+        'notice' => 'notice_days',
+        'weeklyHours' => 'weekly_hours',
+        'schedule' => 'schedule',
+        'location' => 'location',
         'specialConditions' => 'special_conditions',
-        'education' => 'education', 'experience' => 'experience_years', 'licences' => 'licences',
-        'safetyTraining' => 'safety_training', 'medicalCheck' => 'medical_check_months', 'ppe' => 'ppe',
-        'payGrade' => 'pay_grade', 'hourRate' => ['min' => 'hour_rate_min', 'max' => 'hour_rate_max'], 'fixRate' => 'fix_rate',
-        'fieldBonus' => 'field_bonus', 'homeBonus' => 'home_bonus', 'travelExpense' => 'travel_expense',
-        'phoneExpense' => 'phone_expense', 'monthlyBonus' => 'monthly_bonus', 'overtime' => 'overtime',
+        'education' => 'education',
+        'experience' => 'experience_years',
+        'licences' => 'licences',
+        'safetyTraining' => 'safety_training',
+        'medicalCheck' => 'medical_check_months',
+        'ppe' => 'ppe',
+        'payGrade' => 'pay_grade',
+        'hourRate' => ['min' => 'hour_rate_min', 'max' => 'hour_rate_max'],
+        'fixRate' => 'fix_rate',
+        'fieldBonus' => 'field_bonus',
+        'homeBonus' => 'home_bonus',
+        'travelExpense' => 'travel_expense',
+        'phoneExpense' => 'phone_expense',
+        'monthlyBonus' => 'monthly_bonus',
+        'overtime' => 'overtime',
     ];
 
     /**Limits of number fields: field => [min, max, integer] (they also fit the column) */
@@ -187,15 +208,29 @@ class WorkplaceFieldsConfigService
         /**2. The company's own fields */
         $no = count(self::CATALOG);
         foreach ((array) ($config['custom'] ?? []) as $field => $custom) {
-            if (isset($definitions[$field])) { $warnings[] = "custom.$field: a field with this name exists, use fields.$field to change it."; continue; }
+            if (isset($definitions[$field])) {
+                $warnings[] = "custom.$field: a field with this name exists, use fields.$field to change it.";
+                continue;
+            }
             $type = $custom['type'] ?? 'text';
-            if (!in_array($type, self::FIELD_TYPES, TRUE)) { $warnings[] = "custom.$field: unknown type \"$type\", ignored."; continue; }
+            if (!in_array($type, self::FIELD_TYPES, TRUE)) {
+                $warnings[] = "custom.$field: unknown type \"$type\", ignored.";
+                continue;
+            }
             $tab = $custom['tab'] ?? 'basic';
-            if (!isset(self::TABS[$tab]) || $tab === 'workers') { $warnings[] = "custom.$field: unknown tab \"$tab\", ignored."; continue; }
+            if (!isset(self::TABS[$tab]) || $tab === 'workers') {
+                $warnings[] = "custom.$field: unknown tab \"$tab\", ignored.";
+                continue;
+            }
             $definitions[$field] = [
-                'no' => ++$no, 'tab' => $tab, 'type' => $type, 'label' => $custom['label'] ?? $field,
-                'options' => $custom['options'] ?? NULL, 'help' => $custom['help'] ?? NULL,
-                'required' => (bool) ($custom['required'] ?? FALSE), 'custom' => TRUE,
+                'no' => ++$no,
+                'tab' => $tab,
+                'type' => $type,
+                'label' => $custom['label'] ?? $field,
+                'options' => $custom['options'] ?? NULL,
+                'help' => $custom['help'] ?? NULL,
+                'required' => (bool) ($custom['required'] ?? FALSE),
+                'custom' => TRUE,
             ];
         }
 
@@ -213,7 +248,10 @@ class WorkplaceFieldsConfigService
                 continue;
             }
             if ($change === FALSE) {
-                if (in_array($field, self::CORE_FIELDS, TRUE)) { $warnings[] = "fields.$field: core field, can't be hidden."; continue; }
+                if (in_array($field, self::CORE_FIELDS, TRUE)) {
+                    $warnings[] = "fields.$field: core field, can't be hidden.";
+                    continue;
+                }
                 unset($definitions[$field]);
                 continue;
             }
@@ -231,9 +269,15 @@ class WorkplaceFieldsConfigService
         /**5. Tabs: hide / rename */
         $tabs = self::TABS;
         foreach ((array) ($config['tabs'] ?? []) as $tab => $change) {
-            if (!isset($tabs[$tab])) { $warnings[] = "tabs.$tab: unknown tab."; continue; }
+            if (!isset($tabs[$tab])) {
+                $warnings[] = "tabs.$tab: unknown tab.";
+                continue;
+            }
             if ($change === FALSE) {
-                if ($tab === 'basic') { $warnings[] = 'tabs.basic: holds the core fields, can\'t be hidden.'; continue; }
+                if ($tab === 'basic') {
+                    $warnings[] = 'tabs.basic: holds the core fields, can\'t be hidden.';
+                    continue;
+                }
                 unset($tabs[$tab]);
             } elseif (is_array($change) && isset($change['label'])) {
                 $tabs[$tab] = $change['label'];
@@ -244,10 +288,13 @@ class WorkplaceFieldsConfigService
         $fields = [];
         foreach ($tabs as $tab => $label) {
             if ($tab === 'workers') continue;
-            $inTab = array_filter($definitions, fn ($definition) => $definition['tab'] === $tab);
+            $inTab = array_filter($definitions, fn($definition) => $definition['tab'] === $tab);
             $order = array_values(array_intersect((array) ($config['order'][$tab] ?? []), array_keys($inTab)));
             $inTab = array_replace(array_flip($order), $inTab);
-            if (empty($inTab)) { unset($tabs[$tab]); continue; }
+            if (empty($inTab)) {
+                unset($tabs[$tab]);
+                continue;
+            }
             $fields[$tab] = $inTab;
         }
 

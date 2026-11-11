@@ -1,3 +1,9 @@
 {
-    "$comment": "Hidro-projekt: no restrictions yet, every workplace field is shown. Format: customize/README.md, example: customize/_example/workplace_fields.json"
+    "$comment": "Hidro-projekt. Format: customize/README.md, example: customize/_example/workplace_fields.json",
+
+    "fields": {
+        "headcount": false,
+        "nkz": false,
+        "reportsTo": false
+    }
 }

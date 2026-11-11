@@ -24,11 +24,11 @@ class WorkplacesInfo extends LivewireController
     public const EDIT_PERMISSION = 'employees.workplaces.edit';
 
     #[Url('search')]
-    public $workplaceSearch = NULL;
+    public $workplaceSearch = null;
 
     /**Selected workplace (ID) */
     #[Url('workplace')]
-    public $selectedWorkplace = NULL;
+    public $selectedWorkplace = null;
 
     /**Workplaces for the list */
     public $list = [];
@@ -49,7 +49,7 @@ class WorkplacesInfo extends LivewireController
     public function mount()
     {
         $this->canEdit = AclService::current()->can(self::EDIT_PERMISSION);
-        $this->setTabs(array_map(fn ($label) => translator($label), $this->fieldsService()->resolve()['tabs']));
+        $this->setTabs(array_map(fn($label) => translator($label), $this->fieldsService()->resolve()['tabs']));
         $this->getList();
 
         if ($this->selectedWorkplace) $this->loadForm((int) $this->selectedWorkplace);
@@ -62,13 +62,13 @@ class WorkplacesInfo extends LivewireController
 
     private function getList(): void
     {
-        $this->list = GetWorkplacesService::list($this->workplaceSearch ?: NULL);
+        $this->list = GetWorkplacesService::list($this->workplaceSearch ?: null);
     }
 
     private function loadForm(int $id): void
     {
         $form = GetWorkplacesService::form($id);
-        if ($form === NULL) {
+        if ($form === null) {
             $this->reset('selectedWorkplace', 'form');
             return;
         }
@@ -79,7 +79,7 @@ class WorkplacesInfo extends LivewireController
 
     public function updatedWorkplaceSearch($value): void
     {
-        if ($value === '') $this->workplaceSearch = NULL;
+        if ($value === '') $this->workplaceSearch = null;
         $this->getList();
     }
 
@@ -144,11 +144,11 @@ class WorkplacesInfo extends LivewireController
             return $this->showException(translator('You are not allowed to change the workplaces!'));
         }
 
-        $service = (new ManageWorkplaceService())->updateField((int) $this->selectedWorkplace, $field, $this->form[$field] ?? NULL);
+        $service = (new ManageWorkplaceService())->updateField((int) $this->selectedWorkplace, $field, $this->form[$field] ?? null);
 
         if (!$service->getResponseStatus()) {
             /**Show the saved value again */
-            $this->form[$field] = GetWorkplacesService::form((int) $this->selectedWorkplace)[$field] ?? NULL;
+            $this->form[$field] = GetWorkplacesService::form((int) $this->selectedWorkplace)[$field] ?? null;
             $this->saved[$savedKey] = FALSE;
             return $this->showException($service->getResponse()['message']);
         }
@@ -176,7 +176,7 @@ class WorkplacesInfo extends LivewireController
         $fieldsService = $this->fieldsService();
         $resolved = $fieldsService->resolve();
         $companyConfig = $fieldsService->getCompanyConfig();
-        $selected = $this->selectedWorkplace ? collect($this->list)->firstWhere('id', (int) $this->selectedWorkplace) : NULL;
+        $selected = $this->selectedWorkplace ? collect($this->list)->firstWhere('id', (int) $this->selectedWorkplace) : null;
 
         return view('livewire.modules.employees.workplaces-info', [
             'fields'          => $resolved['fields'],
@@ -186,7 +186,7 @@ class WorkplacesInfo extends LivewireController
             'workers'         => ($this->selectedWorkplace && $this->activeTab === 'workers') ? GetWorkplacesService::workers((int) $this->selectedWorkplace) : [],
             'company'         => CustomizeService::currentCompany(),
             'companyFile'     => str_replace([base_path() . DIRECTORY_SEPARATOR, '\\'], ['', '/'], $fieldsService->companyFilePath()),
-            'configJson'      => empty($companyConfig) ? NULL : json_encode($companyConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'configJson'      => empty($companyConfig) ? null : json_encode($companyConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             'fieldCount'      => array_sum(array_map('count', $resolved['fields'])),
         ]);
     }
