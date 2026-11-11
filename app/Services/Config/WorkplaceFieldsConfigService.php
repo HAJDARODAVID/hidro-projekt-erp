@@ -123,6 +123,14 @@ class WorkplaceFieldsConfigService
         'overtime' => 'overtime',
     ];
 
+    /**Max. length of one option (select / checks): it has to fit the column. Default: OPTION_MAX_LENGTH */
+    public const OPTION_MAX_LENGTHS = ['payGrade' => 20];
+
+    public const OPTION_MAX_LENGTH = 255;
+
+    /**Max. number of options of one field */
+    public const OPTIONS_MAX = 100;
+
     /**Limits of number fields: field => [min, max, integer] (they also fit the column) */
     public const NUMBER_LIMITS = [
         'headcount'     => [0, 9999, TRUE],

@@ -76,10 +76,19 @@
                             <x-ui.nav-tabs :tabs=$tabs :selectedTab=$activeTab py=1 />
                         </div>
                     </x-slot:title>
-                    @if ($selected && $canEdit)
+                    @if (($selected && $canEdit) || $isSuperAdmin)
                         <x-slot:headerActions>
-                            <x-ui.btn type="dan.sm" icon="trash" action="deleteWorkplace" title="{{ translator('Delete workplace') }}"
-                                wire:confirm="{{ translator('Delete the workplace? Only possible when no worker is on it, otherwise switch it off.') }}" />
+                            <div class="d-flex gap-1">
+                                @if ($isSuperAdmin)
+                                    <div title="{{ translator('Customize the workplace fields (super admin)') }}">
+                                        <x-ui.modal.modal-open-btn btnType="lig.sm" icon="gear" targetComponent="workplace-fields-configurator" />
+                                    </div>
+                                @endif
+                                @if ($selected && $canEdit)
+                                    <x-ui.btn type="dan.sm" icon="trash" action="deleteWorkplace" title="{{ translator('Delete workplace') }}"
+                                        wire:confirm="{{ translator('Delete the workplace? Only possible when no worker is on it, otherwise switch it off.') }}" />
+                                @endif
+                            </div>
                         </x-slot:headerActions>
                     @endif
 

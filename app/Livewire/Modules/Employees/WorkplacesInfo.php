@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Modules\Employees;
 
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Locked;
+use App\Livewire\Modules\Employees\Components\WorkplaceFieldsConfigurator;
 use App\Livewire\LivewireController;
 use App\Services\Application\CustomizeService;
 use App\Services\Application\Acl\AclService;
@@ -46,12 +48,36 @@ class WorkplacesInfo extends LivewireController
     #[Locked]
     public bool $canEdit = FALSE;
 
+    /**Super admin: sees the configurator of the fields (WorkplaceFieldsConfigurator). Only for the view, it checks again itself. */
+    #[Locked]
+    public bool $isSuperAdmin = FALSE;
+
     public function mount()
     {
-        $this->canEdit = AclService::current()->can(self::EDIT_PERMISSION);
-        $this->setTabs(array_map(fn($label) => translator($label), $this->fieldsService()->resolve()['tabs']));
+        $acl = AclService::current();
+        $this->canEdit = $acl->can(self::EDIT_PERMISSION);
+        $this->isSuperAdmin = $acl->isSuperAdmin();
+        $this->loadTabs();
         $this->getList();
 
+        if ($this->selectedWorkplace) $this->loadForm((int) $this->selectedWorkplace);
+    }
+
+    private function loadTabs(): void
+    {
+        $this->setTabs(array_map(fn($label) => translator($label), $this->fieldsService()->resolve()['tabs']));
+    }
+
+    /**
+     * The configurator saved the company's file: tabs / fields may have changed.
+     * The open tab stays when it still exists.
+     */
+    #[On(WorkplaceFieldsConfigurator::SAVED_EVENT)]
+    public function fieldsCustomized(): void
+    {
+        $activeTab = $this->activeTab;
+        $this->loadTabs();
+        $this->selectTab($activeTab);
         if ($this->selectedWorkplace) $this->loadForm((int) $this->selectedWorkplace);
     }
 

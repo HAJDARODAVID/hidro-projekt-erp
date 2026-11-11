@@ -74,4 +74,11 @@ return [
         'header-style' => null,
         'max-width' => '550px',
     ],
+    'workplace-fields-configurator' => [
+        // Super admin only (the component checks it itself)
+        'component-path' => 'modules.employees.components.workplace-fields-configurator',
+        'header-name' => 'Workplace fields - customization',
+        'header-style' => null,
+        'max-width' => '1300px',
+    ],
 ];
