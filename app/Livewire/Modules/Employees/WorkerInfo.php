@@ -16,6 +16,13 @@ class WorkerInfo extends LivewireController
     /**ACL permission needed to see the payroll tab */
     public const PAYROLL_PERMISSION = 'employees.worker-info.payroll';
 
+    /**Event of the "new worker" modal (CreateWorkerModal) after a worker is created */
+    public const CREATED_EVENT = 'worker-created';
+
+    /**Can the user create workers? Only for the button, CreateWorkerModal checks again. */
+    #[\Livewire\Attributes\Locked]
+    public bool $canCreate = FALSE;
+
     #[Url('search')]
     public $workerSearch = NULL;
 
@@ -28,6 +35,7 @@ class WorkerInfo extends LivewireController
 
     public function mount()
     {
+        $this->canCreate = \App\Services\Application\Acl\AclService::current()->can(Components\CreateWorkerModal::PERMISSION);
         $this->setTabs($this->getAvailableTabs());
         $this->getWorkers();
     }
@@ -110,6 +118,22 @@ class WorkerInfo extends LivewireController
     public function refreshWorkers(): void
     {
         $this->getWorkers();
+    }
+
+    /**
+     * A worker was created in the "new worker" modal: show it in the list (search cleared) and select it.
+     *
+     * @param int $id
+     * @return void
+     */
+    #[On(self::CREATED_EVENT)]
+    public function workerCreated($id): void
+    {
+        $this->reset('workerSearch');
+        $this->getWorkers();
+        $this->selectedWorker = (int) $id;
+        $this->refreshTabs();
+        $this->activeTab = array_key_first($this->tabs);
     }
 
     /**

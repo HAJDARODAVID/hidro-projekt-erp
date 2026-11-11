@@ -74,6 +74,13 @@ return [
         'header-style' => null,
         'max-width' => '550px',
     ],
+    'create-worker' => [
+        // ACL employees.worker-info.create (the component checks it itself)
+        'component-path' => 'modules.employees.components.create-worker-modal',
+        'header-name' => 'New worker',
+        'header-style' => null,
+        'max-width' => '650px',
+    ],
     'workplace-fields-configurator' => [
         // Super admin only (the component checks it itself)
         'component-path' => 'modules.employees.components.workplace-fields-configurator',

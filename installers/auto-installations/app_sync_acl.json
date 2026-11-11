@@ -4,6 +4,17 @@
     "data": {
         "permissions": [
             {
+                "id": "f1f54fdf-a2aa-48a9-9039-7d376211be9e",
+                "key": "employees.worker-info.create",
+                "name": "Create new worker",
+                "description": null,
+                "module": {
+                    "id": "f009bafd-6a7d-4fc0-b54f-8551dea0a593",
+                    "module": "employees"
+                },
+                "route": null
+            },
+            {
                 "id": "f251bc6f-52a3-40c2-aca9-48b08cb65161",
                 "key": "employees.worker-info.edit",
                 "name": "Edit worker info",
@@ -29,6 +40,28 @@
                 "id": "8903c9be-eba5-45d8-baa7-c0f9155b4bab",
                 "key": "employees.worker-info.user-rights",
                 "name": "Add roles to user",
+                "description": null,
+                "module": {
+                    "id": "f009bafd-6a7d-4fc0-b54f-8551dea0a593",
+                    "module": "employees"
+                },
+                "route": null
+            },
+            {
+                "id": "64562a73-7dea-4cfe-baec-8b167cdbb63d",
+                "key": "employees.workplaces.create",
+                "name": "Create new workplace",
+                "description": null,
+                "module": {
+                    "id": "f009bafd-6a7d-4fc0-b54f-8551dea0a593",
+                    "module": "employees"
+                },
+                "route": null
+            },
+            {
+                "id": "9759f0b4-af1b-4e68-b9a2-d659d7ac0fa7",
+                "key": "employees.workplaces.edit",
+                "name": "Edit workplace",
                 "description": null,
                 "module": {
                     "id": "f009bafd-6a7d-4fc0-b54f-8551dea0a593",
@@ -91,8 +124,11 @@
                 "description": null,
                 "active": true,
                 "permissions": [
+                    "employees.worker-info.create",
                     "employees.worker-info.edit",
-                    "employees.worker-info.payroll"
+                    "employees.worker-info.payroll",
+                    "employees.workplaces.create",
+                    "employees.workplaces.edit"
                 ]
             }
         ]

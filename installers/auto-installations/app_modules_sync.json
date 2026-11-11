@@ -74,7 +74,7 @@
                         "title": "Radna mjesta",
                         "route_name": "getWorkplacesInfo",
                         "method": "getWorkplacesInfo",
-                        "active": false,
+                        "active": true,
                         "resource": null,
                         "position": 3,
                         "divider": null

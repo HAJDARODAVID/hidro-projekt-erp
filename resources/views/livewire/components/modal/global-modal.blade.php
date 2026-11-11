@@ -24,7 +24,10 @@
             $wire.clearComponent();
         }
     }"
-    @global-modal-open-overlay.window="isOpen = true; beforeCloseMethod = $event.detail.beforeClose ?? null"
+    {{-- The browser ignores autofocus in content added after the page load (and the overlay is still hidden then),
+         so focus the first [autofocus] field of the opened component once the overlay is shown --}}
+    @global-modal-open-overlay.window="isOpen = true; beforeCloseMethod = $event.detail.beforeClose ?? null;
+        $nextTick(() => requestAnimationFrame(() => $refs.modalBody?.querySelector('[autofocus]')?.focus()))"
     @keydown.window.escape="if (isOpen) close()"
 >
     <style>

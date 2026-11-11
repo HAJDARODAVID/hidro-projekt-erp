@@ -4,7 +4,17 @@
         <div class="row flex-fill g-0 gap-3">
             <div class="col-md-3 d-flex flex-column">
                 <x-ui.card title="{{ translator('Workers') }}" class="flex-fill d-flex flex-column">
-                    <x-slot:headerActions></x-slot:headerActions>
+                    <x-slot:headerActions>
+                        @if ($canCreate)
+                            <div title="{{ translator('New worker') }}">
+                                <x-ui.modal.modal-open-btn btnType="suc.sm" icon="person-plus" targetComponent="create-worker" />
+                            </div>
+                        @else
+                            <div title="{{ translator('You are not allowed to create workers!') }}">
+                                <x-ui.btn type="suc.sm" icon="person-plus" :disabled=TRUE />
+                            </div>
+                        @endif
+                    </x-slot:headerActions>
                     <x-ui.input size="sm" placeholder="{{ translator('Search') }}" wModel="workerSearch" wModelEvent="live.debounce.250ms" :removeAddOnXP=TRUE>
                         @if ($workerSearch != NULL || $workerSearch != "")
                             <x-slot:append>

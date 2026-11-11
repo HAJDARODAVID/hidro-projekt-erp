@@ -702,7 +702,8 @@ the same keys keep working in the new checks.
 
 **Already on the new ACL:** *Employees → Worker info*: the **Payroll** tab
 (`employees.worker-info.payroll`), the **User rights** tab (`employees.worker-info.user-rights`,
-assigns new ACL roles) and editing the basic info (`employees.worker-info.edit`).
+assigns new ACL roles), editing the basic info (`employees.worker-info.edit`) and creating
+workers with the "new worker" modal (`employees.worker-info.create`).
 *Employees → Workplaces*: creating workplaces (`employees.workplaces.create`), changing and deleting
 them (`employees.workplaces.edit`). Without them the inputs are shown disabled.
 *Finance → Payroll*: changing the payroll values (`finance.payroll.edit`).
