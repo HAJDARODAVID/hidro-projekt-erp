@@ -1,10 +1,11 @@
 <div {{ $attributes->merge(['class' => 'card '. $extendClassAtt . ' ' . $border . ' ' . $noBgColor, 'style'=>"border-radius: 0px;"]) }}>
     @if($title || $headerActions) 
         <div class="card-header" style="@if($headerHight) height: {{$headerHight}}px; @endif">
-            <div class="d-flex justify-content-between">
-                <div class="">{{ $title }}</div>
+            <div class="d-flex justify-content-between gap-2">
+                {{-- min-width 0: a long title can shrink (text-truncate) instead of pushing the actions out --}}
+                <div class="" style="min-width: 0">{{ $title }}</div>
                 @if ($headerActions)
-                    <div class="">{{ $headerActions }}</div>
+                    <div class="flex-shrink-0">{{ $headerActions }}</div>
                 @endif
             </div>
         </div>

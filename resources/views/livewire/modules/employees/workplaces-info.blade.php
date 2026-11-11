@@ -27,15 +27,15 @@
             <div class="col-md-3 d-flex flex-column">
                 <x-ui.card title="{{ translator('Workplaces (contracts)') }}" class="flex-fill d-flex flex-column">
                     <x-slot:headerActions>
-                        <x-ui.btn type="lig.sm" icon="braces" action="toggleConfig" title="{{ translator('Customization of the fields') }}" />
+                        @if ($isSuperAdmin)
+                            <x-ui.btn type="lig.sm" icon="braces" action="toggleConfig" title="{{ translator('Customization of the fields') }}" />
+                        @endif
                     </x-slot:headerActions>
-                    @if ($canEdit)
-                        <div class="d-flex gap-1 mb-2">
-                            <x-ui.input size="sm" placeholder="{{ translator('Name') }}" wModel="newWorkplace.name" />
-                            <x-ui.input size="sm" placeholder="{{ translator('KEY') }}" wModel="newWorkplace.key" />
-                            <x-ui.btn type="suc.sm" icon="add" action="createWorkplace" title="{{ translator('Create workplace') }}" />
-                        </div>
-                    @endif
+                    <div class="d-flex gap-1 mb-2" @if (!$canCreate) title="{{ translator('You are not allowed to create workplaces!') }}" @endif>
+                        <x-ui.input size="sm" placeholder="{{ translator('Name') }}" wModel="newWorkplace.name" :disabled="!$canCreate" />
+                        <x-ui.input size="sm" placeholder="{{ translator('KEY') }}" wModel="newWorkplace.key" :disabled="!$canCreate" />
+                        <x-ui.btn type="suc.sm" icon="add" action="createWorkplace" title="{{ translator('Create workplace') }}" :disabled="!$canCreate" />
+                    </div>
                     <x-ui.input size="sm" placeholder="{{ translator('Search') }}" wModel="workplaceSearch" wModelEvent="live.debounce.250ms" :removeAddOnXP=TRUE>
                         @if ($workplaceSearch)
                             <x-slot:append><x-ui.btn type="lig.sm" icon="trash" action="resetWorkplaceSearch" /></x-slot:append>
@@ -47,8 +47,8 @@
                             @forelse ($list as $workplace)
                                 <x-ui.list-item :selected="$workplace['id'] == $selectedWorkplace" wClickMethod="selectWorkplace" wClickParam="{{ $workplace['id'] }}">
                                     <x-slot:slotLeft>
-                                        <div class="@if (!$workplace['status']) text-muted text-decoration-line-through @endif">{{ $workplace['key'] }}</div>
-                                        <small class="text-muted">{{ $workplace['name'] }}</small>
+                                        <div class="text-truncate @if (!$workplace['status']) text-muted text-decoration-line-through @endif" title="{{ $workplace['key'] }}">{{ $workplace['key'] }}</div>
+                                        <small class="d-block text-truncate text-muted" title="{{ $workplace['name'] }}">{{ $workplace['name'] }}</small>
                                     </x-slot:slotLeft>
                                     <x-slot:slotRight>
                                         @php $filled = (int) $workplace['workers_count']; $planned = (int) $workplace['headcount']; @endphp
@@ -71,9 +71,13 @@
                 <x-ui.card class="flex-fill d-flex flex-column" headerHight=48 loading="selectWorkplace, selectTab, deleteWorkplace">
                     <x-slot:title>
                         <div class="d-flex gap-2 align-items-center">
-                            <div class="text-nowrap">{{ translator('Workplace settings') }}@if ($selected): <span class="fw-bold">{{ $selected['key'] }} - {{ $selected['name'] }}</span>@endif</div>
-                            <x-v-divider class="align-self-stretch" />
-                            <x-ui.nav-tabs :tabs=$tabs :selectedTab=$activeTab py=1 />
+                            {{-- A long key / name is cut with "..." (whole text on hover), the tabs keep their place --}}
+                            <div class="text-truncate" style="min-width: 0"
+                                @if ($selected) title="{{ $selected['key'] }} - {{ $selected['name'] }}" @endif>
+                                {{ translator('Workplace settings') }}@if ($selected): <span class="fw-bold">{{ $selected['key'] }} - {{ $selected['name'] }}</span>@endif
+                            </div>
+                            <x-v-divider class="align-self-stretch flex-shrink-0" />
+                            <div class="flex-shrink-0"><x-ui.nav-tabs :tabs=$tabs :selectedTab=$activeTab py=1 /></div>
                         </div>
                     </x-slot:title>
                     @if (($selected && $canEdit) || $isSuperAdmin)

@@ -22,7 +22,10 @@ use App\Services\Employees\Workplaces\ManageWorkplaceService;
  */
 class WorkplacesInfo extends LivewireController
 {
-    /**ACL permission needed to create, change and delete workplaces */
+    /**ACL permission needed to create workplaces */
+    public const CREATE_PERMISSION = 'employees.workplaces.create';
+
+    /**ACL permission needed to change and delete workplaces */
     public const EDIT_PERMISSION = 'employees.workplaces.edit';
 
     #[Url('search')]
@@ -48,6 +51,10 @@ class WorkplacesInfo extends LivewireController
     #[Locked]
     public bool $canEdit = FALSE;
 
+    /**Can the user create workplaces? Only for the view, createWorkplace() checks again. */
+    #[Locked]
+    public bool $canCreate = FALSE;
+
     /**Super admin: sees the configurator of the fields (WorkplaceFieldsConfigurator). Only for the view, it checks again itself. */
     #[Locked]
     public bool $isSuperAdmin = FALSE;
@@ -56,6 +63,7 @@ class WorkplacesInfo extends LivewireController
     {
         $acl = AclService::current();
         $this->canEdit = $acl->can(self::EDIT_PERMISSION);
+        $this->canCreate = $acl->can(self::CREATE_PERMISSION);
         $this->isSuperAdmin = $acl->isSuperAdmin();
         $this->loadTabs();
         $this->getList();
@@ -142,7 +150,7 @@ class WorkplacesInfo extends LivewireController
 
     public function createWorkplace()
     {
-        if (!AclService::current()->can(self::EDIT_PERMISSION)) return $this->showException(translator('You are not allowed to change the workplaces!'));
+        if (!AclService::current()->can(self::CREATE_PERMISSION)) return $this->showException(translator('You are not allowed to create workplaces!'));
 
         $service = (new ManageWorkplaceService())->create((string) $this->newWorkplace['key'], (string) $this->newWorkplace['name']);
         if (!$service->getResponseStatus()) return $this->showException($service->getResponse()['message']);

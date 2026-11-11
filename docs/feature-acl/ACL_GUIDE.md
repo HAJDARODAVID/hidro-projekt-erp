@@ -703,7 +703,8 @@ the same keys keep working in the new checks.
 **Already on the new ACL:** *Employees → Worker info*: the **Payroll** tab
 (`employees.worker-info.payroll`), the **User rights** tab (`employees.worker-info.user-rights`,
 assigns new ACL roles) and editing the basic info (`employees.worker-info.edit`).
-*Employees → Workplaces*: creating, changing and deleting workplaces (`employees.workplaces.edit`).
+*Employees → Workplaces*: creating workplaces (`employees.workplaces.create`), changing and deleting
+them (`employees.workplaces.edit`). Without them the inputs are shown disabled.
 *Finance → Payroll*: changing the payroll values (`finance.payroll.edit`).
 
 **Still on the old ACL** (as of this writing): the old menu (`MenuService`), the old HR
