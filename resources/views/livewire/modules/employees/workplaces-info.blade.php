@@ -105,14 +105,16 @@
                                     {{ collect($workers)->where('employed', TRUE)->count() }} {{ translator('employed') }}@if ($selected['headcount']) / {{ $selected['headcount'] }} {{ translator('planned') }}@endif
                                 </small>
                             </div>
-                            <table class="table table-sm align-middle">
-                                <thead>
+                            <div class="flex-fill position-relative" style="min-height: 200px">
+                            <div class="position-absolute top-0 start-0 end-0 bottom-0 overflow-auto">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="bg-white" style="position: sticky; top: 0; z-index: 1">
                                     <tr>
-                                        <th style="width: 70px">#</th>
-                                        <th>{{ translator('Worker') }}</th>
-                                        <th>{{ translator('Status') }}</th>
-                                        <th>{{ translator('Date of employment') }}</th>
-                                        <th>{{ translator('Contract expiration') }}</th>
+                                        <th class="bg-white" style="width: 70px">#</th>
+                                        <th class="bg-white">{{ translator('Worker') }}</th>
+                                        <th class="bg-white">{{ translator('Status') }}</th>
+                                        <th class="bg-white">{{ translator('Date of employment') }}</th>
+                                        <th class="bg-white">{{ translator('Contract expiration') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -135,7 +137,9 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <small class="text-muted">{{ translator('Workers get their workplace in Employees - Worker info.') }}</small>
+                            </div>
+                            </div>
+                            <small class="text-muted mt-2">{{ translator('Workers get their workplace in Employees - Worker info.') }}</small>
                         @else
                             {{-- Fields of the selected tab --}}
                             <div class="row g-3">
