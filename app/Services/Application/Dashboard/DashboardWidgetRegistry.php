@@ -73,7 +73,7 @@ class DashboardWidgetRegistry
                     'period' => [
                         'label'   => 'Period',
                         'type'    => 'select',
-                        'options' => ['24h' => 'Last 24 hours', '7d' => 'Last 7 days', '30d' => 'Last 30 days'],
+                        'options' => ['24h' => 'Last 24 hours', '7d' => 'Last 7 days', '30d' => 'Last 30 days', 'all' => 'All time'],
                         'default' => '24h',
                     ],
                     'limit' => [

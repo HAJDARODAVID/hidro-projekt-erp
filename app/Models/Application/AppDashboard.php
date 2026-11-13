@@ -3,6 +3,7 @@
 namespace App\Models\Application;
 
 use App\Models\User;
+use App\Services\Application\CompanyContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,21 +63,15 @@ class AppDashboard extends Model
      */
     public function scopeGlobal(Builder $query, ?int $companyId): Builder
     {
-        return $query->where('visibility', self::VISIBILITY_GLOBAL)
-            ->when($companyId === NULL,
-                fn ($q) => $q->whereNull('company_id'),
-                fn ($q) => $q->where('company_id', $companyId));
+        return CompanyContext::scope($query->where('visibility', self::VISIBILITY_GLOBAL), $companyId);
     }
 
     /**
-     * Company of a user. There is no company logic yet: users have no company_id, so this is NULL for now.
-     * TODO: adjust once users belong to a company.
+     * Company of a user (see CompanyContext).
      */
     public static function companyIdOf(?User $user): ?int
     {
-        $companyId = $user?->getAttribute('company_id');
-
-        return $companyId === NULL ? NULL : (int) $companyId;
+        return CompanyContext::idOf($user);
     }
 
     public function isGlobal(): bool
