@@ -1,4 +1,3 @@
-{{-- Menu built with the menu builder. See App\View\Components\Ui\AppMenu --}}
 @once
     <style>
         .app-menu { --app-menu-active-bg: rgba(13, 110, 253, .1); --app-menu-active-color: #0d6efd; --app-menu-hover-bg: rgba(0, 0, 0, .04); font-size: .9rem; }
