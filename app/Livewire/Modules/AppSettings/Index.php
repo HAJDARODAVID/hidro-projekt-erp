@@ -13,7 +13,8 @@ use App\Services\Application\Dashboard\DashboardWidgetRegistry as Registry;
  */
 class Index extends LivewireController
 {
-    private const SESSION_KEY = 'app_settings_dashboard_layout';
+    /** v2: 24 columns / 10px rows (old 12 column layouts are dropped) */
+    private const SESSION_KEY = 'app_settings_dashboard_layout_v2';
 
     /** The tiles on the dashboard, in display order */
     public array $layout = [];
@@ -174,6 +175,8 @@ class Index extends LivewireController
             $default = Registry::makeTile($tile['widget']);
             $tile = array_merge($default, $tile);
             $tile['settings'] = array_merge($default['settings'], $tile['settings'] ?? []);
+            if (!array_key_exists($tile['w'], Registry::WIDTHS)) $tile['w'] = $default['w'];
+            if (!array_key_exists($tile['h'], Registry::HEIGHTS)) $tile['h'] = $default['h'];
             return $tile;
         }, $layout)));
     }

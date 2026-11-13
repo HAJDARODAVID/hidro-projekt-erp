@@ -1,42 +1,98 @@
-<div class="px-3 flex-fill d-flex flex-column" id="module_container" x-data="{ dragId: null, overId: null }">
+<div class="px-3 flex-fill d-flex flex-column" id="module_container"
+    x-data="{
+        dragId: null,
+        overId: null,
+        rowUnit: {{ \App\Services\Application\Dashboard\DashboardWidgetRegistry::ROW_UNIT }},
+        minRows: {{ \App\Services\Application\Dashboard\DashboardWidgetRegistry::FULL_MIN_ROWS }},
+        {{-- Stretch every 'Full' height tile to the bottom of the screen.
+             Rows are rounded DOWN, so the tile (incl. its bottom gap) never reaches past the screen bottom. --}}
+        fitFullTiles() {
+            const grid = this.$root.querySelector('.app-dash-grid');
+            if (!grid) return;
+            const tiles = grid.querySelectorAll('.app-dash-tile[data-full-height]');
+            if (!tiles.length) return;
+
+            {{-- clientHeight = visible area without a (horizontal) scrollbar; innerHeight would include it --}}
+            const viewport = () => document.documentElement.clientHeight;
+            const areaBottom = el => el.getBoundingClientRect().bottom + parseFloat(getComputedStyle(el).marginBottom || 0);
+            let shrink = 0;
+
+            {{-- A few passes: size the tiles, then correct for whatever below the grid still makes the page scroll (layout padding etc.) --}}
+            for (let pass = 0; pass < 3; pass++) {
+                tiles.forEach(el => {
+                    const top = el.getBoundingClientRect().top + window.scrollY;
+                    const rows = Math.max(this.minRows, Math.floor((viewport() - top - shrink) / this.rowUnit));
+                    el.style.gridRow = 'span ' + rows;
+                });
+
+                {{-- Another (normal) tile reaches lower than the full ones: scrolling is legit, don't squash the full tiles --}}
+                const contentBottom = Math.max(...Array.from(grid.children).map(areaBottom));
+                const fullBottom = Math.max(...Array.from(tiles).map(areaBottom));
+                if (contentBottom > fullBottom + 1) break;
+
+                const overflow = document.documentElement.scrollHeight - viewport();
+                if (overflow <= 0) break;
+                shrink += overflow;
+            }
+        },
+        init() {
+            let queued = false;
+            const fit = () => {
+                if (queued) return;
+                queued = true;
+                requestAnimationFrame(() => { queued = false; this.fitFullTiles(); });
+            };
+            fit();
+            window.addEventListener('resize', fit);
+            window.addEventListener('load', fit);
+            {{-- Re-fit whenever the page height changes later (CSS/fonts loading, header, widget content...).
+                 The fit is idempotent, so its own changes settle after one extra run. --}}
+            const ro = new ResizeObserver(fit);
+            ro.observe(document.body);
+            if (this.$root.parentElement) ro.observe(this.$root.parentElement);
+            {{-- Livewire morph resets the inline styles, so re-fit after every update of this component --}}
+            Livewire.hook('morphed', ({ component }) => { if (component.id === this.$wire.$id) fit(); });
+        },
+    }">
     <style>
-        .app-dash-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 90px; grid-auto-flow: row dense; gap: 1rem; }
-        .app-dash-tile { display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid var(--bs-border-color); transition: box-shadow .15s, outline-color .15s; }
+        {{-- Small rows and no row-gap: the vertical space between tiles is each tile's margin-bottom (inside its own rows) --}}
+        .app-dash-grid { display: grid; grid-template-columns: repeat({{ \App\Services\Application\Dashboard\DashboardWidgetRegistry::COLUMNS }}, minmax(0, 1fr)); grid-auto-rows: {{ \App\Services\Application\Dashboard\DashboardWidgetRegistry::ROW_UNIT }}px; grid-auto-flow: row dense; column-gap: 1rem; row-gap: 0; }
+        .app-dash-tile { margin-bottom: {{ \App\Services\Application\Dashboard\DashboardWidgetRegistry::TILE_GAP }}px; display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1px solid var(--bs-border-color); transition: box-shadow .15s, outline-color .15s; }
         .app-dash-tile > .tile-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .75rem; border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); }
         .app-dash-tile > .tile-body { flex: 1 1 auto; min-height: 0; overflow: auto; position: relative; }
         .app-dash-grid.editing .app-dash-tile { outline: 2px dashed var(--bs-border-color); outline-offset: 2px; }
         .app-dash-grid.editing .tile-header { cursor: grab; }
         .app-dash-tile.drag-over { outline-color: var(--bs-primary) !important; box-shadow: 0 0 0 .25rem rgba(var(--bs-primary-rgb), .15); }
         .app-dash-tile .tile-body.editing { pointer-events: none; opacity: .6; }
-        .app-dash-empty { grid-column: span 12; grid-row: span 3; border: 2px dashed var(--bs-border-color); display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--bs-secondary-color); }
+        .app-dash-empty { grid-column: 1 / -1; grid-row: span 30; border: 2px dashed var(--bs-border-color); display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--bs-secondary-color); }
         .app-dash-catalog-item { cursor: pointer; transition: background .1s; }
         .app-dash-catalog-item:hover { background: var(--bs-tertiary-bg); }
-        @media (max-width: 991.98px) { .app-dash-tile { grid-column: span 12 !important; } }
+        .app-dash-fab { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1030; width: 44px; height: 44px; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; opacity: .75; transition: opacity .15s, transform .15s; }
+        .app-dash-fab:hover { opacity: 1; transform: scale(1.08); }
+        @media (max-width: 991.98px) { .app-dash-tile { grid-column: 1 / -1 !important; } }
     </style>
 
-    {{-- Toolbar --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="text-muted small">
-            @if ($editMode)
+    {{-- Separate wire:keys so Livewire doesn't morph the "Reset" button into "Customize" (it would keep the reset click handler) --}}
+    @if ($editMode)
+        {{-- Edit toolbar (only takes space while editing) --}}
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-3" wire:key="dash-toolbar-edit">
+            <div class="text-muted small">
                 <x-ui.bi-icon icon="info-circle" /> {{ translator('Drag tiles by their header to reorder them. Use the controls to resize, configure or remove.') }}
-            @else
-                {{ count($layout) }} {{ translator('widgets') }}
-            @endif
-        </div>
-        {{-- Separate wire:keys so Livewire doesn't morph the "Reset" button into "Customize" (it would keep the reset click handler) --}}
-        @if ($editMode)
-            <div class="d-flex gap-2" wire:key="dash-toolbar-edit">
+            </div>
+            <div class="d-flex gap-2">
                 <x-ui.btn type="lig.sm" icon="arrow-counterclockwise" action="resetLayout" text="{{ translator('Reset') }}"
                     wire:confirm="{{ translator('Reset the dashboard to the default layout?') }}" />
                 <x-ui.btn type="lig.sm" icon="plus-lg" action="toggleCatalog" text="{{ translator('Add widget') }}" />
                 <x-ui.btn type="pri.sm" icon="check-lg" action="toggleEditMode" text="{{ translator('Done') }}" />
             </div>
-        @else
-            <div class="d-flex gap-2" wire:key="dash-toolbar-view">
-                <x-ui.btn type="lig.sm" icon="grid-1x2" action="toggleEditMode" text="{{ translator('Customize') }}" />
-            </div>
-        @endif
-    </div>
+        </div>
+    @else
+        {{-- Floating customize button (takes no space) --}}
+        <button type="button" class="btn btn-light border shadow app-dash-fab" wire:key="dash-toolbar-view"
+            wire:click="toggleEditMode" title="{{ translator('Customize dashboard') }}">
+            <i class="bi bi-grid-1x2"></i>
+        </button>
+    @endif
 
     {{-- Widget catalog --}}
     @if ($editMode && $showCatalog)
@@ -65,10 +121,15 @@
     {{-- Tile grid --}}
     <div class="app-dash-grid @if($editMode) editing @endif" wire:key="dash-grid">
         @forelse ($layout as $i => $tile)
-            @php $widget = $catalog[$tile['widget']]; @endphp
+            @php
+                $widget = $catalog[$tile['widget']];
+                $isFull = $tile['h'] == \App\Services\Application\Dashboard\DashboardWidgetRegistry::HEIGHT_FULL;
+            @endphp
+            {{-- Full height tiles: fallback rows until fitFullTiles() sets the real span --}}
             <div class="app-dash-tile shadow-sm"
                 wire:key="tile-{{ $tile['id'] }}"
-                style="grid-column: span {{ $tile['w'] }}; grid-row: span {{ $tile['h'] }};"
+                style="grid-column: span {{ $tile['w'] }}; grid-row: span {{ $isFull ? \App\Services\Application\Dashboard\DashboardWidgetRegistry::FULL_FALLBACK_ROWS : $tile['h'] }};"
+                @if ($isFull) data-full-height @endif
                 @if ($editMode)
                     draggable="true"
                     x-on:dragstart="dragId = '{{ $tile['id'] }}'; $event.dataTransfer.effectAllowed = 'move'"
