@@ -4,6 +4,17 @@
     "data": {
         "permissions": [
             {
+                "id": "f117255e-b2c8-47c7-995f-3f21ca8aaec5",
+                "key": "employees.worker-info.certificates",
+                "name": "Certificates view and edit",
+                "description": null,
+                "module": {
+                    "id": "f009bafd-6a7d-4fc0-b54f-8551dea0a593",
+                    "module": "employees"
+                },
+                "route": null
+            },
+            {
                 "id": "f1f54fdf-a2aa-48a9-9039-7d376211be9e",
                 "key": "employees.worker-info.create",
                 "name": "Create new worker",
@@ -124,6 +135,7 @@
                 "description": null,
                 "active": true,
                 "permissions": [
+                    "employees.worker-info.certificates",
                     "employees.worker-info.create",
                     "employees.worker-info.edit",
                     "employees.worker-info.payroll",
