@@ -83,6 +83,73 @@ class DashboardWidgetRegistry
                     ],
                 ],
             ],
+            'server-health' => [
+                'title'       => 'Server health',
+                'description' => 'CPU, memory, disk and DB usage plus runtime info (PHP, Laravel, drivers, debug mode).',
+                'icon'        => 'heart-pulse',
+                'component'   => 'modules.app-settings.dashboard.server-health',
+                'w'           => 8,
+                'h'           => 52,
+                'settings'    => [
+                    'warning' => [
+                        'label'   => 'Warning threshold (%)',
+                        'type'    => 'number',
+                        'default' => 75,
+                    ],
+                    'critical' => [
+                        'label'   => 'Critical threshold (%)',
+                        'type'    => 'number',
+                        'default' => 90,
+                    ],
+                ],
+            ],
+            'queue-jobs' => [
+                'title'       => 'Queue & jobs',
+                'description' => 'Pending jobs and workers per queue, failed jobs with retry / delete.',
+                'icon'        => 'stack',
+                'component'   => 'modules.app-settings.dashboard.queue-jobs',
+                'w'           => 8,
+                'h'           => 42,
+                'settings'    => [
+                    'queue' => [
+                        'label'   => 'Queue',
+                        'type'    => 'select',
+                        'options' => ['all' => 'All queues', 'default' => 'default', 'mail' => 'mail', 'invoices' => 'invoices', 'reports' => 'reports'],
+                        'default' => 'all',
+                    ],
+                ],
+            ],
+            'active-users' => [
+                'title'       => 'Active users',
+                'description' => 'Who is online right now, on which page and device, logins today.',
+                'icon'        => 'people',
+                'component'   => 'modules.app-settings.dashboard.active-users',
+                'w'           => 6,
+                'h'           => 42,
+                'settings'    => [
+                    'window' => [
+                        'label'   => 'Online window',
+                        'type'    => 'select',
+                        'options' => ['5' => 'Last 5 minutes', '15' => 'Last 15 minutes', '60' => 'Last hour'],
+                        'default' => '15',
+                    ],
+                ],
+            ],
+            'performance' => [
+                'title'       => 'Performance',
+                'description' => 'Requests per hour, response times, error rate and the slowest endpoints.',
+                'icon'        => 'speedometer2',
+                'component'   => 'modules.app-settings.dashboard.performance',
+                'w'           => 10,
+                'h'           => 42,
+                'settings'    => [
+                    'limit' => [
+                        'label'   => 'Slowest endpoints shown',
+                        'type'    => 'number',
+                        'default' => 5,
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -113,20 +180,24 @@ class DashboardWidgetRegistry
     public static function defaultLayout(): array
     {
         return [
-            self::makeTile('app-errors'),
+            self::makeTile('app-errors', 16, 52),
+            self::makeTile('server-health', 8, 52),
+            self::makeTile('performance', 10, 42),
+            self::makeTile('queue-jobs', 8, 42),
+            self::makeTile('active-users', 6, 42),
         ];
     }
 
-    public static function makeTile(string $key): array
+    public static function makeTile(string $key, ?int $w = NULL, ?int $h = NULL): array
     {
         $widget = self::get($key);
 
         return [
-            'id'       => uniqid('tile_'),
+            'id'       => uniqid('tile_', TRUE),
             'widget'   => $key,
             'title'    => $widget['title'],
-            'w'        => $widget['w'],
-            'h'        => $widget['h'],
+            'w'        => $w ?? $widget['w'],
+            'h'        => $h ?? $widget['h'],
             'settings' => self::defaultSettings($key),
         ];
     }
