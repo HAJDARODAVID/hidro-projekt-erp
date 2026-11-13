@@ -3,7 +3,7 @@
     @foreach ($nodes as $node)
         @switch($node['type'])
             @case('link')
-                <li>
+                <li class="app-menu-item">
                     <a
                         href="{{ $node['href'] }}"
                         @class(['app-menu-link', 'is-current' => $node['current']])
@@ -24,7 +24,7 @@
 
             @case('group')
                 {{-- Open: contains the current page, else the state the user left it in (per browser) --}}
-                <li
+                <li class="app-menu-item app-menu-group"
                     x-data="{
                         key: '{{ $uid }}-{{ $node['id'] }}',
                         open: {{ $node['open'] ? 'true' : 'false' }},

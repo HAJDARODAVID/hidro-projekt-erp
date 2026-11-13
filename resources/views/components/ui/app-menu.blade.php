@@ -2,7 +2,10 @@
 @once
     <style>
         .app-menu { --app-menu-active-bg: rgba(13, 110, 253, .1); --app-menu-active-color: #0d6efd; --app-menu-hover-bg: rgba(0, 0, 0, .04); font-size: .9rem; }
+        .app-menu { background: #fff; border: 1px solid #dee2e6; box-shadow: 0 1px 2px rgba(0, 0, 0, .04); margin: 0 .5rem .75rem; padding: .35rem 0; }
         .app-menu ul { list-style: none; margin: 0; padding: 0; }
+        /* line between the top level groups / links (headers and dividers bring their own spacing) */
+        .app-menu > ul > .app-menu-item + .app-menu-item { border-top: 1px solid #e9ecef; }
         .app-menu-link,
         .app-menu-group-toggle { display: flex; align-items: center; gap: .65rem; width: 100%; padding: .4rem .75rem; color: #475563; text-decoration: none; background: none; border: 0; text-align: left; border-left: 3px solid transparent; }
         .app-menu-link:hover,

@@ -22,15 +22,24 @@ class AppMenu extends Component
 
     public string $uid;
 
+    public ?User $forUser;
+
+    /**
+     * $user is not type hinted on purpose: Laravel builds class components through the container,
+     * which would inject a new, empty User model for a `?User $user` parameter that is not passed
+     * (so the menu was rendered for nobody instead of the logged in user).
+     *
+     * @param User|null $user
+     */
     public function __construct(
         public string|int $menu = \App\Models\Application\AppMenu::KEY_MAIN,
-        public ?User $user = NULL,
+        $user = NULL,
         public ?string $currentRoute = NULL,
         public bool $interactive = TRUE,
         public bool $preview = FALSE,
     ) {
-        $this->user ??= Auth::user();
-        $this->items = MenuRenderer::for($this->user)->tree($menu, $currentRoute, $preview);
+        $this->forUser = $user instanceof User && $user->exists ? $user : Auth::user();
+        $this->items = MenuRenderer::for($this->forUser)->tree($menu, $currentRoute, $preview);
         $this->uid = 'app-menu-' . (is_int($menu) || ctype_digit((string) $menu) ? 'id' . $menu : $menu);
     }
 

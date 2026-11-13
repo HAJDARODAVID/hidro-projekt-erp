@@ -12,10 +12,8 @@
 @if ($showCalculator || $activeInventory || $isPhone)
     <nav class="app-menu" aria-label="{{ translator('Tools') }}">
         <ul>
-            <li class="app-menu-divider" role="separator"></li>
-
             @if ($showCalculator)
-                <li>
+                <li class="app-menu-item">
                     <button type="button" class="app-menu-link" id="calculator">
                         <i class="bi bi-calculator app-menu-icon"></i>
                         <span class="app-menu-title">{{ translator('Calculator') }}</span>
@@ -24,7 +22,7 @@
             @endif
 
             @if ($activeInventory)
-                <li>
+                <li class="app-menu-item">
                     <a href="{{ route('hp_activeInventoryChecking', $activeInventory->inv_name) }}" class="app-menu-link">
                         <i class="bi bi-list-check app-menu-icon"></i>
                         <span class="app-menu-title">{{ translator('Inventory') }}: {{ $activeInventory->inv_name }}</span>
@@ -33,7 +31,7 @@
             @endif
 
             @if ($isPhone)
-                <li>
+                <li class="app-menu-item">
                     <a class="app-menu-link" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="bi bi-box-arrow-left app-menu-icon"></i>
                         <span class="app-menu-title">{{ translator('Sign out') }}</span>

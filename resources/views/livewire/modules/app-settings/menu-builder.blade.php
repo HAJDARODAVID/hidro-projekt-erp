@@ -31,7 +31,7 @@
         .mb-icon-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
         .mb-icon-grid button { border: 1px solid transparent; background: none; padding: .3rem 0; }
         .mb-icon-grid button:hover, .mb-icon-grid button.is-picked { border-color: #0d6efd; color: #0d6efd; }
-        .mb-preview { background: #f8f9fa; border: 1px solid #e3e6ea; max-width: 300px; padding: .5rem 0; }
+        .mb-preview { background: #f8f9fa; max-width: 300px; padding: .5rem 0; }
     </style>
 
     <x-ui.card :border=FALSE :noBodyPadding=TRUE class="h-100 d-flex flex-column">
