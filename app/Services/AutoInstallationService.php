@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AutoInstallation;
 use App\Services\Application\AppModulesSyncService;
 use App\Services\Application\Acl\AclSyncService;
+use App\Services\Application\Menu\AppMenusSyncService;
 use App\Services\Config\BaseConfigService;
 use App\Services\Config\AppConfigDto;
 use Illuminate\Support\Facades\File;
@@ -16,6 +17,7 @@ class AutoInstallationService extends BaseConfigService
     const RERUN_ON_CHANGE_TYPES = [
         AppModulesSyncService::INSTALLATION_TYPE,
         AclSyncService::INSTALLATION_TYPE,
+        AppMenusSyncService::INSTALLATION_TYPE,
     ];
 
     /**
@@ -198,6 +200,7 @@ class AutoInstallationService extends BaseConfigService
             'seed_data' => $this->handleSeedData($data),
             AppModulesSyncService::INSTALLATION_TYPE => AppModulesSyncService::import($data),
             AclSyncService::INSTALLATION_TYPE => AclSyncService::import($data),
+            AppMenusSyncService::INSTALLATION_TYPE => AppMenusSyncService::import($data),
             default => throw new \Exception("Unknown installation type: $installationType"),
         };
 

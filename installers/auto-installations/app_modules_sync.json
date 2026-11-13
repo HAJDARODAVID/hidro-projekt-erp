@@ -39,6 +39,16 @@
                         "resource": null,
                         "position": 3,
                         "divider": null
+                    },
+                    {
+                        "id": "1f012ea2-ac68-415e-bca6-66ea8afdc537",
+                        "title": "Menu builder",
+                        "route_name": "getMenuBuilderModule",
+                        "method": "getMenuBuilderModule",
+                        "active": true,
+                        "resource": null,
+                        "position": 4,
+                        "divider": null
                     }
                 ]
             },

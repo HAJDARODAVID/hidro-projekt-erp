@@ -348,6 +348,7 @@ Route::prefix('/')
                         Route::get('/modules', 'getAllApplicationModules')->name('getAllApplicationModules');
                         Route::get('/translator', 'getTranslatorModules')->name('getTranslatorModules');
                         Route::get('/acl', 'getAclModule')->name('getAclModule');
+                        Route::get('/menu-builder', 'getMenuBuilderModule')->name('getMenuBuilderModule');
                     });
             });
 
