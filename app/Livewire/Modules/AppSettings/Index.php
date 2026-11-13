@@ -3,18 +3,31 @@
 namespace App\Livewire\Modules\AppSettings;
 
 use App\Livewire\LivewireController;
+use App\Models\Application\AppDashboard;
+use App\Services\Application\Dashboard\DashboardLayoutService;
 use App\Services\Application\Dashboard\DashboardWidgetRegistry as Registry;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Locked;
 
 /**
  * App control center -> Dashboard.
  * Tile based, configurable dashboard (layout + widgets).
- *
- * TODO: the layout is kept in the session for now; move it to the DB (per user) once the widgets are real.
+ * Layouts are stored in app_dashboard (type = app-settings): a user has own layouts and can use the global ones.
  */
 class Index extends LivewireController
 {
-    /** v2: 24 columns / 10px rows (old 12 column layouts are dropped) */
-    private const SESSION_KEY = 'app_settings_dashboard_layout_v2';
+    protected const DASHBOARD_TYPE = AppDashboard::TYPE_APP_SETTINGS;
+
+    /** The selected layout (app_dashboard.id) */
+    #[Locked]
+    public ?int $dashboardId = NULL;
+
+    /** Only the owner can change the layout; others have to make a copy first */
+    #[Locked]
+    public bool $isOwner = FALSE;
+
+    public string $layoutName = '';
+    public string $visibility = AppDashboard::VISIBILITY_PRIVATE;
 
     /** The tiles on the dashboard, in display order */
     public array $layout = [];
@@ -31,13 +44,88 @@ class Index extends LivewireController
 
     public function mount()
     {
-        $this->layout = $this->sanitizeLayout(session(self::SESSION_KEY, Registry::defaultLayout()));
+        $this->loadDashboard($this->layouts()->resolveActive(static::DASHBOARD_TYPE, Auth::id(), Registry::defaultLayout()));
+    }
+
+    /* ---------------------------------------------------------------- layouts (app_dashboard) */
+
+    public function selectLayout(int $id): void
+    {
+        $dashboard = $this->layouts()->select(static::DASHBOARD_TYPE, $id, Auth::id());
+        if (!$dashboard) return;
+
+        $this->loadDashboard($dashboard);
+        $this->editMode = FALSE;
+    }
+
+    public function createLayout(): void
+    {
+        $count = AppDashboard::ofType(static::DASHBOARD_TYPE)->where('user_id', Auth::id())->count();
+        $this->loadDashboard($this->layouts()->create(static::DASHBOARD_TYPE, Auth::id(), translator('Layout') . ' ' . ($count + 1), Registry::defaultLayout()));
+        $this->editMode = TRUE;
+        $this->notifyMe(translator('New layout created'));
+    }
+
+    public function duplicateLayout(): void
+    {
+        $source = $this->currentDashboard();
+        if (!$source) return;
+
+        $this->loadDashboard($this->layouts()->duplicate($source, Auth::id()));
+        $this->notifyMe(translator('Layout copied'));
+    }
+
+    /**
+     * Rename (wire:model.blur on the name input).
+     */
+    public function updatedLayoutName(): void
+    {
+        $name = mb_substr(trim($this->layoutName), 0, 100);
+        $dashboard = $this->currentDashboard();
+        if (!$dashboard || !$this->isOwner || $name === '') {
+            $this->layoutName = $dashboard?->name ?? '';
+            return;
+        }
+
+        $this->layoutName = $name;
+        $this->layouts()->update($dashboard, Auth::id(), ['name' => $name]);
+    }
+
+    public function setVisibility(string $visibility): void
+    {
+        if (!in_array($visibility, [AppDashboard::VISIBILITY_PRIVATE, AppDashboard::VISIBILITY_GLOBAL])) return;
+        $dashboard = $this->currentDashboard();
+        if (!$dashboard || !$this->isOwner) return;
+
+        $this->layouts()->update($dashboard, Auth::id(), ['visibility' => $visibility]);
+        $this->visibility = $visibility;
+        $this->notifyMe($visibility === AppDashboard::VISIBILITY_GLOBAL
+            ? translator('Layout is now visible to everybody')
+            : translator('Layout is now private'));
+    }
+
+    public function deleteLayout(): void
+    {
+        $dashboard = $this->currentDashboard();
+        if (!$dashboard || !$this->isOwner) return;
+
+        $this->layouts()->delete($dashboard, Auth::id());
+        $this->editMode = FALSE;
+        $this->closeConfig();
+        $this->loadDashboard($this->layouts()->resolveActive(static::DASHBOARD_TYPE, Auth::id(), Registry::defaultLayout()));
+        $this->notifyMe(translator('Layout deleted'));
     }
 
     /* ---------------------------------------------------------------- edit mode */
 
     public function toggleEditMode(): void
     {
+        // Somebody else's (global) layout: customize a private copy of it
+        if (!$this->editMode && !$this->isOwner) {
+            $this->duplicateLayout();
+            if (!$this->isOwner) return;
+        }
+
         $this->editMode = !$this->editMode;
         $this->showCatalog = FALSE;
         $this->closeConfig();
@@ -173,22 +261,64 @@ class Index extends LivewireController
         return array_values(array_filter(array_map(function ($tile) {
             if (!is_array($tile) || !Registry::exists($tile['widget'] ?? '')) return NULL;
             $default = Registry::makeTile($tile['widget']);
-            $tile = array_merge($default, $tile);
-            $tile['settings'] = array_merge($default['settings'], $tile['settings'] ?? []);
+            // Only known keys / settings survive
+            $tile = array_merge($default, array_intersect_key($tile, $default));
+            $tile['settings'] = array_merge($default['settings'], array_intersect_key((array) $tile['settings'], $default['settings']));
+            if (!is_string($tile['id']) || $tile['id'] === '') $tile['id'] = $default['id'];
+            $tile['title'] = mb_substr(is_string($tile['title']) ? $tile['title'] : $default['title'], 0, 100);
             if (!array_key_exists($tile['w'], Registry::WIDTHS)) $tile['w'] = $default['w'];
             if (!array_key_exists($tile['h'], Registry::HEIGHTS)) $tile['h'] = $default['h'];
             return $tile;
         }, $layout)));
     }
 
+    private function layouts(): DashboardLayoutService
+    {
+        return app(DashboardLayoutService::class);
+    }
+
+    private function currentDashboard(): ?AppDashboard
+    {
+        return $this->dashboardId ? $this->layouts()->findVisible(static::DASHBOARD_TYPE, $this->dashboardId, Auth::id()) : NULL;
+    }
+
+    private function loadDashboard(AppDashboard $dashboard): void
+    {
+        $this->dashboardId = $dashboard->id;
+        $this->isOwner = $dashboard->isOwnedBy(Auth::id());
+        $this->layoutName = $dashboard->name;
+        $this->visibility = $dashboard->visibility;
+        $this->layout = $this->sanitizeLayout($dashboard->layout ?? []);
+        $this->closeConfig();
+        $this->showCatalog = FALSE;
+    }
+
+    /**
+     * Save the tiles to the selected layout. Only the owner can save; for anybody else the change is undone.
+     */
     private function persist(): void
     {
-        session([self::SESSION_KEY => $this->layout]);
+        $dashboard = $this->currentDashboard();
+        if (!$dashboard) return;
+
+        if (!$this->isOwner) {
+            $this->loadDashboard($dashboard);
+            $this->showException(translator('Only the owner can change this layout.'));
+            return;
+        }
+
+        // Sanitized again: $layout is a public property and could have been changed from the client
+        $this->layout = $this->sanitizeLayout($this->layout);
+        $this->layouts()->update($dashboard, Auth::id(), ['layout' => $this->layout]);
     }
 
     public function render()
     {
+        $available = $this->layouts()->available(static::DASHBOARD_TYPE, Auth::id());
+
         return view('livewire.modules.app-settings.index', [
+            'myLayouts'     => $available->filter(fn ($d) => $d->isOwnedBy(Auth::id())),
+            'sharedLayouts' => $available->reject(fn ($d) => $d->isOwnedBy(Auth::id())),
             'catalog'    => Registry::all(),
             'widths'     => Registry::WIDTHS,
             'heights'    => Registry::HEIGHTS,

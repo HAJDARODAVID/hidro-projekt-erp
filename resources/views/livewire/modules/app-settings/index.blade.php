@@ -67,7 +67,12 @@
         .app-dash-empty { grid-column: 1 / -1; grid-row: span 30; border: 2px dashed var(--bs-border-color); display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--bs-secondary-color); }
         .app-dash-catalog-item { cursor: pointer; transition: background .1s; }
         .app-dash-catalog-item:hover { background: var(--bs-tertiary-bg); }
-        .app-dash-fab { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1030; width: 44px; height: 44px; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; opacity: .75; transition: opacity .15s, transform .15s; }
+        .app-dash-fab-group { position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 1030; display: flex; gap: .5rem; }
+        .app-dash-layout-menu { position: absolute; right: 0; bottom: calc(100% + .5rem); width: 300px; max-height: 60vh; overflow-y: auto; }
+        .app-dash-layout-item { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .35rem 1rem; border: 0; background: none; font-size: .875rem; }
+        .app-dash-layout-item:hover { background: var(--bs-tertiary-bg); }
+        [x-cloak] { display: none !important; }
+        .app-dash-fab { width: 44px; height: 44px; border-radius: 50% !important; display: flex; align-items: center; justify-content: center; opacity: .75; transition: opacity .15s, transform .15s; }
         .app-dash-fab:hover { opacity: 1; transform: scale(1.08); }
         @media (max-width: 991.98px) { .app-dash-tile { grid-column: 1 / -1 !important; } }
     </style>
@@ -75,9 +80,23 @@
     {{-- Separate wire:keys so Livewire doesn't morph the "Reset" button into "Customize" (it would keep the reset click handler) --}}
     @if ($editMode)
         {{-- Edit toolbar (only takes space while editing) --}}
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-3" wire:key="dash-toolbar-edit">
-            <div class="text-muted small">
-                <x-ui.bi-icon icon="info-circle" /> {{ translator('Drag tiles by their header to reorder them. Use the controls to resize, configure or remove.') }}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 mb-3" wire:key="dash-toolbar-edit">
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" class="form-control form-control-sm" style="width: 220px" maxlength="100"
+                    wire:model.blur="layoutName" placeholder="{{ translator('Layout name') }}" title="{{ translator('Layout name') }}" />
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ translator('Visibility') }}">
+                    <button type="button" class="btn shadow {{ $visibility === 'private' ? 'btn-secondary' : 'btn-light border' }}" style="border-radius: 0"
+                        wire:click="setVisibility('private')" title="{{ translator('Only you can see this layout') }}">
+                        <i class="bi bi-lock"></i> {{ translator('Private') }}
+                    </button>
+                    <button type="button" class="btn shadow {{ $visibility === 'global' ? 'btn-secondary' : 'btn-light border' }}" style="border-radius: 0"
+                        wire:click="setVisibility('global')" title="{{ translator('Everybody can use this layout (only you can change it)') }}">
+                        <i class="bi bi-globe"></i> {{ translator('Global') }}
+                    </button>
+                </div>
+                <x-ui.btn type="lig.sm" icon="trash" action="deleteLayout" title="{{ translator('Delete layout') }}"
+                    wire:confirm="{{ translator('Delete this layout?') }}" />
+                <i class="bi bi-info-circle text-muted" title="{{ translator('Drag tiles by their header to reorder them. Use the controls to resize, configure or remove.') }}"></i>
             </div>
             <div class="d-flex gap-2">
                 <x-ui.btn type="lig.sm" icon="arrow-counterclockwise" action="resetLayout" text="{{ translator('Reset') }}"
@@ -87,11 +106,49 @@
             </div>
         </div>
     @else
-        {{-- Floating customize button (takes no space) --}}
-        <button type="button" class="btn btn-light border shadow app-dash-fab" wire:key="dash-toolbar-view"
-            wire:click="toggleEditMode" title="{{ translator('Customize dashboard') }}">
-            <i class="bi bi-grid-1x2"></i>
-        </button>
+        {{-- Floating layout picker + customize button (takes no space) --}}
+        <div class="app-dash-fab-group" wire:key="dash-toolbar-view" x-data="{ open: false }" x-on:click.outside="open = false" x-on:keydown.escape.window="open = false">
+            <div class="app-dash-layout-menu shadow border bg-white" x-show="open" x-cloak x-transition.opacity>
+                <div class="px-3 pt-2 pb-1 text-muted text-uppercase fw-semibold" style="font-size: .7rem">{{ translator('My layouts') }}</div>
+                @forelse ($myLayouts as $l)
+                    <button type="button" class="app-dash-layout-item" wire:click="selectLayout({{ $l->id }})" x-on:click="open = false">
+                        <i class="bi bi-check2 {{ $l->id === $dashboardId ? '' : 'invisible' }}"></i>
+                        <span class="text-truncate flex-fill text-start">{{ $l->name }}</span>
+                        <i class="bi bi-{{ $l->isGlobal() ? 'globe' : 'lock' }} text-muted" title="{{ $l->isGlobal() ? translator('Global') : translator('Private') }}"></i>
+                    </button>
+                @empty
+                    <div class="px-3 pb-1 small text-muted">{{ translator('No own layouts yet.') }}</div>
+                @endforelse
+
+                @if ($sharedLayouts->count())
+                    <div class="px-3 pt-2 pb-1 text-muted text-uppercase fw-semibold border-top mt-1" style="font-size: .7rem">{{ translator('Global layouts') }}</div>
+                    @foreach ($sharedLayouts as $l)
+                        <button type="button" class="app-dash-layout-item" wire:click="selectLayout({{ $l->id }})" x-on:click="open = false">
+                            <i class="bi bi-check2 {{ $l->id === $dashboardId ? '' : 'invisible' }}"></i>
+                            <span class="text-truncate flex-fill text-start">{{ $l->name }}</span>
+                            <span class="small text-muted text-truncate" style="max-width: 110px">{{ $l->user?->name }}</span>
+                        </button>
+                    @endforeach
+                @endif
+
+                <div class="border-top mt-1 py-1">
+                    <button type="button" class="app-dash-layout-item" wire:click="createLayout" x-on:click="open = false">
+                        <i class="bi bi-plus-lg"></i><span class="flex-fill text-start">{{ translator('New layout') }}</span>
+                    </button>
+                    <button type="button" class="app-dash-layout-item" wire:click="duplicateLayout" x-on:click="open = false">
+                        <i class="bi bi-copy"></i><span class="flex-fill text-start">{{ translator('Duplicate current layout') }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-light border shadow app-dash-fab" x-on:click="open = !open" title="{{ translator('Layouts') }}: {{ $layoutName }}">
+                <i class="bi bi-layers"></i>
+            </button>
+            <button type="button" class="btn btn-light border shadow app-dash-fab" wire:click="toggleEditMode"
+                title="{{ $isOwner ? translator('Customize dashboard') : translator('Customize a private copy of this layout') }}">
+                <i class="bi bi-grid-1x2"></i>
+            </button>
+        </div>
     @endif
 
     {{-- Widget catalog --}}
@@ -179,7 +236,7 @@
                 <i class="bi bi-grid-3x3-gap fs-1"></i>
                 <div class="mt-2">{{ translator('The dashboard is empty.') }}</div>
                 <div class="mt-3">
-                    <x-ui.btn type="pri.sm" icon="plus-lg" wire:click="$set('editMode', true); $set('showCatalog', true)" text="{{ translator('Add widget') }}" />
+                    <x-ui.btn type="pri.sm" icon="plus-lg" wire:click="toggleEditMode" text="{{ translator('Add widget') }}" />
                 </div>
             </div>
         @endforelse
