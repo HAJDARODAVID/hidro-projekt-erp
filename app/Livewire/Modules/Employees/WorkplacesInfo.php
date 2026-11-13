@@ -221,5 +221,7 @@ class WorkplacesInfo extends LivewireController
             'company'         => CustomizeService::currentCompany(),
             'companyFile'     => str_replace([base_path() . DIRECTORY_SEPARATOR, '\\'], ['', '/'], $fieldsService->companyFilePath()),
             'configJson'      => empty($companyConfig) ? null : json_encode($companyConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            'fieldCount'      => array_sum(array_map('count', $resolved['field   }
+            'fieldCount'      => array_sum(array_map('count', $resolved['fields'])),
+        ]);
+    }
 }
