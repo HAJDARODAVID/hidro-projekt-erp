@@ -2,6 +2,7 @@
 
 namespace App\Services\Application\Notifications;
 
+use App\Services\Application\Notifications\Contracts\HasNotificationLevel;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -27,11 +28,6 @@ class ErrorNotificationReporter
         \RedisException::class,
     ];
 
-    /** Exceptions (or parents) that are only a warning */
-    private const WARNING = [
-        \Illuminate\Session\TokenMismatchException::class,
-        \Illuminate\Http\Exceptions\ThrottleRequestsException::class,
-    ];
 
     /** Guard: an error while reporting must not report itself again */
     private static bool $reporting = FALSE;
@@ -73,13 +69,18 @@ class ErrorNotificationReporter
         }
     }
 
+    /**
+     * The exception's own level (HasNotificationLevel, e.g. AppWarningException), else critical for
+     * infrastructure failures, else error.
+     * (Things like TokenMismatch / HTTP exceptions never get here: Laravel does not report them.)
+     */
     public static function level(\Throwable $e): string
     {
+        if ($e instanceof HasNotificationLevel && in_array($e->notificationLevel(), NotificationTypes::LEVELS, TRUE)) {
+            return $e->notificationLevel();
+        }
         foreach (self::CRITICAL as $class) {
             if ($e instanceof $class) return 'critical';
-        }
-        foreach (self::WARNING as $class) {
-            if ($e instanceof $class) return 'warning';
         }
         return 'error';
     }

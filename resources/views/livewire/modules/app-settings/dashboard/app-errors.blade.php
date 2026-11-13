@@ -105,6 +105,7 @@
                             @else
                                 <x-ui.btn type="suc.sm" icon="check2" action="resolve" param="{{ $error->id }}" text="{{ translator('Mark resolved') }}" />
                             @endif
+                            <x-ui.btn type="lig.sm" icon="arrows-fullscreen" action="openDetails" param="{{ $error->id }}" text="{{ translator('All details') }}" />
                         </div>
                     </div>
                 @endif
@@ -116,4 +117,117 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Details modal (all information of one error) --}}
+    @if ($detail)
+        @php
+            $d = $detail->data ?? [];
+            $ctx = $d['context'] ?? [];
+            $s = $levelStyle[$detail->level] ?? $levelStyle['error'];
+            $trace = $d['trace'] ?? [];
+            $raw = json_encode($detail->only(['id', 'type', 'level', 'title', 'message', 'fingerprint', 'occurrences', 'first_seen_at', 'last_seen_at', 'user_id', 'company_id', 'resolved_at', 'resolved_by']) + ['data' => $d],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $row = fn ($label, $value) => $value === NULL || $value === '' ? '' : '<tr><td class="text-muted ps-0 text-nowrap" style="width: 150px">' . e(translator($label)) . '</td><td class="font-monospace text-break">' . e($value) . '</td></tr>';
+        @endphp
+        <x-ui.modal title="{{ translator('Error details') }} #{{ $detail->id }}" :modalStatus=$modalStatus size="xl" wKey="err-detail-{{ $tileId }}">
+            <x-slot:subtitle>
+                <div class="d-flex align-items-center gap-2 small mt-1">
+                    <span class="badge text-bg-{{ $s['color'] }}"><i class="bi bi-{{ $s['icon'] }}"></i> {{ translator(ucfirst($detail->level)) }}</span>
+                    @if ($detail->isResolved())
+                        <span class="badge text-bg-secondary"><i class="bi bi-check-circle"></i> {{ translator('Resolved') }}</span>
+                    @else
+                        <span class="badge text-bg-light border">{{ translator('Open') }}</span>
+                    @endif
+                    <span class="text-muted">&times;{{ number_format($detail->occurrences, 0, ',', '.') }} · {{ translator('last seen') }} {{ $detail->last_seen_at?->diffForHumans() }}</span>
+                </div>
+            </x-slot:subtitle>
+
+            {{-- Message --}}
+            <div class="mb-3">
+                <div class="fw-semibold mb-1">{{ $detail->title }}</div>
+                <div class="border bg-body-tertiary p-2 small text-break" style="white-space: pre-wrap; max-height: 200px; overflow: auto">{{ $detail->message }}</div>
+            </div>
+
+            <div class="row g-3">
+                {{-- Overview --}}
+                <div class="col-lg-6">
+                    <div class="text-muted text-uppercase fw-semibold mb-1" style="font-size: .7rem">{{ translator('Overview') }}</div>
+                    <table class="table table-sm table-borderless small mb-0">
+                        {!! $row('Exception', $d['exception'] ?? NULL) !!}
+                        {!! $row('Code', isset($d['code']) && $d['code'] !== 0 ? (string) $d['code'] : NULL) !!}
+                        {!! $row('File', isset($d['file']) ? $d['file'] . ':' . ($d['line'] ?? '') : NULL) !!}
+                        {!! $row('Caused by', $d['previous'] ?? NULL) !!}
+                        {!! $row('Occurrences', number_format($detail->occurrences, 0, ',', '.')) !!}
+                        {!! $row('First seen', $detail->first_seen_at?->format('d.m.Y H:i:s')) !!}
+                        {!! $row('Last seen', $detail->last_seen_at?->format('d.m.Y H:i:s')) !!}
+                        {!! $row('Environment', $d['env'] ?? NULL) !!}
+                        {!! $row('Resolved', $detail->isResolved() ? $detail->resolved_at->format('d.m.Y H:i:s') . ' · ' . ($detail->resolver?->name ?? '') : NULL) !!}
+                        {!! $row('Fingerprint', $detail->fingerprint) !!}
+                    </table>
+                </div>
+
+                {{-- Where / who --}}
+                <div class="col-lg-6">
+                    <div class="text-muted text-uppercase fw-semibold mb-1" style="font-size: .7rem">{{ translator('Where & who') }}</div>
+                    <table class="table table-sm table-borderless small mb-0">
+                        {!! $row('Source', ($ctx['kind'] ?? NULL) === 'console' ? 'Console' : (($ctx['kind'] ?? NULL) === 'http' ? 'HTTP' : NULL)) !!}
+                        {!! $row('Command', $ctx['command'] ?? NULL) !!}
+                        {!! $row('Request', isset($ctx['method']) ? $ctx['method'] . ' ' . ($ctx['path'] ?? '') : NULL) !!}
+                        {!! $row('Route', $ctx['route'] ?? NULL) !!}
+                        {!! $row('Livewire component', $ctx['livewire']['component'] ?? NULL) !!}
+                        {!! $row('Livewire method', isset($ctx['livewire']['method']) ? $ctx['livewire']['method'] . '()' : NULL) !!}
+                        {!! $row('Page', isset($ctx['livewire']['page']) ? '/' . ltrim($ctx['livewire']['page'], '/') : NULL) !!}
+                        {!! $row('User', ($detail->user?->name ?? ($d['user']['name'] ?? NULL)) ? ($detail->user?->name ?? $d['user']['name']) . ' (#' . ($detail->user_id ?? $d['user']['id'] ?? '?') . ')' : translator('Guest / system')) !!}
+                    </table>
+                </div>
+            </div>
+
+            {{-- Stack trace --}}
+            @if ($trace)
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted text-uppercase fw-semibold" style="font-size: .7rem">{{ translator('Stack trace') }} ({{ count($trace) }})</span>
+                        <span class="small text-muted"><span class="badge text-bg-dark">app</span> <span class="badge text-bg-secondary opacity-50">vendor</span></span>
+                    </div>
+                    <div class="bg-dark text-light small font-monospace" style="max-height: 320px; overflow: auto">
+                        @foreach ($trace as $i => $f)
+                            @php $isVendor = str_starts_with($f['file'] ?? '', 'vendor/') || ($f['file'] ?? NULL) === NULL; @endphp
+                            <div class="d-flex gap-2 px-2 py-1 border-bottom border-secondary {{ $isVendor ? 'opacity-50' : '' }}">
+                                <span class="text-secondary text-end" style="min-width: 2rem">#{{ $i }}</span>
+                                <div class="text-break">
+                                    <div class="{{ $isVendor ? '' : 'text-warning' }}">{{ $f['function'] }}()</div>
+                                    <div class="text-secondary">{{ $f['file'] ?? '[internal]' }}@if($f['line'] ?? NULL):{{ $f['line'] }}@endif</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Raw JSON --}}
+            <details class="mt-3">
+                <summary class="small text-muted" style="cursor: pointer">{{ translator('Raw data (JSON)') }}</summary>
+                <div class="position-relative mt-1" x-data="{ copied: false }">
+                    <button type="button" class="btn btn-sm btn-light border position-absolute top-0 end-0 m-1" style="border-radius: 0"
+                        x-on:click="navigator.clipboard.writeText($refs.raw.textContent).then(() => { copied = true; setTimeout(() => copied = false, 1500) })">
+                        <i class="bi" x-bind:class="copied ? 'bi-check2' : 'bi-clipboard'"></i>
+                        <span x-text="copied ? '{{ translator('Copied') }}' : '{{ translator('Copy') }}'"></span>
+                    </button>
+                    <pre class="bg-body-tertiary border p-2 small mb-0" style="max-height: 320px; overflow: auto" x-ref="raw">{{ $raw }}</pre>
+                </div>
+            </details>
+
+            <x-slot:footerLeft>
+                <span class="small text-muted">{{ translator('Type') }}: {{ $detail->typeInfo()['label'] }} · ID {{ $detail->id }}</span>
+            </x-slot:footerLeft>
+            <x-slot:footerRight>
+                @if ($detail->isResolved())
+                    <x-ui.btn type="lig.sm" icon="arrow-counterclockwise" action="reopen" param="{{ $detail->id }}" text="{{ translator('Reopen') }}" />
+                @else
+                    <x-ui.btn type="suc.sm" icon="check2" action="resolve" param="{{ $detail->id }}" text="{{ translator('Mark resolved') }}" />
+                @endif
+                <x-ui.btn type="sec.sm" action="closeModal" text="{{ translator('Close') }}" />
+            </x-slot:footerRight>
+        </x-ui.modal>
+    @endif
 </div>

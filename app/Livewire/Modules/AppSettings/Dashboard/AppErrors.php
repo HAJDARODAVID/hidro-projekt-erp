@@ -7,6 +7,7 @@ use App\Models\Application\AppNotification;
 use App\Services\Application\Notifications\NotificationService;
 use App\Services\Application\Notifications\NotificationTypes;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 /**
  * Dashboard widget: application errors (sys_error notifications, grouped by fingerprint).
@@ -27,10 +28,21 @@ class AppErrors extends LivewireController
 
     public bool $showResolved = FALSE;
 
+    /** Error shown in the details modal */
+    public ?int $detailId = NULL;
+
     public function mount(string $tileId, array $settings = [])
     {
         $this->tileId = $tileId;
         $this->settings = $settings;
+    }
+
+    /**
+     * Re-render when something reported new errors (e.g. the DevTool widget).
+     */
+    #[On('app-errors-refresh')]
+    public function refreshList(): void
+    {
     }
 
     public function setLevelFilter(?string $level = NULL): void
@@ -57,6 +69,21 @@ class AppErrors extends LivewireController
 
         $this->expanded = $id;
         NotificationService::markRead($notification, Auth::user());
+    }
+
+    public function openDetails(int $id): void
+    {
+        $notification = $this->find($id);
+        if (!$notification) return;
+
+        $this->detailId = $id;
+        NotificationService::markRead($notification, Auth::user());
+        $this->openModal();
+    }
+
+    public function beforeCloseModal(): void
+    {
+        $this->detailId = NULL;
     }
 
     public function resolve(int $id): void
@@ -134,6 +161,7 @@ class AppErrors extends LivewireController
             'unread'        => (clone $base)->open()->unreadBy($user)->count(),
             'resolvedCount' => (clone $base)->resolved()->count(),
             'counts'        => $counts,
+            'detail'        => $this->detailId ? $this->find($this->detailId)?->load('user:id,name', 'resolver:id,name') : NULL,
         ]);
     }
 }

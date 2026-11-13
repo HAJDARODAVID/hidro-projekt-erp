@@ -135,6 +135,15 @@ class DashboardWidgetRegistry
                     ],
                 ],
             ],
+            'dev-tool' => [
+                'title'       => 'DevTool',
+                'description' => 'Trigger test errors (critical / error / warning) and notifications to test the error reporting.',
+                'icon'        => 'tools',
+                'component'   => 'modules.app-settings.dashboard.dev-tool',
+                'w'           => 8,
+                'h'           => 30,
+                'settings'    => [],
+            ],
             'performance' => [
                 'title'       => 'Performance',
                 'description' => 'Requests per hour, response times, error rate and the slowest endpoints.',
