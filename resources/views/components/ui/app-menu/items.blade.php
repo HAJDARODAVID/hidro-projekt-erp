@@ -23,14 +23,22 @@
                 @break
 
             @case('group')
-                {{-- Open: contains the current page, else the state the user left it in (per browser) --}}
+                {{--
+                    Accordion: opening a group closes the other open group on the same level (same parent).
+                    On page load only the group(s) of the current page are open.
+                --}}
                 <li class="app-menu-item app-menu-group"
                     x-data="{
-                        key: '{{ $uid }}-{{ $node['id'] }}',
+                        menu: '{{ $uid }}',
+                        parent: {{ $parentId ?? 0 }},
+                        id: {{ $node['id'] }},
                         open: {{ $node['open'] ? 'true' : 'false' }},
-                        init() { if (!this.open) this.open = localStorage.getItem(this.key) === '1'; },
-                        toggle() { this.open = !this.open; localStorage.setItem(this.key, this.open ? '1' : '0'); },
+                        toggle() {
+                            this.open = !this.open;
+                            if (this.open) this.$dispatch('app-menu-group-opened', { menu: this.menu, parent: this.parent, id: this.id });
+                        },
                     }"
+                    x-on:app-menu-group-opened.window="if ($event.detail.menu === menu && $event.detail.parent === parent && $event.detail.id !== id) open = false"
                 >
                     <button
                         type="button"
@@ -48,7 +56,7 @@
                         <i class="bi bi-chevron-right app-menu-chevron"></i>
                     </button>
                     <div x-show="open" @if (!$node['open']) style="display: none" @endif>
-                        @include('components.ui.app-menu.items', ['nodes' => $node['children'], 'depth' => $depth + 1])
+                        @include('components.ui.app-menu.items', ['nodes' => $node['children'], 'depth' => $depth + 1, 'parentId' => $node['id']])
                     </div>
                 </li>
                 @break

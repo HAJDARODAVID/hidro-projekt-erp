@@ -2,15 +2,25 @@
 @once
     <style>
         .app-menu { --app-menu-active-bg: rgba(13, 110, 253, .1); --app-menu-active-color: #0d6efd; --app-menu-hover-bg: rgba(0, 0, 0, .04); font-size: .9rem; }
-        .app-menu { background: #fff; border: 1px solid #dee2e6; box-shadow: 0 1px 2px rgba(0, 0, 0, .04); margin: 0 .5rem .75rem; padding: .35rem 0; }
+        .app-menu { background: #fff; border: 1px solid #dee2e6; box-shadow: 0 1px 2px rgba(0, 0, 0, .04); margin: 0 .5rem .75rem; padding: 0; }
         .app-menu ul { list-style: none; margin: 0; padding: 0; }
         /* line between the top level groups / links (headers and dividers bring their own spacing) */
         .app-menu > ul > .app-menu-item + .app-menu-item { border-top: 1px solid #e9ecef; }
         .app-menu-link,
         .app-menu-group-toggle { display: flex; align-items: center; gap: .65rem; width: 100%; padding: .4rem .75rem; color: #475563; text-decoration: none; background: none; border: 0; text-align: left; border-left: 3px solid transparent; }
-        .app-menu-link:hover,
-        .app-menu-group-toggle:hover { background: var(--app-menu-hover-bg); color: #212529; }
-        .app-menu-link.is-current { background: var(--app-menu-active-bg); color: var(--app-menu-active-color); border-left-color: var(--app-menu-active-color); font-weight: 600; }
+        /* gradients: groups light gray, links (items) even lighter; hover one step darker */
+        .app-menu {
+            --app-menu-group-bg: linear-gradient(180deg, #fcfcfd 0%, #f6f7f9 100%);
+            --app-menu-group-hover-bg: linear-gradient(180deg, #f6f7f9 0%, #eef0f2 100%);
+            --app-menu-item-bg: linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+            --app-menu-item-hover-bg: linear-gradient(180deg, #f9fafb 0%, #f1f3f5 100%);
+            --app-menu-current-bg: linear-gradient(180deg, rgba(13, 110, 253, .07) 0%, rgba(13, 110, 253, .14) 100%);
+        }
+        .app-menu-group-toggle { background: var(--app-menu-group-bg); }
+        .app-menu-link { background: var(--app-menu-item-bg); }
+        .app-menu-group-toggle:hover { background: var(--app-menu-group-hover-bg); color: #212529; }
+        .app-menu-link:hover { background: var(--app-menu-item-hover-bg); color: #212529; }
+        .app-menu-link.is-current { background: var(--app-menu-current-bg); color: var(--app-menu-active-color); border-left-color: var(--app-menu-active-color); font-weight: 600; }
         .app-menu-group-toggle { font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
         .app-menu-group-toggle.has-current { color: #212529; }
         .app-menu-group-toggle .app-menu-chevron { margin-left: auto; font-size: .75rem; transition: transform .15s; }
@@ -30,7 +40,7 @@
 
 <nav {{ $attributes->merge(['class' => 'app-menu']) }} aria-label="{{ translator('Main menu') }}">
     @if (count($items))
-        @include('components.ui.app-menu.items', ['nodes' => $items, 'depth' => 1, 'uid' => $uid, 'interactive' => $interactive])
+        @include('components.ui.app-menu.items', ['nodes' => $items, 'depth' => 1, 'parentId' => NULL, 'uid' => $uid, 'interactive' => $interactive])
     @elseif ($preview)
         <div class="app-menu-empty">{{ translator('Nothing to show for this user.') }}</div>
     @endif
