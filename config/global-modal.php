@@ -81,6 +81,20 @@ return [
         'header-style' => null,
         'max-width' => '650px',
     ],
+    'certificates-overview' => [
+        // ACL employees.worker-info.certificates (the component checks it itself). Params: variant (full|card), days
+        'component-path' => 'modules.employees.components.certificates-overview',
+        'header-name' => 'Certificates & checks - overview',
+        'header-style' => null,
+        'max-width' => '1100px',
+    ],
+    'renew-certificate' => [
+        // ACL employees.worker-info.certificates. Params: certificateId
+        'component-path' => 'modules.employees.components.renew-certificate-modal',
+        'header-name' => 'Renew',
+        'header-style' => null,
+        'max-width' => '600px',
+    ],
     'workplace-fields-configurator' => [
         // Super admin only (the component checks it itself)
         'component-path' => 'modules.employees.components.workplace-fields-configurator',

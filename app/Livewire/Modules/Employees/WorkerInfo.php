@@ -37,6 +37,9 @@ class WorkerInfo extends LivewireController
     {
         $this->canCreate = \App\Services\Application\Acl\AclService::current()->can(Components\CreateWorkerModal::PERMISSION);
         $this->setTabs($this->getAvailableTabs());
+        /**?tab=certificates (e.g. from the certificates overview): open that tab, if the user may see it */
+        $tab = request()->query('tab');
+        if ($this->selectedWorker && is_string($tab)) $this->selectTab($tab);
         $this->getWorkers();
     }
 
@@ -52,6 +55,7 @@ class WorkerInfo extends LivewireController
         $tabs = [
             'basic-info' => translator('Basic info'),
             'payroll-info' => ['title' => translator('Payroll'), 'permission' => self::PAYROLL_PERMISSION],
+            'certificates' => ['title' => translator('Certificates & checks'), 'permission' => Components\WorkerCertificates::PERMISSION],
         ];
 
         if ($this->selectedWorker && HasWorkerAppUserService::byWorkerID((int) $this->selectedWorker)->hasUser()) {

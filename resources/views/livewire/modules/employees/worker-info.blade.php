@@ -63,6 +63,9 @@
                             @case ('payroll-info')
                                 @livewire('modules.employees.components.worker-payroll-info', ['workerId' => $selectedWorker], key('worker-info-payroll-info-' . $selectedWorker))
                                 @break
+                            @case ('certificates')
+                                @livewire('modules.employees.components.worker-certificates', ['workerId' => $selectedWorker], key('worker-info-certificates-' . $selectedWorker))
+                                @break
                             @case ('user-right')
                                 @livewire('modules.employees.components.worker-user-rights', ['workerId' => $selectedWorker], key('worker-info-user-right-' . $selectedWorker))
                                 @break

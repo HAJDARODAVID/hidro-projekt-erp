@@ -59,6 +59,12 @@ class QuickAccessShortcutsService
 
     private function hydrateShortcut(array $shortcut): ?array
     {
+        /**Optional 'permission' (ACL key): the shortcut is only offered to users who hold it */
+        if (!empty($shortcut['permission'])) {
+            if (!\App\Services\Application\Acl\AclService::current()->can((string) $shortcut['permission'])) return null;
+            unset($shortcut['permission']);
+        }
+
         if (($shortcut['type'] ?? null) !== 'route') {
             return $shortcut;
         }
