@@ -127,9 +127,10 @@ class AppTranslationsSyncService
 
                 $rows = [];
                 foreach ($translations as $value => $translation) {
+                    // Not trimmed: fragments like "Payroll info for: " are joined in the code, their spaces matter
                     $value = (string) $value;
-                    $translation = trim((string) $translation);
-                    if ($value === '' || $translation === '') {
+                    $translation = (string) $translation;
+                    if (trim($value) === '' || trim($translation) === '') {
                         $stats['skipped_empty']++;
                         continue;
                     }

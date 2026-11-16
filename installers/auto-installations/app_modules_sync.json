@@ -49,6 +49,16 @@
                         "resource": null,
                         "position": 4,
                         "divider": null
+                    },
+                    {
+                        "id": "8dcd614b-5b1f-4942-868a-28be70760f5d",
+                        "title": "Translator",
+                        "route_name": "getTranslatorModules",
+                        "method": "getTranslatorModules",
+                        "active": true,
+                        "resource": null,
+                        "position": 5,
+                        "divider": null
                     }
                 ]
             },

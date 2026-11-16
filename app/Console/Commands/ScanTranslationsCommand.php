@@ -61,7 +61,7 @@ class ScanTranslationsCommand extends Command
         $output += $orphans;
 
         File::ensureDirectoryExists(dirname($path));
-        File::put($path, json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n");
+        File::put($path, json_encode((object) $output, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n");
 
         $this->info('Strings in the code: ' . count($strings));
         $this->line('Already translated in the database (' . $lang . '): ' . count(array_intersect_key($strings, $translated)));

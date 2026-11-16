@@ -11,5 +11,8 @@ class AppTranslation extends Model
 
     protected $table = 'app_translations';
 
+    /**The table has no created_at / updated_at */
+    public $timestamps = FALSE;
+
     protected $fillable = ['value', 'lang', 'translation',];
 }
