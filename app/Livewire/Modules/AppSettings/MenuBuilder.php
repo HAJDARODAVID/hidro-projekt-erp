@@ -45,7 +45,10 @@ class MenuBuilder extends LivewireController
 
     public bool $showNewMenu = FALSE;
 
-    public array $newMenu = ['name' => '', 'key' => ''];
+    private const EMPTY_NEW_MENU = ['name' => '', 'key' => '', 'copy_from' => ''];
+
+    /** copy_from: id of the menu whose items the new menu starts with ('' = empty menu) */
+    public array $newMenu = self::EMPTY_NEW_MENU;
 
     /** Right panel: settings | preview */
     public string $panel = 'settings';
@@ -80,15 +83,24 @@ class MenuBuilder extends LivewireController
     public function toggleNewMenu()
     {
         $this->showNewMenu = !$this->showNewMenu;
-        $this->newMenu = ['name' => '', 'key' => ''];
+        $this->newMenu = self::EMPTY_NEW_MENU;
     }
 
+    /**
+     * New menu, optionally starting as a copy of an existing one (newMenu.copy_from).
+     */
     public function createMenu()
     {
         $this->run(function () {
-            $menu = $this->service()->createMenu((string) $this->newMenu['name'], (string) $this->newMenu['key'], $this->companyId());
+            $menu = DB::transaction(function () {
+                $menu = $this->service()->createMenu((string) $this->newMenu['name'], (string) $this->newMenu['key'], $this->companyId());
+                if (!empty($this->newMenu['copy_from'])) {
+                    $this->service()->copyFromMenu($menu, $this->sourceMenu($this->newMenu['copy_from']));
+                }
+                return $menu;
+            });
             $this->showNewMenu = FALSE;
-            $this->newMenu = ['name' => '', 'key' => ''];
+            $this->newMenu = self::EMPTY_NEW_MENU;
             $this->loadMenu($menu);
             $this->notifyMe(translator('Menu created'));
         });
@@ -141,14 +153,15 @@ class MenuBuilder extends LivewireController
         });
     }
 
-    public function importLegacyMenu()
+    /**
+     * Copy all items of another menu (same company) to the end of the current menu.
+     */
+    public function copyFromMenu($sourceId)
     {
-        $this->run(function () {
-            $stats = $this->service()->importLegacyMenu($this->menu());
-            $this->notifyMe(translator('Imported') . ': ' . $stats['groups'] . ' ' . translator('groups') . ', ' . $stats['links'] . ' ' . translator('links'));
-            if ($stats['skipped']) {
-                $this->showException(translator('These routes do not exist (or need parameters) and were skipped') . ': ' . implode(', ', array_unique($stats['skipped'])));
-            }
+        $this->run(function () use ($sourceId) {
+            $count = $this->service()->copyFromMenu($this->menu(), $this->sourceMenu($sourceId));
+            $this->clearSelection();
+            $this->notifyMe(translator('Copied') . ': ' . $count . ' ' . translator('items'));
         });
     }
 
@@ -312,6 +325,14 @@ class MenuBuilder extends LivewireController
         return $menu;
     }
 
+    /** A menu of the current company to copy from */
+    private function sourceMenu($id): AppMenu
+    {
+        $menu = AppMenu::ofCompany($this->companyId())->find((int) $id);
+        if (!$menu) throw new \InvalidArgumentException(translator('The menu to copy from does not exist (anymore).'));
+        return $menu;
+    }
+
     private function item(int $id): AppMenuItem
     {
         $item = AppMenuItem::where('menu_id', $this->menu()->id)->find($id);
@@ -404,7 +425,6 @@ class MenuBuilder extends LivewireController
             'maxDepth'       => MenuBuilderService::MAX_DEPTH,
             'isLocalEnv'     => app()->isLocal(),
             'syncFileDate'   => File::exists(AppMenusSyncService::filePath()) ? date('d.m.Y H:i', File::lastModified(AppMenusSyncService::filePath())) : NULL,
-            'hasLegacyMenu'  => \App\Models\ModuleItemModel::exists(),
         ]);
     }
 }

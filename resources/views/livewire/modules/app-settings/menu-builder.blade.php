@@ -1,5 +1,9 @@
-<div class="px-3 flex-fill h-100 d-flex flex-column" style="min-height: 85vh !important" id='module_container'>
+<div class="mb-root px-3 flex-fill h-100 d-flex flex-column" style="min-height: 85vh !important" id='module_container'>
     <style>
+        /* Square corners everywhere in the builder (switches and the live menu preview keep their own look) */
+        .mb-root *:not(.form-switch .form-check-input):not(.mb-preview *),
+        .mb-root *:not(.mb-preview *)::before,
+        .mb-root *:not(.mb-preview *)::after { border-radius: 0 !important; }
         .mb-scroll { overflow-y: auto; max-height: calc(100vh - 290px); min-height: 300px; }
         .mb-palette-btn { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .3rem .5rem; border: 1px solid transparent; background: none; text-align: left; font-size: .85rem; }
         .mb-palette-btn:hover { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); }
@@ -47,7 +51,6 @@
                     @endforeach
                 </select>
             @endif
-            <x-ui.btn type="lig.sm" icon="plus-lg" text="{{ translator('New menu') }}" action="toggleNewMenu" />
 
             @if ($menu)
                 <x-v-divider class="align-self-stretch" />
@@ -59,32 +62,46 @@
                     <span class="input-group-text">{{ translator('Key') }}</span>
                     <input type="text" class="form-control font-monospace" wire:model.blur="menuForm.key" maxlength="50">
                 </div>
-                <div class="form-check form-switch mb-0 ms-1" title="{{ translator('A switched off menu is not rendered anywhere') }}">
-                    <input class="form-check-input" type="checkbox" id="mb-menu-active" wire:model.live="menuForm.active">
-                    <label class="form-check-label small" for="mb-menu-active">{{ translator('Active') }}</label>
-                </div>
-                <x-ui.btn
-                    type="lig.sm"
-                    icon="trash"
-                    action="deleteMenu"
-                    title="{{ translator('Delete menu') }}"
-                    wire:confirm="{{ translator('Delete the menu with all its items? Places that render it show nothing anymore.') }}"
-                />
             @endif
 
-            <div class="ms-auto d-flex gap-2">
-                @if ($menu && $hasLegacyMenu)
+            <div class="ms-auto d-flex align-items-center gap-2">
+                @if ($menu && $menus->count() > 1)
+                    {{-- Copy all items of another menu to the end of this one --}}
+                    <select
+                        class="form-select form-select-sm"
+                        style="width: auto; min-width: 180px"
+                        title="{{ translator('Copy all items of another menu to the end of this menu') }}"
+                        wire:loading.attr="disabled"
+                        wire:target="copyFromMenu"
+                        x-on:change="
+                            const id = $event.target.value;
+                            const name = $event.target.selectedOptions[0].text;
+                            $event.target.value = '';
+                            if (id && confirm(@js(translator('Copy all items of this menu to the end of the current menu?')) + '\n\n' + name)) $wire.copyFromMenu(id);
+                        "
+                    >
+                        <option value="">{{ translator('Copy from menu…') }}</option>
+                        @foreach ($menus as $m)
+                            @continue($m->id === $menu->id)
+                            <option value="{{ $m->id }}">{{ $m->name }} ({{ $m->key }})</option>
+                        @endforeach
+                    </select>
+                @endif
+                @if ($menu)
+                    <div class="form-check form-switch mb-0 ms-1" title="{{ translator('A switched off menu is not rendered anywhere') }}">
+                        <input class="form-check-input" type="checkbox" id="mb-menu-active" wire:model.live="menuForm.active">
+                        <label class="form-check-label small" for="mb-menu-active">{{ translator('Active') }}</label>
+                    </div>
                     <x-ui.btn
                         type="lig.sm"
-                        icon="box-arrow-in-down"
-                        text="{{ translator('Import current sidebar') }}"
-                        action="importLegacyMenu"
-                        title="{{ translator('Copy the groups and links of the current sidebar to the end of this menu') }}"
-                        wire:confirm="{{ translator('Copy the groups and links of the current sidebar (module items) to the end of this menu?') }}"
-                        wire:loading.attr="disabled"
-                        wire:target="importLegacyMenu"
+                        icon="trash"
+                        action="deleteMenu"
+                        title="{{ translator('Delete menu') }}"
+                        wire:confirm="{{ translator('Delete the menu with all its items? Places that render it show nothing anymore.') }}"
                     />
+                    <x-v-divider class="align-self-stretch" />
                 @endif
+                <x-ui.btn type="lig.sm" icon="plus-lg" text="{{ translator('New menu') }}" action="toggleNewMenu" />
                 {{-- Local: export the menus into the sync file / other envs: install the sync file --}}
                 @if ($isLocalEnv)
                     <x-ui.btn
@@ -116,6 +133,14 @@
                 <i class="bi bi-plus-square text-primary"></i>
                 <input type="text" class="form-control form-control-sm" style="width: 220px" placeholder="{{ translator('Name, e.g. Main menu') }}" wire:model="newMenu.name" maxlength="100" autofocus>
                 <input type="text" class="form-control form-control-sm font-monospace" style="width: 180px" placeholder="{{ translator('Key, e.g. main') }}" wire:model="newMenu.key" maxlength="50">
+                @if ($menus->isNotEmpty())
+                    <select class="form-select form-select-sm" style="width: auto; min-width: 180px" wire:model="newMenu.copy_from" title="{{ translator('Start with a copy of the items of an existing menu') }}">
+                        <option value="">{{ translator('Start empty') }}</option>
+                        @foreach ($menus as $m)
+                            <option value="{{ $m->id }}">{{ translator('Copy of') }}: {{ $m->name }} ({{ $m->key }})</option>
+                        @endforeach
+                    </select>
+                @endif
                 <button type="submit" class="btn btn-primary btn-sm shadow" style="border-radius: 0">{{ translator('Create') }}</button>
                 <button type="button" class="btn btn-light btn-sm shadow gray-border-color" style="border-radius: 0" wire:click="toggleNewMenu">{{ translator('Cancel') }}</button>
                 <span class="small text-muted ms-2">{{ translator('The key is used in the code, the sidebar uses the key') }} <code>main</code>.</span>
@@ -252,7 +277,7 @@
                             @else
                                 <div class="text-center text-muted py-5">
                                     <i class="bi bi-diagram-3 fs-2 d-block mb-2"></i>
-                                    {{ translator('The menu is empty. Add groups and links from the left') }}@if ($hasLegacyMenu), {{ translator('or import the current sidebar') }}@endif.
+                                    {{ translator('The menu is empty. Add groups and links from the left') }}@if ($menus->count() > 1), {{ translator('or copy them from another menu') }}@endif.
                                 </div>
                             @endif
 

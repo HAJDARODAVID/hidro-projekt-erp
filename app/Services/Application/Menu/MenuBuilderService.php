@@ -6,8 +6,6 @@ use App\Models\Application\AppMenu;
 use App\Models\Application\AppMenuItem;
 use App\Models\Application\AppModule;
 use App\Models\Application\AppModuleRoute;
-use App\Models\ModuleItemModel;
-use App\Models\ModuleItemsRouteModel;
 use App\Services\Application\Acl\AclService;
 use App\Services\Application\CompanyContext;
 use Illuminate\Support\Collection;
@@ -154,50 +152,30 @@ class MenuBuilderService
     }
 
     /**
-     * Copy the old sidebar (module_items / module_item_routes) to the end of the menu:
-     * one group per old module, one link per old route. Routes that no longer exist are skipped.
+     * Copy every item of $source (with children, order, icons, permissions, active flags) to the end of $target.
+     * $target keeps its own items; copying twice gives the items twice.
      *
-     * @return array ['groups' => int, 'links' => int, 'skipped' => [route names]]
+     * @return int number of copied items
      */
-    public function importLegacyMenu(AppMenu $menu): array
+    public function copyFromMenu(AppMenu $target, AppMenu $source): int
     {
-        $stats = ['groups' => 0, 'links' => 0, 'skipped' => []];
+        if ($source->id === $target->id) throw new \InvalidArgumentException(translator('A menu can not be copied into itself.'));
+        if ((string) $source->company_id !== (string) $target->company_id) throw new \InvalidArgumentException(translator('The menu belongs to another company.'));
 
-        DB::transaction(function () use ($menu, &$stats) {
-            $routes = ModuleItemsRouteModel::orderBy('id')->get()->groupBy('module_id');
+        $count = DB::transaction(function () use ($target, $source) {
+            $position = (int) AppMenuItem::where('menu_id', $target->id)->whereNull('parent_id')->max('position') + 1;
+            if (!AppMenuItem::where('menu_id', $target->id)->whereNull('parent_id')->exists()) $position = 0;
 
-            foreach (ModuleItemModel::orderBy('id')->get() as $module) {
-                $links = ($routes[$module->id] ?? collect())->filter(function ($route) use (&$stats) {
-                    if ($this->isLinkableRoute((string) $route->route_name)) return TRUE;
-                    $stats['skipped'][] = $route->route_name;
-                    return FALSE;
-                });
-                if ($links->isEmpty()) continue;
-
-                $group = $this->addItem($menu, AppMenuItem::TYPE_GROUP, [
-                    'title' => Str::limit((string) $module->name, 100, ''),
-                    'icon'  => $this->cleanIcon((string) $module->icon, FALSE),
-                ]);
-                $stats['groups']++;
-
-                $position = 0;
-                foreach ($links as $route) {
-                    AppMenuItem::create([
-                        'menu_id'    => $menu->id,
-                        'parent_id'  => $group->id,
-                        'type'       => AppMenuItem::TYPE_LINK,
-                        'title'      => $this->cleanTitle((string) ($route->name ?: $route->route_name)),
-                        'route_name' => $route->route_name,
-                        'position'   => $position++,
-                        'active'     => TRUE,
-                    ]);
-                    $stats['links']++;
-                }
+            $count = 0;
+            $roots = AppMenuItem::where('menu_id', $source->id)->whereNull('parent_id')->orderBy('position')->get();
+            foreach ($roots as $root) {
+                $this->copyTree($root, NULL, $position++, $target->id, $count);
             }
+            return $count;
         });
 
         MenuRenderer::flush();
-        return $stats;
+        return $count;
     }
 
     public function updateItem(AppMenuItem $item, string $field, mixed $value): AppMenuItem
@@ -630,15 +608,21 @@ class MenuBuilderService
         return FALSE;
     }
 
-    private function copyTree(AppMenuItem $item, ?int $parentId, int $position): AppMenuItem
+    /**
+     * Copy $item with its children under $parentId; $menuId moves the copy into another menu (NULL = same menu).
+     * $count is raised by the number of created items.
+     */
+    private function copyTree(AppMenuItem $item, ?int $parentId, int $position, ?int $menuId = NULL, int &$count = 0): AppMenuItem
     {
         $copy = $item->replicate(['created_at', 'updated_at']);
+        if ($menuId !== NULL) $copy->menu_id = $menuId;
         $copy->parent_id = $parentId;
         $copy->position = $position;
         $copy->save();
+        $count++;
 
         foreach ($item->children as $child) {
-            $this->copyTree($child, $copy->id, $child->position);
+            $this->copyTree($child, $copy->id, $child->position, $menuId, $count);
         }
         return $copy;
     }
