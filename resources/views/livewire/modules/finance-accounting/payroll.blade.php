@@ -47,12 +47,12 @@
                                 <th style="text-align: center">{{ translator('SL') }}[d]</th>
                                 <th style="text-align: center">{{ translator('HD') }}[d]</th>
                                 <th style="text-align: center">{{ translator('Home') }}[d]</th>
-                                <th style="text-align: center">{{ translator('Field') }}[d]</th>
+                                <th style="text-align: center">{{ translator('Field work') }}[d]</th>
                                 <th style="text-align: center; border-left: 1px solid #ccc">{{ translator('Base hours') }}[h]</th>
                                 <th style="text-align: center">{{ translator('Hourly rate') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Base') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Home') }}[€]</th>
-                                <th style="text-align: center">{{ translator('Field') }}[€]</th>
+                                <th style="text-align: center">{{ translator('Field work') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Travel expense') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Phone expense') }}[€]</th>
                                 <th style="text-align: center">{{ translator('Bonus') }}[€]</th>

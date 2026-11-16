@@ -31,7 +31,7 @@
                             <th style="text-align: center">{{ translator('Bonus') }}</th>
                             <th style="text-align: center">{{ translator('Work hours') }}</th>
                             <th style="text-align: center">{{ translator('Home') }}</th>
-                            <th style="text-align: center">{{ translator('Field') }}</th>
+                            <th style="text-align: center">{{ translator('Field work') }}</th>
                             <th style="text-align: center">{{ translator('PL') }}</th>
                             <th style="text-align: center">{{ translator('SL') }}</th>
                             <th style="text-align: center">{{ translator('HD') }}</th>
