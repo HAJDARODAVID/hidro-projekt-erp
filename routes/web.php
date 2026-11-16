@@ -28,9 +28,7 @@ use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\WorkDayDiaryController;
 use App\Http\Controllers\WorkingHoursController;
 use App\Services\HidroProjekt\Domain\Bookkeeping\ExpensesReportService;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
 
@@ -284,24 +282,9 @@ Route::prefix('/json')
             });
     });
 
-Route::get('/clear', function () {
-    Artisan::call('cache:clear');
-    Artisan::call('route:cache');
-    Artisan::call('view:clear');
-    Artisan::call('config:cache');
-    echo  "all cleared ...";
-    return;
-});
-
 Route::post('/quick-access/execute', [QuickAccessController::class, 'execute'])
     ->middleware(['auth'])
     ->name('quickAccess.execute');
-
-Route::get('test', function () {
-    return view('test');
-});
-
-Route::get('/test2', [App\Http\Controllers\Test2::class, 'redisKeys']);
 
 /**
  * VERSION 3.0.0
@@ -415,24 +398,3 @@ Route::prefix('/')
                     });
             });
     });
-
-Route::get('/db-test', function () {
-    // $model = new App\Models\Application\AppConfig();
-    // $array = [
-    //     'key' => 's.test',
-    //     'value' => 'tes_tis',
-    //     'default_value' => NULL,
-    //     'label' => 'test',
-    //     'description' => 'test',
-    //     'data_type' => 'string',
-    //     'is_public' => true,
-    //     'is_locked' => false,
-    //     'created_by' => 1,
-    //     'updated_by' => 1
-    // ];
-    // $model = $model->create($array);
-    // return 'gotovo';
-    $redisClient = Redis::connection('cache')->client();
-    $allKeys = $redisClient->keys('*');
-    dd();
-});
