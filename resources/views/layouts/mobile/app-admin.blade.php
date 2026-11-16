@@ -231,7 +231,10 @@
             </button>
         </div>
         <div class="mobile-drawer-body">
-            @livewire('main-menu')
+            {{-- OLD MENU - BACK UP (replaced by the menu builder menu) --}}
+            {{-- @livewire('main-menu') --}}
+            <x-ui.app-menu menu="transition-menu" />
+            <x-ui.app-menu-extras />
         </div>
         <div class="mobile-drawer-footer">
             @livewire('my-profile-component')

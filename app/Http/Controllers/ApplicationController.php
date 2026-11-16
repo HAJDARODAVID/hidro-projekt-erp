@@ -47,4 +47,12 @@ class ApplicationController extends Controller
     {
         return $this->module('acl');
     }
+
+    /**
+     * Show the menu builder module (build the menus rendered with <x-ui.app-menu />).
+     */
+    public function getMenuBuilderModule()
+    {
+        return $this->module('menu-builder');
+    }
 }

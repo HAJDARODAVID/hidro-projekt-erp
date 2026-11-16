@@ -26,7 +26,10 @@
             {{-- TODO: remaster meni-a, iskoristi ovo gore --}}
             {{-- <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="d-flex flex-column position-sticky pt-3 sidebar-sticky">
-                    @livewire('main-menu')  
+                    {{-- OLD MENU - BACK UP (replaced by the menu builder menu) --}}
+                    {{-- @livewire('main-menu') --}}
+                    <x-ui.app-menu menu="transition-menu" />
+                    <x-ui.app-menu-extras />
                     @livewire('my-profile-component')
                 </div>
             </nav> --}}
