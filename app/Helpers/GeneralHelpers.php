@@ -19,8 +19,9 @@ if (!function_exists('translator')) {
         if ($lang == NULL) $lang = Session::get('lang', NULL);
 
         if ($lang !== NULL) {
-            $translation = AppTranslation::where('value', $value)->where('lang', $lang)->first();
-            if ($translation !== NULL) $output = $translation->translation;
+            /**NULL / empty translation = not translated yet (added by translations:scan): show the original text */
+            $translation = AppTranslation::where('value', $value)->where('lang', $lang)->value('translation');
+            if ($translation !== NULL && $translation !== '') $output = $translation;
         }
 
         return $output;

@@ -263,7 +263,8 @@ class MenuRenderer
         });
         if (!$titles) return $tree;
 
-        $translations = AppTranslation::where('lang', $lang)->whereIn('value', array_keys($titles))->pluck('translation', 'value')->all();
+        // untranslated rows (NULL / empty) are left out, the title stays as it is
+        $translations = AppTranslation::where('lang', $lang)->whereIn('value', array_keys($titles))->whereNotNull('translation')->where('translation', '!=', '')->pluck('translation', 'value')->all();
 
         $apply = function (array $nodes) use (&$apply, $translations) {
             foreach ($nodes as &$node) {

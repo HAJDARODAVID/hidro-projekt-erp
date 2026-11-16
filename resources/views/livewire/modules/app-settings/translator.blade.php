@@ -14,37 +14,34 @@
                     <option value="{{ $code }}">{{ strtoupper($code) }}</option>
                 @endforeach
             </select>
+            <select class="form-select form-select-sm no-border-radius" style="width: auto" wire:model.live="status" title="{{ translator('Status') }}">
+                @foreach ($statuses as $key => $label)
+                    <option value="{{ $key }}">{{ $label }}</option>
+                @endforeach
+            </select>
             <div style="width: 320px">
                 <x-ui.input size="sm" placeholder="{{ translator('Search the text or the translation') }}" wModel="search" wModelEvent="live.debounce.300ms" />
             </div>
             @if ($search !== '')
                 <x-ui.btn type="lig.sm" icon="x-lg" action="resetSearch" title="{{ translator('Reset the search') }}" />
             @endif
+            @if ($untranslatedCount)
+                <a href="#" class="badge text-bg-warning text-decoration-none no-border-radius" wire:click.prevent="$set('status', 'untranslated')" title="{{ translator('Show the untranslated texts') }}">
+                    {{ $untranslatedCount }} {{ translator('untranslated') }}
+                </a>
+            @endif
 
             <div class="ms-auto d-flex align-items-center gap-2">
-                <x-ui.btn type="lig.sm" icon="plus-lg" text="{{ translator('New translation') }}" action="toggleNew" />
-                {{-- Local: export the translations into the sync file / other envs: install the sync file --}}
-                @if ($isLocalEnv)
-                    <x-ui.btn
-                        type="lig.sm"
-                        icon="box-arrow-up"
-                        action="exportTranslations"
-                        title="{{ translator('Export the translations to the sync file') }}"
-                        wire:loading.attr="disabled"
-                        wire:target="exportTranslations"
-                    />
-                @else
-                    <x-ui.btn
-                        type="lig.sm"
-                        icon="arrow-repeat"
-                        action="syncTranslationsFromFile"
-                        :disabled="$syncFileDate === NULL"
-                        title="{{ $syncFileDate ? translator('Sync the translations from the file') . ' (' . $syncFileDate . ')' : translator('The sync file does not exist') }}"
-                        wire:confirm="{{ translator('Sync the translations from the file? Translations of the file overwrite the ones here, nothing is deleted.') }}"
-                        wire:loading.attr="disabled"
-                        wire:target="syncTranslationsFromFile"
-                    />
-                @endif
+                <x-ui.btn
+                    type="lig.sm"
+                    icon="search"
+                    text="{{ translator('Scan the code') }}"
+                    action="scanCode"
+                    title="{{ translator('Add the texts of the code that are missing (the deploy does it too)') }}"
+                    wire:loading.attr="disabled"
+                    wire:target="scanCode"
+                />
+                <x-ui.btn type="lig.sm" icon="plus-lg" text="{{ translator('New text') }}" action="toggleNew" title="{{ translator('For texts the scan can not find, e.g. texts passed as a variable') }}" />
             </div>
         </div>
 
@@ -54,7 +51,7 @@
                 <i class="bi bi-plus-square text-primary"></i>
                 <input type="text" class="form-control form-control-sm no-border-radius" style="max-width: 420px" placeholder="{{ translator('Text exactly as in the code, e.g. Save') }}" wire:model="newTranslation.value" maxlength="{{ $maxLength }}" autofocus>
                 <i class="bi bi-arrow-right text-muted"></i>
-                <input type="text" class="form-control form-control-sm no-border-radius" style="max-width: 420px" placeholder="{{ translator('Translation') }} ({{ strtoupper($lang) }})" wire:model="newTranslation.translation" maxlength="{{ $maxLength }}">
+                <input type="text" class="form-control form-control-sm no-border-radius" style="max-width: 420px" placeholder="{{ translator('Translation') }} ({{ strtoupper($lang) }}, {{ translator('optional') }})" wire:model="newTranslation.translation" maxlength="{{ $maxLength }}">
                 <button type="submit" class="btn btn-primary btn-sm shadow no-border-radius">{{ translator('Save') }}</button>
                 <button type="button" class="btn btn-light btn-sm shadow gray-border-color no-border-radius" wire:click="toggleNew">{{ translator('Cancel') }}</button>
                 <span class="small text-muted ms-2">{{ translator('Upper / lower case and spaces must match the code.') }}</span>
@@ -74,13 +71,15 @@
                 <tbody>
                     @forelse ($translations as $row)
                         {{-- the key changes with the saved translation, so the input shows the saved text after a save --}}
-                        <tr wire:key="tr-{{ $row->id }}-{{ md5($row->translation) }}">
+                        @php($isUntranslated = $row->translation === NULL || $row->translation === '')
+                        <tr wire:key="tr-{{ $row->id }}-{{ md5((string) $row->translation) }}">
                             <td class="tr-value small"><code class="text-body">{{ $row->value }}</code></td>
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm no-border-radius"
+                                    @class(['form-control form-control-sm no-border-radius', 'border-warning' => $isUntranslated])
                                     value="{{ $row->translation }}"
+                                    placeholder="{{ $isUntranslated ? translator('Not translated, the original text is shown') : '' }}"
                                     maxlength="{{ $maxLength }}"
                                     wire:change="saveTranslation({{ $row->id }}, $event.target.value)"
                                     x-on:keydown.enter="$event.target.blur()"
@@ -88,14 +87,14 @@
                             </td>
                             <td class="text-end">
                                 <x-ui.btn type="dan.sm" icon="trash" action="deleteTranslation" param="{{ $row->id }}"
-                                    title="{{ translator('Delete the translation') }}"
-                                    wire:confirm="{{ translator('Delete the translation? The original text is shown again.') }}" />
+                                    title="{{ translator('Delete the text (for texts no longer in the code)') }}"
+                                    wire:confirm="{{ translator('Delete the text? If it is still used in the code, the next scan adds it again (untranslated).') }}" />
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="3" class="text-center text-muted py-4">
-                                <i>{{ $search !== '' ? translator('No translations match the search.') : translator('No translations yet.') }}</i>
+                                <i>{{ $search !== '' || $status !== 'all' ? translator('No translations match the filters.') : translator('No texts yet. Scan the code to add them.') }}</i>
                             </td>
                         </tr>
                     @endforelse

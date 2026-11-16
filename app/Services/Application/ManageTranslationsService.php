@@ -3,7 +3,6 @@
 namespace App\Services\Application;
 
 use App\Models\Translation\AppTranslation;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Everything the Translator module changes in app_translations.
@@ -11,42 +10,28 @@ use Illuminate\Support\Facades\DB;
  *
  * `value` is the text passed to translator() in the code and is compared exactly (case sensitive),
  * so it can not be edited here: a changed value would no longer match the code.
+ * An empty translation is stored as NULL = not translated, translator() shows the original text.
  */
 class ManageTranslationsService
 {
-    const MAX_LENGTH = AppTranslationsSyncService::MAX_LENGTH;
+    const MAX_LENGTH = AppTranslationsService::MAX_LENGTH;
 
     /**
-     * Languages offered in the module: the ones with translations, the ones of the users and hr.
-     *
-     * @return array<string>
+     * A text the scan can not find (e.g. translator($variable)), added for the language.
      */
-    public static function languages(): array
-    {
-        return collect(['hr'])
-            ->merge(DB::table('app_translations')->distinct()->pluck('lang'))
-            ->merge(DB::table('users')->whereNotNull('lang')->distinct()->pluck('lang'))
-            ->map(fn ($lang) => strtolower(trim((string) $lang)))
-            ->filter(fn ($lang) => preg_match('/^[a-z]{2,5}$/', $lang))
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
-    }
-
     public function create(string $value, string $lang, string $translation): AppTranslation
     {
         $value = $this->cleanValue($value);
         $lang = $this->cleanLang($lang);
-        $translation = $this->cleanTranslation($translation);
 
         if (AppTranslation::where('value', $value)->where('lang', $lang)->exists()) {
-            throw new \InvalidArgumentException(translator('This text already has a translation in this language') . ': ' . $value);
+            throw new \InvalidArgumentException(translator('This text already exists in this language') . ': ' . $value);
         }
 
-        return AppTranslation::create(['value' => $value, 'lang' => $lang, 'translation' => $translation]);
+        return AppTranslation::create(['value' => $value, 'lang' => $lang, 'translation' => $this->cleanTranslation($translation)]);
     }
 
+    /** An empty translation clears it (the original text is shown again) */
     public function update(int $id, string $translation): AppTranslation
     {
         $row = $this->find($id);
@@ -55,6 +40,7 @@ class ManageTranslationsService
         return $row;
     }
 
+    /** A text that is still in the code is added again (untranslated) by the next scan */
     public function delete(int $id): void
     {
         $this->find($id)->delete();
@@ -75,9 +61,9 @@ class ManageTranslationsService
         return $value;
     }
 
-    private function cleanTranslation(string $translation): string
+    private function cleanTranslation(string $translation): ?string
     {
-        if (trim($translation) === '') throw new \InvalidArgumentException(translator('The translation is required. Delete the row to show the original text again.'));
+        if (trim($translation) === '') return NULL;
         $this->assertLength($translation);
         return $translation;
     }
@@ -85,7 +71,9 @@ class ManageTranslationsService
     private function cleanLang(string $lang): string
     {
         $lang = strtolower(trim($lang));
-        if (!preg_match('/^[a-z]{2,5}$/', $lang)) throw new \InvalidArgumentException(translator('Invalid language code') . ': ' . $lang);
+        if (!AppTranslationsService::isAllowedLanguage($lang)) {
+            throw new \InvalidArgumentException(translator('The language is not allowed') . ': ' . $lang);
+        }
         return $lang;
     }
 

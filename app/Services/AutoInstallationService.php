@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AutoInstallation;
 use App\Services\Application\AppModulesSyncService;
-use App\Services\Application\AppTranslationsSyncService;
 use App\Services\Application\Acl\AclSyncService;
 use App\Services\Application\Menu\AppMenusSyncService;
 use App\Services\Config\BaseConfigService;
@@ -19,7 +18,6 @@ class AutoInstallationService extends BaseConfigService
         AppModulesSyncService::INSTALLATION_TYPE,
         AclSyncService::INSTALLATION_TYPE,
         AppMenusSyncService::INSTALLATION_TYPE,
-        AppTranslationsSyncService::INSTALLATION_TYPE,
     ];
 
     /**
@@ -203,7 +201,6 @@ class AutoInstallationService extends BaseConfigService
             AppModulesSyncService::INSTALLATION_TYPE => AppModulesSyncService::import($data),
             AclSyncService::INSTALLATION_TYPE => AclSyncService::import($data),
             AppMenusSyncService::INSTALLATION_TYPE => AppMenusSyncService::import($data),
-            AppTranslationsSyncService::INSTALLATION_TYPE => AppTranslationsSyncService::import($data),
             default => throw new \Exception("Unknown installation type: $installationType"),
         };
 

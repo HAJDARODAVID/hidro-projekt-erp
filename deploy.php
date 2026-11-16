@@ -45,5 +45,11 @@ task('artisan:auto-install', function () {
     run('cd {{release_path}} && php artisan auto-install:check');
 })->desc('Run auto-installation checks');
 
+// Add the translator() strings of the code to app_translations (empty translation) for every allowed language
+task('artisan:translations:scan', function () {
+    run('cd {{release_path}} && php artisan translations:scan');
+})->desc('Scan the code for translator() strings');
+
 after('deploy:update_code', 'deploy:build');
 after('artisan:migrate', 'artisan:auto-install');
+after('artisan:auto-install', 'artisan:translations:scan');
