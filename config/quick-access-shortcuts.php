@@ -40,19 +40,11 @@ return [
             'permission' => 'employees.worker-info.certificates',
         ],
         [
-            'code' => 'APP-MODULES',
-            'label' => 'Application modules',
+            'code' => 'APP',
+            'label' => 'Application settings',
             'type' => 'route',
             'route_names' => [
-                'getAllApplicationModules',
-            ],
-        ],
-        [
-            'code' => 'APP-ACL',
-            'label' => 'Access control (ACL)',
-            'type' => 'route',
-            'route_names' => [
-                'getAclModule',
+                'applicationDashboard',
             ],
         ],
         // Any shortcut can have an optional 'permission' => 'acl.key': it is only offered to users who hold it.
