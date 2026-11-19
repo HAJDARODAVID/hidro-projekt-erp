@@ -8,9 +8,9 @@ use App\Models\Employees\WorkerStatus;
 use App\Models\Employees\WorkerType;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
+use App\Livewire\Tables\AppDataTable;
 
-class WorkersTable extends DataTableComponent
+class WorkersTable extends AppDataTable
 {
     protected $model = Worker::class;
 
@@ -19,6 +19,18 @@ class WorkersTable extends DataTableComponent
         $this->setPrimaryKey('id');
         // $this->setPerPageAccepted([15, 25, 50, 100]);
         // $this->setPerPage(15);
+
+        // our buttons on the right of the toolbar (icon only, the text is the tooltip)
+        $this->toolbarButtons([
+            [
+                'icon'  => 'person-plus',
+                'title' => translator('New worker'),
+                'type'  => 'suc',
+                'modal' => 'create-worker',
+                'can'   => CreateWorkerModal::PERMISSION,
+            ],
+        ], 'toolbar-right-end');
+
         $this->setTableRowUrl(function ($row) {
             return route('getWorkerInfo', ['worker' => $row->id]);
         });
@@ -54,8 +66,8 @@ class WorkersTable extends DataTableComponent
                 ->label(fn($row, Column $column) => $this->getWorkerAddress($row)),
             Column::make("RADNO MJESTO", "working_place")
                 ->searchable(),
-            Column::make("DATUM ZAPOŠLJENJA", "doe"),
-            Column::make("UGOVOR TRAJE DO", "ced"),
+            $this->dateColumn("DATUM ZAPOŠLJENJA", "doe"),
+            $this->dateColumn("UGOVOR TRAJE DO", "ced"),
             Column::make("", "actions")
                 ->label(
                     fn($row, Column $column) => view('components.table.table-actions', ['row' => $row, 'livewire' => 'modules.employees.components.table-actions'])

@@ -371,3 +371,85 @@ body.livewire-loading {
     -moz-appearance: textfield;
     appearance: textfield;
 }
+/* ------------------------------------------------------------------
+ * App tables (rappasoft/laravel-livewire-tables extending App\Livewire\Tables\AppDataTable)
+ * Our look without changing the package: sharp edges, compact controls and rows.
+ * ------------------------------------------------------------------ */
+.app-table *:not(.form-switch .form-check-input),
+.app-table *::before,
+.app-table *::after {
+    border-radius: 0 !important;
+}
+
+/* toolbar: controls as small as our form-control-sm / btn-sm */
+.app-table .form-control,
+.app-table .form-select,
+.app-table .input-group-text,
+.app-table .btn {
+    font-size: .875rem;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    box-shadow: none;
+}
+.app-table .form-control,
+.app-table .form-select {
+    min-height: calc(1.5em + .5rem + 2px);
+}
+.app-table .dropdown-menu {
+    font-size: .875rem;
+    box-shadow: var(--bs-box-shadow);
+}
+
+/* table */
+.app-table .table {
+    font-size: .875rem;
+}
+.app-table .app-table-head th {
+    background-color: var(--bs-light);
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom-width: 1px;
+}
+.app-table .app-table-clickable {
+    cursor: pointer;
+}
+
+/* pagination */
+.app-table .pagination {
+    margin-bottom: 0;
+    --bs-pagination-padding-x: .6rem;
+    --bs-pagination-padding-y: .2rem;
+    --bs-pagination-font-size: .875rem;
+}
+.app-table .pagination-results,
+.app-table .pagination + * {
+    font-size: .875rem;
+}
+
+/* our toolbar (resources/views/livewire/tables/toolbar.blade.php) */
+.app-table .app-table-search {
+    width: 280px;
+}
+.app-table .app-table-bar .mb-3 {
+    margin-bottom: 0 !important;    /* package parts bring their own spacing, the toolbar uses gap */
+}
+.app-table .app-table-bar .ms-md-2,
+.app-table .app-table-bar .ms-0 {
+    margin-left: 0 !important;
+}
+/* package buttons (filters, columns, bulk actions) like our light buttons */
+.app-table .app-table-bar .btn.dropdown-toggle {
+    background-color: var(--bs-light);
+    border: 1px solid var(--bs-border-color);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+.app-table .app-table-bar .btn.dropdown-toggle:hover {
+    background-color: var(--bs-gray-200);
+}
+.app-table .app-table-bar .badge.badge-info {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+.app-table .app-table-bar .input-group-text {
+    color: var(--bs-secondary-color);
+}

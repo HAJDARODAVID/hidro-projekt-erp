@@ -23,7 +23,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <link href="{{ url('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url('assets/css/dashboard.css') }}" rel="stylesheet">
-    <link href="{{ url('assets/css/application.css') }}" rel="stylesheet">
+    <link href="{{ url('assets/css/application.css') }}?v={{ @filemtime(public_path('assets/css/application.css')) }}" rel="stylesheet">
     <style>
         :root {
             --mobile-topbar-h: 56px;
