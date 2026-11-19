@@ -34,6 +34,9 @@ abstract class AppDataTable extends DataTableComponent
     /**Name of the param the row ID is passed to the modal with */
     protected string $rowModalParam = 'id';
 
+    /**The row last opened in the modal (highlighted) */
+    public $openedRowId = NULL;
+
     /**
      * Runs before configure() of the table.
      */
@@ -47,7 +50,7 @@ abstract class AppDataTable extends DataTableComponent
 
         if ($this->rowModal) {
             $this->setTrAttributes(fn($row) => [
-                'class'      => 'app-table-clickable',
+                'class'      => 'app-table-clickable' . ((string) $this->openedRowId === (string) $row->{$this->getPrimaryKey()} ? ' app-table-opened' : ''),
                 'wire:click' => 'openRowModal(' . json_encode((string) $row->{$this->getPrimaryKey()}) . ')',
             ]);
         }
@@ -248,7 +251,7 @@ abstract class AppDataTable extends DataTableComponent
      * Our buttons in the toolbar, by default right after the search input. Call it in configure().
      *
      * Each button: text, icon (bootstrap icon), type (pri | lig | dan | suc | war | ..., like <x-ui.btn>), title,
-     * can (ACL permission, the button is hidden without it), confirm (question before running) and one of:
+     * can (ACL permission, the button is hidden without it), visible (bool, hidden when FALSE), confirm (question before running) and one of:
      *   'action' => 'methodOfTheTable' (+ 'param')     a method of this table
      *   'modal'  => 'global-modal-name' (+ 'params')   a global modal (config/global-modal.php)
      *   'route'  => 'route.name' (+ 'params')          a link
@@ -261,6 +264,7 @@ abstract class AppDataTable extends DataTableComponent
         $visible = [];
         foreach ($buttons as $button) {
             if (!empty($button['can']) && !$acl->can($button['can'])) continue;
+            if (array_key_exists('visible', $button) && !$button['visible']) continue;
             if (!empty($button['modal'])) $this->toolbarModals[] = $button['modal'];
             $visible[] = $button + ['text' => NULL, 'icon' => NULL, 'type' => 'lig', 'title' => NULL, 'confirm' => NULL];
         }
@@ -296,6 +300,7 @@ abstract class AppDataTable extends DataTableComponent
     public function openRowModal($id): void
     {
         if (!$this->rowModal) return;
+        $this->openedRowId = $id;
         $this->dispatch('open-global-modal', component: $this->rowModal, params: [$this->rowModalParam => $id]);
     }
 

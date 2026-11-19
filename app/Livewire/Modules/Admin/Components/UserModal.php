@@ -201,7 +201,7 @@ class UserModal extends LivewireController
     private function changed(string $message): void
     {
         $this->notifyMe($message);
-        $this->dispatch(Users::REFRESH_EVENT)->to(Users::class);
+        $this->dispatch(Users::REFRESH_EVENT)->to(UsersTable::class);
     }
 
     private function user(): User
