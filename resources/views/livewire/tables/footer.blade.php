@@ -11,6 +11,8 @@
 
 @if ($this->showAppFooter())
     @php($isPaginator = $currentRows instanceof \Illuminate\Contracts\Pagination\Paginator || $currentRows instanceof \Illuminate\Contracts\Pagination\CursorPaginator)
+    {{-- app-table-footer-block: measured by the fit to screen option (AppDataTable::setFitToScreenEnabled()) --}}
+    <div class="app-table-footer-block">
     <hr class="app-table-footer-line mt-2 mb-0">
     <div class="app-table-footer d-flex align-items-center flex-wrap gap-2 pt-2 pb-2">
         {{-- Left: rows per page, results --}}
@@ -55,5 +57,6 @@
                 @endif
             </div>
         @endif
+    </div>
     </div>
 @endif

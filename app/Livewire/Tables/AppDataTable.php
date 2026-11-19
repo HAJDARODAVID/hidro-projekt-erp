@@ -53,11 +53,61 @@ abstract class AppDataTable extends DataTableComponent
         }
     }
 
+    /* ------------------------------------------------------ Fit to screen */
+
+    /**The table is at most as high as the screen, the rows scroll (footer stays visible). Off by default. */
+    protected bool $fitToScreen = FALSE;
+
+    /**Space (px) kept free under the footer when fitting to the screen */
+    protected int $fitToScreenBottomSpace = 12;
+
+    /**Smallest height (px) of the rows area when fitting to the screen */
+    protected int $fitToScreenMinHeight = 200;
+
+    /**
+     * Fit the table to the screen: with few rows it is as high as its rows, with many rows it ends at the
+     * bottom of the screen (footer included) and the rows scroll, the column titles stay on top.
+     * Call it in configure(), or set protected bool $fitToScreen = TRUE.
+     */
+    protected function setFitToScreenEnabled(int $bottomSpace = 12): static
+    {
+        $this->fitToScreen = TRUE;
+        $this->fitToScreenBottomSpace = $bottomSpace;
+        return $this;
+    }
+
+    /**
+     * Alpine on the wrapper of the <table>: measures the free space (screen bottom - top of the rows area - footer)
+     * on load, on resize of the window and when the rows change, and sets it as max height. Alpine keeps the
+     * bound style when Livewire re-renders.
+     */
+    private function fitToScreenAttributes(): array
+    {
+        $space = (int) $this->fitToScreenBottomSpace;
+        $min = (int) $this->fitToScreenMinHeight;
+
+        return [
+            'default'      => TRUE,
+            'class'        => 'app-table-fit',
+            'x-data'       => "{ maxHeight: null, fit() {"
+                . " const root = this.\$el.closest('.app-table'); if (!root) return;"
+                . " const footer = root.querySelector('.app-table-footer-block');"
+                . " const footerHeight = footer ? footer.getBoundingClientRect().height : 0;"
+                . " this.maxHeight = Math.max({$min}, Math.floor(window.innerHeight - this.\$el.getBoundingClientRect().top - footerHeight - {$space}));"
+                . " } }",
+            'x-init'       => "\$nextTick(() => fit()); new ResizeObserver(() => fit()).observe(\$el.firstElementChild ?? \$el)",
+            'x-on:resize.window.debounce.100ms' => 'fit()',
+            'x-bind:style' => "maxHeight ? { maxHeight: maxHeight + 'px' } : {}",
+        ];
+    }
+
     /**
      * Runs after configure() of the table.
      */
     public function configured(): void
     {
+        if ($this->fitToScreen) $this->setTableWrapperAttributes($this->fitToScreenAttributes());
+
         $hasSearchMode = $this->hasSearchDebounce() || $this->hasSearchBlur() || $this->hasSearchDefer()
             || $this->hasSearchLazy() || $this->hasSearchLive() || $this->hasSearchThrottle();
         if (!$hasSearchMode && $this->searchDebounceMs > 0) $this->setSearchDebounce($this->searchDebounceMs);

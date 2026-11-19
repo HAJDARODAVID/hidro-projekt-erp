@@ -16,7 +16,8 @@ class WorkersTable extends AppDataTable
 
     public function configure(): void
     {
-        $this->setPrimaryKey('id');
+        $this->setPrimaryKey('id')
+            ->setFitToScreenEnabled(); // at most as high as the screen, the rows scroll
         // $this->setPerPageAccepted([15, 25, 50, 100]);
         // $this->setPerPage(15);
 
