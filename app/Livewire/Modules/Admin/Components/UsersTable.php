@@ -38,7 +38,6 @@ class UsersTable extends AppDataTable
     public function configure(): void
     {
         $this->setPrimaryKey('id')
-            ->setDefaultSort('name', 'asc')
             ->setFitToScreenEnabled()
             ->setAdditionalSelects([
                 'users.id as id', // the primary key is not a column of the table: select it (row click, highlight, "You")
@@ -117,7 +116,6 @@ class UsersTable extends AppDataTable
         return [
             SelectFilter::make(translator('Status'), 'status')
                 ->options(['' => translator('All'), 'active' => translator('Active'), 'inactive' => translator('Inactive')])
-                ->setFilterDefaultValue('active')
                 ->filter(fn (Builder $q, $value) => match ($value) {
                     'active'   => $q->where('users.active', TRUE),
                     'inactive' => $q->where('users.active', FALSE),

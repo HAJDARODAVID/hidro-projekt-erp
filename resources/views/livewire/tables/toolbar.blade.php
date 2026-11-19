@@ -107,7 +107,9 @@
                         @endif
                     </button>
                     <div x-cloak x-show="open" x-transition.opacity class="dropdown-menu show end-0 mt-1 p-2 shadow no-border-radius" style="min-width: 220px; max-height: 60vh; overflow-y: auto">
-                        @php($allSelected = $this->getSelectableSelectedColumns()->count() === $this->getSelectableColumns()->count())
+                        @php
+                            $allSelected = $this->getSelectableSelectedColumns()->count() === $this->getSelectableColumns()->count();
+                        @endphp
                         <label class="form-check d-flex align-items-center gap-2 mb-1" wire:key="{{ $tableName }}-columnSelect-all-{{ (int) $allSelected }}">
                             <input class="form-check-input mt-0" type="checkbox" wire:loading.attr="disabled" @checked($allSelected)
                                 wire:click="{{ $allSelected ? 'deselectAllColumns' : 'selectAllColumns' }}">
@@ -133,5 +135,27 @@
             @endif
         </div>
     </div>
+@endif
+
+{{-- Applied sorting | applied filters: one row (the package pill components, split by a vertical line) --}}
+@php
+    $sortPills = $this->showAppSortPills();
+    $filterPills = $this->showAppFilterPills();
+@endphp
+@if ($sortPills || $filterPills)
+    <div class="app-table-pills d-flex align-items-center flex-wrap gap-2 mt-2" x-cloak x-show="!currentlyReorderingStatus">
+        @if ($sortPills)
+            <div class="app-table-pills-sorting"><x-livewire-tables::tools.sorting-pills /></div>
+        @endif
+        @if ($sortPills && $filterPills)
+            <x-v-divider px=0 class="align-self-stretch app-table-divider" />
+        @endif
+        @if ($filterPills)
+            <div class="app-table-pills-filters"><x-livewire-tables::tools.filter-pills /></div>
+        @endif
+    </div>
+@endif
+
+@if ($this->showAppToolbar || $sortPills || $filterPills)
     <hr class="app-table-bar-line mt-2 mb-2">
 @endif

@@ -201,14 +201,39 @@ abstract class AppDataTable extends DataTableComponent
     }
 
     /**
-     * The tools block (sorting / filter pills, filter slide-down) keeps working without the package toolbar.
+     * The tools block of the package only holds the filter slide-down now (the pills are in our toolbar view).
      */
     #[Computed]
     public function shouldShowTools(): bool
     {
         if (!$this->getToolsStatus()) return FALSE;
-        $slideDown = $this->filtersAreEnabled() && $this->filtersVisibilityIsEnabled() && $this->hasVisibleFilters() && $this->isFilterLayoutSlideDown();
-        return $this->showSortPillsSection() || $this->showFilterPillsSection() || $slideDown;
+        return $this->filtersAreEnabled() && $this->filtersVisibilityIsEnabled() && $this->hasVisibleFilters() && $this->isFilterLayoutSlideDown();
+    }
+
+    /**
+     * The applied sorting / filters pills: not where the package puts them (two rows), but in one row
+     * in our toolbar view, split by a vertical line. setSortingPillsDisabled() / setFilterPillsDisabled() still work.
+     */
+    #[Computed]
+    public function showSortPillsSection(): bool
+    {
+        return FALSE;
+    }
+
+    #[Computed]
+    public function showFilterPillsSection(): bool
+    {
+        return FALSE;
+    }
+
+    public function showAppSortPills(): bool
+    {
+        return $this->getToolsStatus() && parent::showSortPillsSection();
+    }
+
+    public function showAppFilterPills(): bool
+    {
+        return $this->getToolsStatus() && parent::showFilterPillsSection();
     }
 
     /* ------------------------------------------------- Areas we render in */
@@ -224,7 +249,7 @@ abstract class AppDataTable extends DataTableComponent
 
     public function hasConfigurableAreaFor(string $area): bool
     {
-        if ($area === 'before-tools') return $this->showAppToolbar() || parent::hasConfigurableAreaFor($area);
+        if ($area === 'before-tools') return $this->showAppToolbar() || $this->showAppSortPills() || $this->showAppFilterPills() || parent::hasConfigurableAreaFor($area);
         if ($area === 'before-pagination') return $this->showAppFooter() || parent::hasConfigurableAreaFor($area);
         return parent::hasConfigurableAreaFor($area);
     }

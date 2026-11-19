@@ -469,3 +469,13 @@ body.livewire-loading {
 .app-table .app-table-opened > td {
     background-color: var(--bs-primary-bg-subtle);
 }
+
+/* applied sorting | applied filters in one row (AppDataTable toolbar view) */
+.app-table .app-table-pills > div > div,
+.app-table .app-table-pills > div > div > div {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+}
+.app-table .app-table-pills .badge {
+    font-weight: 500;
+}
