@@ -38,6 +38,7 @@ class GlobalModal extends LivewireController
             // component-path in config/global-modal.php fails here with a
             // friendly notification instead of crashing render()'s @livewire() call.
             app(ComponentRegistry::class)->getClass($modal->getComponentPath());
+            if ($modal->getHeaderComponent()) app(ComponentRegistry::class)->getClass($modal->getHeaderComponent());
         } catch (\Throwable $th) {
             $this->notifyMe($th->getMessage(), 'danger');
             return;

@@ -4,32 +4,6 @@
     </style>
 
     <div class="um-root" wire:loading.class="opacity-50" wire:target="save, setActive, resetPassword, resetForm">
-        {{-- Who --}}
-        <div class="d-flex align-items-center gap-2 mb-3">
-            @if ($user)
-                <i class="bi bi-person-circle fs-4"></i>
-                <div>
-                    <div class="fw-semibold">
-                        {{ $user->name }} {{ $user->last_name }}
-                        @if ($user->active)
-                            <span class="badge text-bg-success no-border-radius">{{ translator('Active') }}</span>
-                        @else
-                            <span class="badge text-bg-secondary no-border-radius">{{ translator('Inactive') }}</span>
-                        @endif
-                        @if ($isSelf) <span class="badge text-bg-light border no-border-radius">{{ translator('You') }}</span> @endif
-                    </div>
-                    <div class="small text-muted">
-                        #{{ $user->id }}
-                        · {{ translator('Created') }}: {{ $user->created_at?->format('d.m.Y') ?? '–' }}
-                        · {{ translator('Last login') }}: {{ $user->last_login_at?->format('d.m.Y H:i') ?? translator('never') }}
-                    </div>
-                </div>
-            @else
-                <i class="bi bi-person-plus fs-4"></i>
-                <div class="fw-semibold">{{ translator('New user') }}</div>
-            @endif
-        </div>
-
         {{-- The password that was just set, shown once --}}
         @if ($shownPassword)
             <div class="alert alert-warning no-border-radius py-2">

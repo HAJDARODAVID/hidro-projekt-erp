@@ -202,6 +202,8 @@ class UserModal extends LivewireController
     {
         $this->notifyMe($message);
         $this->dispatch(Users::REFRESH_EVENT)->to(UsersTable::class);
+        // the header of the modal (also switches to the new user after creating)
+        $this->dispatch(UserModalHeader::REFRESH_EVENT, userId: $this->userId)->to(UserModalHeader::class);
     }
 
     private function user(): User

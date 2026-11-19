@@ -105,6 +105,7 @@ return [
     'admin-user' => [
         // Administration - Users: a new or an existing user (params: ['userId' => ID], none = new user)
         'component-path' => 'modules.admin.components.user-modal',
+        'header-component' => 'modules.admin.components.user-modal-header',
         'header-name' => 'User',
         'header-style' => null,
         'max-width' => '900px',

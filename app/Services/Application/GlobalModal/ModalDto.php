@@ -14,6 +14,9 @@ class ModalDto extends BaseDTO
     protected bool $stable;
     protected string|null $beforeClose;
 
+    /**Livewire component rendered in the header instead of the header name (gets the same params as the modal) */
+    protected string|null $headerComponent = null;
+
     public function __construct(
         string|null $name = null,
         string|null $componentPath = null,
@@ -105,6 +108,18 @@ class ModalDto extends BaseDTO
     public function setStable(bool $stable): self
     {
         $this->stable = $stable;
+
+        return $this;
+    }
+
+    public function getHeaderComponent(): string|null
+    {
+        return $this->headerComponent;
+    }
+
+    public function setHeaderComponent(string|null $headerComponent): self
+    {
+        $this->headerComponent = $headerComponent;
 
         return $this;
     }

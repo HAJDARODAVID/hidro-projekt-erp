@@ -29,6 +29,10 @@ class GlobalModalService
             $modal->setHeaderName($config['header-name']);
         }
 
+        if (!empty($config['header-component'])) {
+            $modal->setHeaderComponent($config['header-component']);
+        }
+
         if (!empty($config['header-style'])) {
             $modal->setHeaderStyle($config['header-style']);
         }

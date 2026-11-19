@@ -47,7 +47,18 @@
             style="max-width: {{ $modalService->getMaxWidth() }};"
         >
             <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
-                <strong style="{{ $modalService->getHeaderStyle() }}">{{ $modalService->getHeaderName() }}</strong>
+                @if ($modalService->getHeaderComponent())
+                    {{-- header-component (config/global-modal.php): our own header, gets the same params as the modal --}}
+                    <div class="flex-fill" style="min-width: 0" wire:key="global-modal-header-{{ $renderVersion }}">
+                        @livewire(
+                            $modalService->getHeaderComponent(),
+                            ['params' => $componentParams],
+                            key('global-modal-header-' . $modalService->getHeaderComponent() . '-' . md5(json_encode($componentParams)) . '-' . $renderVersion)
+                        )
+                    </div>
+                @else
+                    <strong style="{{ $modalService->getHeaderStyle() }}">{{ $modalService->getHeaderName() }}</strong>
+                @endif
                 <button type="button" class="btn-close" aria-label="Close" @click="close()"></button>
             </div>
 
