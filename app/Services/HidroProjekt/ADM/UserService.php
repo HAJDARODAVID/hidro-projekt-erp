@@ -16,6 +16,6 @@ class UserService
 
     public function createNewUser($data){
         User::create($data);
-        return redirect()->route('hp_users');
+        return redirect()->route('getUsersModule');
     }
 }

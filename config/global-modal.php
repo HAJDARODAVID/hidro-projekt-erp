@@ -102,4 +102,11 @@ return [
         'header-style' => null,
         'max-width' => '1300px',
     ],
+    'admin-user' => [
+        // Administration - Users: a new or an existing user (params: ['userId' => ID], none = new user)
+        'component-path' => 'modules.admin.components.user-modal',
+        'header-name' => 'User',
+        'header-style' => null,
+        'max-width' => '900px',
+    ],
 ];

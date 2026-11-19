@@ -4,6 +4,25 @@
     "data": {
         "modules": [
             {
+                "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                "name": "Administration",
+                "module": "admin",
+                "controller": "AdminController",
+                "active": true,
+                "routes": [
+                    {
+                        "id": "24a61dae-4691-4479-921f-2b02eefbcbb3",
+                        "title": "Users",
+                        "route_name": "getUsersModule",
+                        "method": "users",
+                        "active": true,
+                        "resource": null,
+                        "position": 1,
+                        "divider": null
+                    }
+                ]
+            },
+            {
                 "id": "0895e798-d60d-4c60-be8d-efa2f5220437",
                 "name": "Application settings",
                 "module": "app-settings",

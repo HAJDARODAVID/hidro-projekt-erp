@@ -117,10 +117,6 @@ Route::prefix('/')
          */
         Route::prefix('/adm')
             ->group(function () {
-                Route::controller(AdminController::class)
-                    ->group(function () {
-                        Route::get('/users', 'users')->name('hp_users');
-                    });
                 Route::controller(TicketController::class)
                     ->group(function () {
                         Route::get('/tickets', 'tickets')->name('hp_tickets');
@@ -332,6 +328,22 @@ Route::prefix('/')
                         Route::get('/translator', 'getTranslatorModules')->name('getTranslatorModules');
                         Route::get('/acl', 'getAclModule')->name('getAclModule');
                         Route::get('/menu-builder', 'getMenuBuilderModule')->name('getMenuBuilderModule');
+                    });
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Administration
+        |--------------------------------------------------------------------------
+        |
+        | Administration of the company data: users, ...
+        |
+        */
+        Route::prefix('/admin')
+            ->group(function () {
+                Route::controller(AdminController::class)
+                    ->group(function () {
+                        Route::get('/users', 'users')->name('getUsersModule');
                     });
             });
 

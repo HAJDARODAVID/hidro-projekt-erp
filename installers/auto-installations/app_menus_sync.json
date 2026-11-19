@@ -22,7 +22,7 @@
                                 "type": "link",
                                 "title": "Korisnici",
                                 "icon": null,
-                                "route_name": "hp_users",
+                                "route_name": "getUsersModule",
                                 "url": null,
                                 "new_tab": false,
                                 "permission": null,
@@ -36,7 +36,7 @@
                                 "url": null,
                                 "new_tab": false,
                                 "permission": null,
-                                "active": true
+                                "active": false
                             },
                             {
                                 "type": "link",

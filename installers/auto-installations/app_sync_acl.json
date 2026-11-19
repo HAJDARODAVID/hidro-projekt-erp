@@ -4,6 +4,76 @@
     "data": {
         "permissions": [
             {
+                "id": "bdafadb5-3951-4521-9f6d-46e5639b9940",
+                "key": "admin.users.create",
+                "name": "Create users",
+                "description": "Create new app users",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": null
+            },
+            {
+                "id": "468071fa-2c07-4a1f-85d0-a3288fd77a87",
+                "key": "admin.users.edit",
+                "name": "Edit users",
+                "description": "Change the details, type, language and linked worker of a user",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": null
+            },
+            {
+                "id": "bd5dab05-f71b-4cc8-8e59-5f2f9a637b8f",
+                "key": "admin.users.password",
+                "name": "Set user passwords",
+                "description": "Set a new password for a user",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": null
+            },
+            {
+                "id": "23a5387e-1108-47f3-ace6-0155dbc220c6",
+                "key": "admin.users.roles",
+                "name": "Give users roles",
+                "description": "Give or take the ACL roles of a user",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": null
+            },
+            {
+                "id": "0b2117db-3cf7-449b-bf6b-e1a37e1ab24e",
+                "key": "admin.users.status",
+                "name": "Activate / deactivate users",
+                "description": "Activate or deactivate a user (a deactivated user can not sign in)",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": null
+            },
+            {
+                "id": "972ebc10-ba96-465a-8ff9-18dc2ed4c4d9",
+                "key": "admin.users.view",
+                "name": "View users",
+                "description": "Open Administration - Users",
+                "module": {
+                    "id": "a9ab9a3d-aa64-43f4-8bad-b50947b45697",
+                    "module": "admin"
+                },
+                "route": {
+                    "id": "24a61dae-4691-4479-921f-2b02eefbcbb3",
+                    "route_name": "getUsersModule",
+                    "module": "admin"
+                }
+            },
+            {
                 "id": "f117255e-b2c8-47c7-995f-3f21ca8aaec5",
                 "key": "employees.worker-info.certificates",
                 "name": "Certificates view and edit",

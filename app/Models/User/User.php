@@ -47,9 +47,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'last_name',
         'email',
         'password',
         'type',
+        'user_type',
+        'lang',
         'worker_id',
         'coop_id',
         'active',
@@ -74,6 +77,7 @@ class User extends Authenticatable
     protected $casts = [
         'inv_update' => 'bool',
         'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
         'password' => 'hashed',
     ];
 

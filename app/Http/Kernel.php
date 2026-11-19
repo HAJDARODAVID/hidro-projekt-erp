@@ -41,6 +41,8 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\DetectDevice::class,
+            // a user deactivated in Admin - Users is signed out on the next request, not only on the next login
+            \App\Http\Middleware\CheckIfUserIsActive::class,
         ],
 
         'api' => [
