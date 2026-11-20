@@ -7,18 +7,27 @@ use App\Exceptions\MissingPropertyException;
 use Exception;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Locked;
 
 class AlertModal extends Component
 {
+    // All state is set server-side only (openAlertModal / closeAlert). Locked so a client can't
+    // overwrite it via /livewire/update (e.g. title as array -> htmlspecialchars TypeError,
+    // or arbitrary HTML into the raw-echoed message).
+    #[Locked]
     public $size        = NULL;
+    #[Locked]
     public $type        = NULL;
 
     const  SIZE_OPTIONS = ['sm', 'lg'];
     const  TYPE_OPTIONS = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 
+    #[Locked]
     public $title   = 'Here goes custom title';
+    #[Locked]
     public $message = 'Here goes custom message';
 
+    #[Locked]
     public $show = FALSE;
 
     #[On('show-alert-modal')]

@@ -14,6 +14,13 @@ class Handler extends ExceptionHandler
      *
      * @var array<int, string>
      */
+    /**
+     * Client tampering with #[Locked] Livewire props - Livewire already answers 419, no need to log.
+     */
+    protected $dontReport = [
+        \Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException::class,
+    ];
+
     protected $dontFlash = [
         'current_password',
         'password',
