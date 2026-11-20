@@ -55,7 +55,7 @@ class WorkHoursService
                     //absence
                     foreach ($attendanceInfo as $absence) {
                         if(!is_null($absence->absence_reason)){
-                            $workerAttendanceInfo = AttendanceModel::ABSENCE_REASON_SHT_TXT[$absence->absence_reason];
+                            $workerAttendanceInfo = AttendanceModel::ABSENCE_REASON_SHT_TXT[$absence->absence_reason] ?? '?';
                             if($absence->absence_reason == AttendanceModel::ABSENCE_REASON_PAID_LEAVE){
                                 $monthlyHours += 8;
                             }
