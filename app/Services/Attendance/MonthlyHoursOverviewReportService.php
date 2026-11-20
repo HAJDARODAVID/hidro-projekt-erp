@@ -43,8 +43,18 @@ class MonthlyHoursOverviewReportService extends BaseService
     {
         if (!empty($this->workerID)) $this->attendance = $this->attendance->whereIn('worker_id', $this->workerID);
         $output = [];
+        /**
+         * Day counters (work-home, work-field, SL, ...) count days, not attendance rows.
+         * A worker can have several work diaries (= rows) on the same date, so remember
+         * which [worker][counter][date] was already counted. Hours are still summed per row.
+         */
+        $countedDays = [];
+        $countDay = function ($workerID, $counter, $date) use (&$output, &$countedDays) {
+            if (isset($countedDays[$workerID][$counter][$date])) return;
+            $countedDays[$workerID][$counter][$date] = TRUE;
+            $output[$workerID][$counter]++;
+        };
         try {
-            //code...
             foreach ($this->attendance as $attItem) {
                 /**Check if the worker is set in the output array */
                 /**If the worker is not set, add the template, and fill basic info */
@@ -57,12 +67,12 @@ class MonthlyHoursOverviewReportService extends BaseService
                 /**Work-hours */
                 if ($attItem->work_hours != NULL) {
                     $output[$attItem->worker_id]['work-hours'] += $attItem->work_hours;
-                    if ($attItem->type != NULL) $output[$attItem->worker_id][Types::setByType($attItem->type)->getReportDesc()]++;
+                    if ($attItem->type != NULL) $countDay($attItem->worker_id, Types::setByType($attItem->type)->getReportDesc(), $attItem->date);
                 }
 
                 /**Absence */
                 if ($attItem->absence_reason != NULL) {
-                    $output[$attItem->worker_id][AttendanceAbsenceType::setByType($attItem->absence_reason)->shortDesc()]++;
+                    $countDay($attItem->worker_id, AttendanceAbsenceType::setByType($attItem->absence_reason)->shortDesc(), $attItem->date);
                 }
             }
 
